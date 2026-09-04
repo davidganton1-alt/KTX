@@ -1,0 +1,75 @@
+# KX Docker Compose — Full Setup (Main 3000 + Preview 3001)
+# ============================================
+
+services:
+  # ---------------------------------------------------------------
+  # Main container — Port 3000 (Production, your working copy)
+  # ---------------------------------------------------------------
+  kingdomtradex:
+    build:
+      context: C:/Users/hp/KingdomTradeX
+      dockerfile: Dockerfile
+    container_name: kingdomtradex-main
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - C:/Users/hp/KingdomTradeX/data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ---------------------------------------------------------------
+  # Preview container — Port 3001 (GitHub clone, auto-pull on start)
+  # Self-contained: Linux node_modules baked into image.
+  # Source code stored in persistent named volume (git pull on start).
+  # Source synced into image directory via rsync (preserves node_modules).
+  # ---------------------------------------------------------------
+  kingdomtradex-preview:
+    build:
+      context: C:/Users/hp/KingdomTradeX-GitHub-Site
+      dockerfile: Dockerfile-preview-selfcontained
+    container_name: kingdomtradex-preview
+    restart: always
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - GH_TOKEN=ghp_AxmeeM4GgP6Z6Y10kBfnIHpBgn3s0MPv
+    volumes:
+      # Persistent git repo + source code (Docker-managed named volume)
+      - preview-src:/repo
+      # Data folder only (separate from main data)
+      - C:/Users/hp/KingdomTradeX-GitHub-Site/data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  preview-src:
+    name: kingdomtradex-preview-src
+
+# ============================================
+# Commands:
+#   docker compose -f dockercompose-all.yml up -d        # Start both
+#   docker compose -f dockercompose-all.yml down         # Stop both
+#   docker compose -f dockercompose-all.yml build        # Rebuild both images
+#   docker compose -f dockercompose-all.yml logs -f      # Follow all logs
+#   docker compose -f dockercompose-all.yml logs -f main  # Main logs
+#   docker compose -f dockercompose-all.yml logs -f preview # Preview logs
+#
+# Autostart: Windows Scheduled Task "KTX-Docker" runs:
+#   docker compose -f "C:\Users\hp\KingdomTradeX\dockercompose-all.yml" up -d
+#   at Windows logon
+#
+# Update preview: docker compose -f dockercompose-all.yml restart kingdomtradex-preview
+#   (restarts → git pull → serves latest GitHub version on 3001)
+# ============================================
