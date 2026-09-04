@@ -6,8 +6,6 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { PriceTicker } from "@/components/PriceTicker";
 import Link from "next/link";
 import { SiteBackground } from "@/components/SiteBackground";
-import { ScrollProgress } from "@/components/ScrollProgress";
-import { ParallaxOrbs } from "@/components/ParallaxOrbs";
 
 export const metadata: Metadata = {
   title: "KingdomTradeX — Faith-aligned AI Trade Engine",
@@ -35,8 +33,6 @@ export default function RootLayout({
       <body>
         <ThemeProvider>
           <SiteBackground />
-          <ScrollProgress />
-          <ParallaxOrbs />
           <PriceTicker />
           <Navbar />
           {children}

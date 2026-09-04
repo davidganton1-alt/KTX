@@ -1,0 +1,25 @@
+# KTX Preview — Self-contained Docker container
+# Linux image with its own node_modules (NEVER overwritten by host mounts).
+# Source repo lives in persistent named volume: /repo
+# On start: git pull into /repo, then rsync source → /app (node_modules preserved)
+# Dev server runs from /app on port 3001.
+#
+
+FROM node:20-bullseye
+
+RUN apt-get update && apt-get install -y --no-install-recommends git curl ca-certificates rsync && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY package.json package-lock.json* ./
+RUN npm ci --legacy-peer || npm install
+
+COPY git-askpass.sh /app/git-askpass.sh
+RUN chmod +x /app/git-askpass.sh
+
+COPY start-preview.sh /app/start-preview.sh
+RUN chmod +x /app/start-preview.sh
+
+EXPOSE 3001
+
+CMD ["/app/start-preview.sh"]
