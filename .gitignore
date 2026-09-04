@@ -1,0 +1,33 @@
+/node_modules
+/.next
+/out
+/build
+.DS_Store
+npm-debug.log*
+*.tsbuildinfo
+next-env.d.ts
+/data
+.env*.local
+.env
+# Yahoo Finance price cache files
+_1y.json
+_3m.json
+_a.json
+_a1.json
+_a2.json
+_aapl.json
+_aapl1m.json
+_all.json
+_b.json
+_btc.json
+_st.json
+_t.json
+_ut.txt
+_wti.json
+_xau.json
+admindata.json
+# Audit screenshots
+.audit/
+# Local dev artifacts
+logo-final-flip-orbit.html
+kill-port3000.ps1
