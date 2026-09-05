@@ -75,11 +75,13 @@ function Monogram({ sym, cls, size = "md" }: { sym: string; cls: string; size?: 
 }
 
 function LiveClock() {
-  const [now, setNow] = useState(new Date());
+  const [now, setNow] = useState<Date | null>(null);
   useEffect(() => {
+    setNow(new Date());
     const t = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(t);
   }, []);
+  if (!now) return <span className="tabular-nums text-[var(--gold)]">--:--:-- UTC</span>;
   return <span className="tabular-nums text-[var(--gold)]">{now.toUTCString().slice(17, 25)} UTC</span>;
 }
 
