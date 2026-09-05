@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef } from "react";
-import { createChart, IChartApi, ISeriesApi, CandlestickData, Time } from "lightweight-charts";
+import { createChart, IChartApi, ISeriesApi, CandlestickData, Time, CrosshairMode } from "lightweight-charts";
 
 type Candle = { t: number; o: number; h: number; l: number; c: number };
 
@@ -13,21 +13,40 @@ export function LiveChart({ candles, price }: { candles: Candle[]; price: number
     if (!containerRef.current) return;
     const chart = createChart(containerRef.current, {
       width: containerRef.current.clientWidth,
-      height: 400,
-      layout: { background: { color: "transparent" }, textColor: "var(--muted)" },
-      grid: { vertLines: { color: "rgba(255,255,255,0.05)" }, horzLines: { color: "rgba(255,255,255,0.05)" } },
-      crosshair: { mode: 1 },
-      rightPriceScale: { borderColor: "var(--border)" },
-      timeScale: { borderColor: "var(--border)", timeVisible: true },
+      height: 500,
+      layout: {
+        background: { color: "transparent" },
+        textColor: "#9aa3c7",
+      },
+      grid: {
+        vertLines: { color: "rgba(255,255,255,0.05)" },
+        horzLines: { color: "rgba(255,255,255,0.05)" },
+      },
+      crosshair: {
+        mode: CrosshairMode.Normal,
+        vertLine: { color: "#F5C97B", width: 1, style: 2, labelBackgroundColor: "#F5C97B" },
+        horzLine: { color: "#F5C97B", width: 1, style: 2, labelBackgroundColor: "#F5C97B" },
+      },
+      rightPriceScale: {
+        borderColor: "rgba(255,255,255,0.08)",
+        scaleMargins: { top: 0.1, bottom: 0.1 },
+      },
+      timeScale: {
+        borderColor: "rgba(255,255,255,0.08)",
+        timeVisible: true,
+        secondsVisible: false,
+      },
     });
+
     const series = chart.addCandlestickSeries({
-      upColor: "var(--profit)",
-      downColor: "var(--loss)",
-      borderUpColor: "var(--profit)",
-      borderDownColor: "var(--loss)",
-      wickUpColor: "var(--profit)",
-      wickDownColor: "var(--loss)",
+      upColor: "#34D399",
+      downColor: "#F87171",
+      borderUpColor: "#34D399",
+      borderDownColor: "#F87171",
+      wickUpColor: "#34D399",
+      wickDownColor: "#F87171",
     });
+
     chartRef.current = chart;
     seriesRef.current = series;
 
@@ -47,11 +66,25 @@ export function LiveChart({ candles, price }: { candles: Candle[]; price: number
     if (seriesRef.current && candles.length > 0) {
       const data: CandlestickData<Time>[] = candles.map((c) => ({
         time: (c.t / 1000) as Time,
-        open: c.o, high: c.h, low: c.l, close: c.c,
+        open: c.o,
+        high: c.h,
+        low: c.l,
+        close: c.c,
       }));
       seriesRef.current.setData(data);
+      chartRef.current?.timeScale().fitContent();
     }
   }, [candles]);
 
-  return <div ref={containerRef} className="w-full" />;
+  return (
+    <div className="relative">
+      <div ref={containerRef} className="w-full" />
+      {price > 0 && (
+        <div className="absolute right-4 top-4 rounded-lg border border-[var(--gold)] bg-[var(--gold)]/10 px-3 py-1.5 backdrop-blur-sm">
+          <p className="text-xs text-[var(--gold)]">Current Price</p>
+          <p className="text-lg font-bold text-[var(--gold)]">${price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+        </div>
+      )}
+    </div>
+  );
 }
