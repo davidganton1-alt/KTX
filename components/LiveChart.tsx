@@ -11,6 +11,7 @@ export function LiveChart({ candles, price }: { candles: Candle[]; price: number
 
   useEffect(() => {
     if (!containerRef.current) return;
+    
     const chart = createChart(containerRef.current, {
       width: containerRef.current.clientWidth,
       height: 500,
@@ -23,9 +24,7 @@ export function LiveChart({ candles, price }: { candles: Candle[]; price: number
         horzLines: { color: "rgba(255,255,255,0.05)" },
       },
       crosshair: {
-        mode: CrosshairMode.Normal,
-        vertLine: { color: "#F5C97B", width: 1, style: 2, labelBackgroundColor: "#F5C97B" },
-        horzLine: { color: "#F5C97B", width: 1, style: 2, labelBackgroundColor: "#F5C97B" },
+        mode: CrosshairMode.Hidden, // Remove wobbly crosshair
       },
       rightPriceScale: {
         borderColor: "rgba(255,255,255,0.08)",
@@ -35,7 +34,10 @@ export function LiveChart({ candles, price }: { candles: Candle[]; price: number
         borderColor: "rgba(255,255,255,0.08)",
         timeVisible: true,
         secondsVisible: false,
+        rightOffset: 5,
+        barSpacing: 6,
       },
+      handleScroll: { vertTouchDrag: false },
     });
 
     const series = chart.addCandlestickSeries({
@@ -50,14 +52,15 @@ export function LiveChart({ candles, price }: { candles: Candle[]; price: number
     chartRef.current = chart;
     seriesRef.current = series;
 
-    const handleResize = () => {
+    const resizeObserver = new ResizeObserver(() => {
       if (containerRef.current && chartRef.current) {
         chartRef.current.applyOptions({ width: containerRef.current.clientWidth });
       }
-    };
-    window.addEventListener("resize", handleResize);
+    });
+    resizeObserver.observe(containerRef.current);
+
     return () => {
-      window.removeEventListener("resize", handleResize);
+      resizeObserver.disconnect();
       chart.remove();
     };
   }, []);
@@ -72,7 +75,10 @@ export function LiveChart({ candles, price }: { candles: Candle[]; price: number
         close: c.c,
       }));
       seriesRef.current.setData(data);
-      chartRef.current?.timeScale().fitContent();
+      if (chartRef.current) {
+        chartRef.current.timeScale().fitContent();
+        chartRef.current.timeScale().scrollToPosition(5, false);
+      }
     }
   }, [candles]);
 

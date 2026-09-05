@@ -85,6 +85,16 @@ export default function AiTradeEnginePage() {
 
   return (
     <main className="pb-16">
+      {/* Back Button */}
+      <section className="container-wide pt-6">
+        <a href="/ai-engine" className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--card)] px-4 py-2 text-sm text-[var(--muted)] transition hover:border-[var(--gold)] hover:text-[var(--gold)]">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+          Back to AI Engine
+        </a>
+      </section>
+
       {/* Command Bar */}
       <section className="border-b border-[var(--border)] bg-gradient-to-r from-[var(--bg-soft)]/40 via-[var(--bg)] to-[var(--bg-soft)]/40">
         <div className="container-wide flex flex-wrap items-center justify-between gap-3 py-4 font-mono text-xs">
