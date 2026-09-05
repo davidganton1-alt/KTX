@@ -71,11 +71,12 @@ const WORDS = ["Stewardship", "Integrity", "Clarity", "Discipline", "Transparenc
 export default function Home() {
   return (
     <main>
+      {/* ── CINEMATIC HERO ── */}
       <section className="relative overflow-hidden">
-        <div className="container-wide relative flex flex-col items-center pt-12 text-center md:pt-16">
+        <div className="container-wide relative flex flex-col items-center pt-16 text-center md:pt-20">
           <span className="pill"><span className="h-2 w-2 animate-pulse rounded-full bg-profit" /> Faith-aligned AI trading · Live 24/7</span>
-          <div className="mt-6"><Logo size={280} /></div>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+          <div className="mt-8"><Logo size={320} /></div>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
             <a href="/register" className="btn-primary">Get $50 free</a>
             <a href="#how" className="btn-ghost">How it works</a>
           </div>
@@ -84,60 +85,65 @@ export default function Home() {
         <HeroLines lines={[<>Fund it.</>, <>The <span className="gradient-text">AI</span> trades.</>, <>You withdraw the <span className="gradient-text">profit.</span></>]} />
       </section>
 
-      <div className="ticker-fade overflow-hidden border-y border-[var(--border)] bg-white/[0.02] py-4">
+      {/* ── VALUES MARQUEE RIBBON ── */}
+      <div className="ticker-fade overflow-hidden border-y border-[var(--border)] bg-white/[0.02] py-5">
         <div className="ticker">
           {[...WORDS, ...WORDS].map((w, i) => (
-            <span key={i} className="flex items-center gap-8 text-xs uppercase tracking-[0.3em] text-[var(--muted)]">
+            <span key={i} className="flex items-center gap-10 text-sm uppercase tracking-[0.25em] text-[var(--muted)]">
               {w} <span className="text-[var(--gold)]">✦</span>
             </span>
           ))}
         </div>
       </div>
 
-      <Reveal as="section" variant="left" className="container-wide py-8">
-        <div className="card-grad flex items-center gap-6 p-6">
-          <div className="w-28 shrink-0"><IllGift /></div>
-          <div>
+      {/* ── GIFT BANNER ── */}
+      <Reveal as="section" variant="left" className="container-wide pt-16">
+        <div className="card-grad flex flex-col items-center gap-6 p-8 text-center md:flex-row md:p-10 md:text-left">
+          <div className="order-2 w-40 shrink-0 md:order-1"><IllGift /></div>
+          <div className="order-1 md:order-2">
             <p className="eyebrow">New member gift</p>
-            <h2 className="mt-1 text-2xl font-bold">Start with a free <span className="gradient-text">$50 credit</span></h2>
-            <p className="mt-2 text-sm text-[var(--muted)]">Every sign-up receives $50 to begin. The AI trades it like any other balance. Fund a plan and your whole balance starts compounding.</p>
+            <h2 className="mt-2 text-3xl font-bold md:text-4xl">Start with a free <span className="gradient-text">$50 credit</span></h2>
+            <p className="mx-auto mt-3 max-w-2xl text-[var(--muted)] md:mx-0">
+              Every sign-up receives $50 to begin. The AI trades it like any other balance, yet you can only withdraw the profit on this credit once you add your own funds to a plan. Fund a plan and your whole balance starts compounding.
+            </p>
+            <a href="/register" className="btn-gold mt-6 inline-flex">Claim my $50</a>
           </div>
-          <a href="/register" className="btn-gold shrink-0">Claim my $50</a>
         </div>
       </Reveal>
 
-      <div id="how" className="h-[250vh]"><StickySteps steps={steps} /></div>
+      {/* ── STICKY SCROLLYTELLING ── */}
+      <div id="how"><StickySteps steps={steps} /></div>
 
-      <Reveal as="section" variant="up" className="container-wide py-8">
+      {/* ── STATS BAND ── */}
+      <Reveal as="section" variant="up" className="container-wide py-16">
         <StatsBand />
       </Reveal>
 
-      <section className="py-16">
-        <div className="container-page">
-          <Reveal variant="blur">
-            <Verse variant="today" className="text-center" />
-          </Reveal>
-        </div>
-      </section>
+      {/* ── VERSE INTERLUDE ── */}
+      <Reveal as="section" variant="blur" className="container-page py-24">
+        <Verse variant="today" className="text-center" />
+      </Reveal>
 
-      <section className="container-wide py-12">
+      {/* ── BENTO GRID ── */}
+      <section className="container-wide py-24">
         <div className="text-center">
-          <div className="mx-auto mb-3 flex w-fit justify-center"><SectionIcon name="bolt" size={48} /></div>
+          <div className="mx-auto mb-4 flex w-fit justify-center"><SectionIcon name="bolt" size={56} /></div>
           <p className="eyebrow">Built for the modern age</p>
-          <h2 className="section-title mt-2 text-4xl md:text-6xl">A trading desk with <span className="gradient-text">a soul</span></h2>
+          <h2 className="section-title mt-2 text-3xl md:text-5xl">A trading desk with <span className="gradient-text">a soul</span></h2>
         </div>
-        <div className="mt-10"><BentoGrid /></div>
+        <div className="mt-12"><BentoGrid /></div>
       </section>
 
-      <section className="container-wide py-12">
+      {/* ── ENGINE: LIVE TERMINAL + PIPELINE ── */}
+      <section className="container-wide py-24">
         <div className="text-center">
-          <div className="mx-auto mb-3 flex w-fit justify-center"><SectionIcon name="bolt" size={48} /></div>
+          <div className="mx-auto mb-4 flex w-fit justify-center"><SectionIcon name="bolt" size={56} /></div>
           <p className="eyebrow">The engine under the hood</p>
-          <h2 className="section-title mt-2 text-4xl md:text-6xl">Built like a <span className="gradient-text">trading desk</span></h2>
+          <h2 className="section-title mt-3 text-3xl md:text-5xl">Built like a <span className="gradient-text">trading desk</span> for the modern age</h2>
         </div>
-        <div className="mt-10 grid items-start gap-6 lg:grid-cols-2">
+        <div className="mt-12 grid items-start gap-6 lg:grid-cols-2">
           <Typewriter />
-          <ol className="grid gap-3 text-sm text-[var(--muted)]">
+          <ol className="grid gap-4 text-sm text-[var(--muted)]">
             {pipeline.map((p, i) => (
               <Reveal key={i} variant="right" index={i} as="li" className="rounded-xl border border-[var(--border)] bg-[var(--bg)]/40 p-4">
                 <span className="text-[var(--gold)]">{i + 1}.</span> {p}
@@ -145,15 +151,15 @@ export default function Home() {
             ))}
           </ol>
         </div>
-        <div className="mt-8 grid gap-4 md:grid-cols-3">
+        <div className="mt-6 grid gap-6 md:grid-cols-3">
           {techFeatures.map((t, i) => {
             const Ill = ILL_MAP[t.ill];
             return (
               <Reveal key={t.k} variant="up" index={i}>
-                <GlowCard className="h-full p-5">
-                  <div className="mb-2 h-14 w-14">{Ill && <Ill />}</div>
+                <GlowCard className="h-full p-6">
+                  <div className="mb-3 h-16 w-16">{Ill && <Ill />}</div>
                   <p className="font-semibold">{t.k}</p>
-                  <p className="mt-2 text-sm text-[var(--muted)]">{t.v}</p>
+                  <p className="mt-3 text-sm text-[var(--muted)]">{t.v}</p>
                 </GlowCard>
               </Reveal>
             );
@@ -161,137 +167,147 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="container-wide py-12">
+      {/* ── VALUES ── */}
+      <Reveal as="section" variant="right" id="values" className="container-wide py-24">
         <div className="text-center">
+          <div className="mx-auto mb-4 flex w-fit justify-center"><SectionIcon name="shield" size={56} /></div>
           <p className="eyebrow">What we stand on</p>
-          <h2 className="section-title mt-2 text-4xl md:text-6xl">Our <span className="gradient-text">promise</span></h2>
+          <h2 className="section-title mt-2 text-3xl md:text-5xl">Our <span className="gradient-text">promise</span></h2>
         </div>
-        <div className="mt-10 grid gap-4 md:grid-cols-3">
+        <div className="mt-12 grid gap-6 md:grid-cols-3">
           {values.map((v, i) => {
             const Ill = ILL_MAP[v.ill];
             return (
               <Reveal key={v.k} variant="up" index={i}>
-                <GlowCard className="h-full p-5 text-center">
-                  <div className="mx-auto mb-2 h-14 w-14">{Ill && <Ill />}</div>
+                <GlowCard className="h-full p-6">
+                  <div className="mb-3 h-16 w-16">{Ill && <Ill />}</div>
                   <p className="eyebrow">{v.k}</p>
-                  <p className="mt-2 text-sm text-[var(--muted)]">{v.v}</p>
+                  <p className="mt-3 text-[var(--muted)]">{v.v}</p>
                 </GlowCard>
               </Reveal>
             );
           })}
         </div>
-      </section>
+      </Reveal>
 
-      <section className="container-wide py-12">
-        <div className="flex flex-wrap items-end justify-between gap-3">
+      {/* ── MARKETS PREVIEW ── */}
+      <section className="container-wide py-24">
+        <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="eyebrow">Live markets</p>
-            <h2 className="section-title mt-2 text-3xl md:text-5xl">What the AI is <span className="gradient-text">watching</span></h2>
+            <h2 className="section-title mt-2 text-3xl md:text-4xl">What the AI is <span className="gradient-text">watching</span></h2>
           </div>
           <a href="/markets" className="btn-ghost">Open full markets</a>
         </div>
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {markets.map((m, i) => (
             <Reveal key={m.s} variant="up" index={i}>
-              <GlowCard className="p-4">
+              <GlowCard className="p-5">
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-semibold">{m.s}</p>
                   <span className={`text-xs font-bold ${m.up ? "text-profit" : "text-loss"}`}>{m.c}</span>
                 </div>
                 <p className="mt-1 text-2xl font-extrabold">{m.p}</p>
-                <div className="mt-2"><Sparkline points={m.pts} up={m.up} /></div>
+                <div className="mt-3"><Sparkline points={m.pts} up={m.up} /></div>
               </GlowCard>
             </Reveal>
           ))}
         </div>
       </section>
 
-      <section className="container-wide py-12">
+      {/* ── OLD WAY vs KINGDOM WAY ── */}
+      <section className="container-wide py-24">
         <div className="text-center">
           <p className="eyebrow">The difference</p>
-          <h2 className="section-title mt-2 text-4xl md:text-6xl">Speculation vs <span className="gradient-text">stewardship</span></h2>
+          <h2 className="section-title mt-2 text-3xl md:text-5xl">Speculation vs <span className="gradient-text">stewardship</span></h2>
         </div>
-        <div className="mt-10 grid gap-4 md:grid-cols-2">
+        <div className="mt-12 grid gap-6 md:grid-cols-2">
           <Reveal variant="left">
-            <div className="card h-full border-loss/30 p-6 opacity-80">
+            <div className="card h-full border-loss/30 p-8 opacity-80">
               <p className="text-sm font-semibold uppercase tracking-widest text-loss">The old way</p>
-              <ul className="mt-4 space-y-2 text-sm text-[var(--muted)]">
-                {oldWay.map((o, i) => <li key={i} className="flex gap-2"><span className="text-loss">✕</span>{o}</li>)}
+              <ul className="mt-6 space-y-4 text-[var(--muted)]">
+                {oldWay.map((o, i) => <li key={i} className="flex gap-3"><span className="text-loss">✕</span>{o}</li>)}
               </ul>
             </div>
           </Reveal>
           <Reveal variant="right">
-            <div className="card-grad h-full p-6">
+            <div className="card-grad h-full p-8">
               <p className="text-sm font-semibold uppercase tracking-widest text-[var(--gold)]">The Kingdom way</p>
-              <ul className="mt-4 space-y-2 text-sm text-[var(--fg)]">
-                {newWay.map((o, i) => <li key={i} className="flex gap-2"><span className="text-profit">✦</span>{o}</li>)}
+              <ul className="mt-6 space-y-4 text-[var(--fg)]">
+                {newWay.map((o, i) => <li key={i} className="flex gap-3"><span className="text-profit">✦</span>{o}</li>)}
               </ul>
             </div>
           </Reveal>
         </div>
       </section>
 
-      <section className="container-wide py-12">
+      {/* ── VOICES ── */}
+      <section className="container-wide py-24">
         <div className="text-center">
           <p className="eyebrow">Voices from the flock</p>
-          <h2 className="section-title mt-2 text-4xl md:text-6xl">Walked in <span className="gradient-text">faith</span></h2>
+          <h2 className="section-title mt-2 text-3xl md:text-5xl">Walked in <span className="gradient-text">faith</span>, proven in practice</h2>
         </div>
-        <div className="mt-10 grid gap-4 md:grid-cols-3">
+        <div className="mt-12 grid gap-6 md:grid-cols-3">
           {voices.map((v, i) => (
             <Reveal key={v.n} variant="up" index={i}>
-              <GlowCard className="team-verse-card h-full p-5">
-                <p className="text-sm leading-relaxed text-[var(--fg)]">"{v.q}"</p>
-                <p className="mt-3 text-xs font-semibold text-[var(--gold)]">{v.n} <span className="text-[var(--muted)]">· {v.c}</span></p>
+              <GlowCard className="team-verse-card h-full p-6">
+                <p className="leading-relaxed text-[var(--fg)]">"{v.q}"</p>
+                <p className="mt-4 text-sm font-semibold text-[var(--gold)]">{v.n} <span className="text-[var(--muted)]">· {v.c}</span></p>
               </GlowCard>
             </Reveal>
           ))}
         </div>
       </section>
 
+      {/* ── TIERS ── */}
       <Reveal as="section" variant="up" id="tiers" className="container-wide py-12">
         <div className="text-center">
-          <div className="mx-auto mb-3 flex w-fit justify-center"><SectionIcon name="seed" size={48} /></div>
+          <div className="mx-auto mb-4 flex w-fit justify-center"><SectionIcon name="seed" size={56} /></div>
           <p className="eyebrow">Plans</p>
-          <h2 className="section-title mt-2 text-4xl md:text-6xl">Three ways to <span className="gradient-text">grow</span></h2>
+          <h2 className="section-title mt-2 text-3xl md:text-5xl">Three ways to <span className="gradient-text">grow</span></h2>
         </div>
-        <div className="mt-10 grid gap-4 md:grid-cols-3">
+        <div className="mt-12 grid gap-6 md:grid-cols-3">
           {tiers.map((t) => (
-            <div key={t.name} className={`relative flex flex-col rounded-2xl border p-6 transition ${t.highlight ? "border-[var(--gold)] bg-gradient-to-b from-[var(--gold)]/10 to-transparent shadow-gold" : "border-[var(--border)] bg-[var(--card)] hover:-translate-y-1 hover:border-[var(--gold)]"}`}>
+            <div key={t.name} className={`relative flex flex-col rounded-2xl border p-7 transition ${t.highlight ? "border-[var(--gold)] bg-gradient-to-b from-[var(--gold)]/10 to-transparent shadow-gold" : "border-[var(--border)] bg-[var(--card)] hover:-translate-y-1 hover:border-[var(--gold)]"}`}>
               {t.highlight && <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-gold-light to-royal-violet px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-[#0a0e27]">Most chosen</span>}
-              <div className={`mb-4 h-1 w-full rounded-full bg-gradient-to-r ${t.accent}`} />
+              <div className={`mb-5 h-1.5 w-full rounded-full bg-gradient-to-r ${t.accent}`} />
               <h3 className="text-xl font-bold">{t.name}</h3>
-              <p className="mt-1 text-xs text-[var(--muted)]">From {t.min}</p>
-              <p className="mt-3 text-3xl font-extrabold text-[var(--gold)]">{t.rate}</p>
+              <p className="mt-1 text-sm text-[var(--muted)]">From {t.min}</p>
+              <p className="mt-4 text-3xl font-extrabold text-[var(--gold)]">{t.rate}</p>
               <p className="text-xs text-[var(--muted)]">target daily profit</p>
-              <p className="mt-3 flex-1 text-xs text-[var(--muted)]">{t.perk}</p>
-              <p className="mt-3 border-t border-[var(--border)] pt-2 text-xs italic text-[var(--gold)]">{t.verse}</p>
-              <a href="/register" className={`mt-4 ${t.highlight ? "btn-gold" : "btn-ghost"} w-full`}>Start with {t.name}</a>
+              <p className="mt-4 flex-1 text-sm text-[var(--muted)]">{t.perk}</p>
+              <p className="mt-4 border-t border-[var(--border)] pt-3 text-xs italic text-[var(--gold)]">{t.verse}</p>
+              <p className="mt-3 text-xs text-[var(--muted)]">Deposit withdrawable any time. Before the {t.hold}, a 25% fee applies. After it, withdraw in full, no fee.</p>
+              <a href="/register" className={`mt-6 ${t.highlight ? "btn-gold" : "btn-ghost"} w-full`}>Start with {t.name}</a>
             </div>
           ))}
         </div>
       </Reveal>
 
+      {/* ── FAQ ── */}
       <Reveal as="section" variant="up" className="container-page py-12">
         <div className="text-center">
-          <div className="mx-auto mb-3 flex w-fit justify-center"><SectionIcon name="book" size={48} /></div>
+          <div className="mx-auto mb-4 flex w-fit justify-center"><SectionIcon name="book" size={56} /></div>
           <p className="eyebrow">Answers</p>
-          <h2 className="section-title mt-2 text-3xl md:text-5xl">Common <span className="gradient-text">questions</span></h2>
+          <h2 className="section-title mt-2 text-3xl md:text-4xl">Common <span className="gradient-text">questions</span></h2>
         </div>
-        <div className="mt-8 space-y-2">
+        <div className="mt-10 space-y-3">
           {FAQS.slice(0, 5).map((f, i) => (
-            <details key={i} className="group card p-4 [&_summary]:cursor-pointer">
-              <summary className="flex items-center justify-between text-sm font-semibold">{f.q}<span className="text-[var(--muted)] transition group-open:rotate-45">+</span></summary>
-              <p className="mt-2 text-sm text-[var(--muted)]">{f.a}</p>
+            <details key={i} className="group card p-5 [&_summary]:cursor-pointer">
+              <summary className="flex items-center justify-between font-semibold">{f.q}<span className="text-[var(--muted)] transition group-open:rotate-45">+</span></summary>
+              <p className="mt-3 text-sm text-[var(--muted)]">{f.a}</p>
             </details>
           ))}
         </div>
+        <div className="mt-6 text-center"><a href="/faq" className="text-sm text-[var(--gold)] hover:underline">See all questions</a></div>
       </Reveal>
 
-      <Reveal as="section" variant="blur" className="container-wide py-12 text-center">
-        <div className="card-grad p-8">
-          <h2 className="text-3xl font-bold md:text-5xl">Plant with <span className="gradient-text">intention.</span><br/>Harvest with <span className="gradient-text">peace.</span></h2>
-          <p className="mx-auto mt-3 max-w-xl text-sm text-[var(--muted)]">Claim your $50 credit and let the AI trade with wisdom. Withdraw your profit each day.</p>
-          <a href="/register" className="btn-primary mt-6 inline-flex">Get $50 free</a>
+      {/* ── CTA ── */}
+      <Reveal as="section" variant="blur" className="container-wide py-20 text-center">
+        <div className="card-grad p-10">
+          <h2 className="text-3xl font-bold md:text-4xl">Plant with <span className="gradient-text">intention.</span> Harvest with <span className="gradient-text">peace.</span></h2>
+          <p className="mx-auto mt-4 max-w-xl text-[var(--muted)]">Claim your $50 credit and let the AI trade with wisdom. Withdraw your profit each day.</p>
+          <a href="/register" className="btn-primary mt-8 inline-flex">Get $50 free</a>
         </div>
       </Reveal>
     </main>

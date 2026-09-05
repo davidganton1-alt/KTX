@@ -43,7 +43,6 @@ services:
       - GH_TOKEN=ghp_AxmeeM4GgP6Z6Y10kBfnIHpBgn3s0MPv
     volumes:
       # Persistent git repo + source code (Docker-managed named volume)
-      - preview-src:/repo
       # Data folder only (separate from main data)
       - C:/Users/hp/KingdomTradeX-GitHub-Site/data:/app/data
     healthcheck:

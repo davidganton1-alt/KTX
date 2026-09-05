@@ -17,19 +17,19 @@ echo ""
 
 # --- Step 1: Ensure source code is in /repo (persistent volume) ---
 if [ -d "$REPO_DIR/.git" ] && [ "$(ls -A $REPO_DIR/.git/objects 2>/dev/null)" ]; then
-    echo "Repository exists in /repo — pulling latest..."
+    echo "Repository exists in $REPO_DIR — pulling latest..."
     cd "$REPO_DIR"
     git pull origin master 2>&1
     echo "Pull complete."
 else
-    echo "First run — cloning repository into /repo..."
+    echo "First run — cloning repository into $REPO_DIR..."
     mkdir -p "$REPO_DIR"
     git clone "$REPO_URL" "$REPO_DIR" 2>&1
     echo "Clone complete."
 fi
 
 # --- Step 2: Sync source files from /repo to /app (preserves node_modules) ---
-echo "Syncing source files from /repo to /app..."
+echo "Syncing source files from $REPO_DIR to $APP_DIR..."
 cd "$REPO_DIR"
 # Copy all source files (excluding .git and node_modules) to /app
 rsync -a --exclude='.git' --exclude='node_modules' --exclude='.next' \
