@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Reveal } from "@/components/Reveal";
 import { GlowCard } from "@/components/GlowCard";
 import { Sparkline } from "@/components/Sparkline";
+import { AssetVectorLogo } from "@/components/AssetVectorLogo";
 
 type Asset = {
   id: string; symbol: string; name: string; class: string;
@@ -69,23 +70,9 @@ function seedSeries(price: number, change: number): number[] {
 
 function AssetLogo({ a, size = "md" }: { a: Asset; size?: "sm" | "md" | "lg" }) {
   const dim = size === "sm" ? "h-6 w-6" : size === "lg" ? "h-14 w-14" : "h-10 w-10";
-  const st = CLASS_STYLE[a.class] || CLASS_STYLE.Commodities;
   if (a.image)
     return <img src={a.image} alt={a.symbol} className={`${dim} rounded-full border border-[var(--border)] object-cover`} />;
-  const glyph = GLYPHS[a.symbol];
-  if (glyph)
-    return (
-      <div className={`grid ${dim} shrink-0 place-items-center rounded-full bg-gradient-to-br ${st.grad} text-[#0a0e27] shadow-gold`}>
-        <svg viewBox="0 0 24 24" className={size === "sm" ? "h-3.5 w-3.5" : size === "lg" ? "h-7 w-7" : "h-5 w-5"} fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-          {glyph}
-        </svg>
-      </div>
-    );
-  return (
-    <div className={`grid ${dim} shrink-0 place-items-center rounded-full bg-gradient-to-br ${st.grad} font-extrabold text-[#0a0e27] ${size === "sm" ? "text-[8px]" : size === "lg" ? "text-base" : "text-[10px]"}`}>
-      {a.symbol.slice(0, 3)}
-    </div>
-  );
+  return <AssetVectorLogo symbol={a.symbol} className={`${dim} rounded-full`} />;
 }
 
 function LiveClock() {
