@@ -19,31 +19,51 @@ export const STAGES = [
 
 export function EngineCore({ color = "#F5C97B", activeIndex = 0, className = "" }: { color?: string; activeIndex?: number; className?: string }) {
   const NODES = [
-    { x: "50%", y: "6%" },
-    { x: "94%", y: "50%" },
-    { x: "50%", y: "94%" },
-    { x: "6%", y: "50%" },
+    { x: "50%", y: "5%" }, { x: "95%", y: "50%" }, { x: "50%", y: "95%" }, { x: "5%", y: "50%" },
   ];
+  const PARTICLES = Array.from({ length: 12 }, (_, i) => ({
+    dur: 7 + (i % 5) * 2,
+    delay: -(i * 1.3),
+    r: 22 + (i % 4) * 9,
+    size: i % 3 === 0 ? 3 : 2,
+  }));
+
   return (
-    <div className={`relative mx-auto h-72 w-72 md:h-80 md:w-80 ${className}`}>
+    <div className={`relative mx-auto aspect-square w-full max-w-[360px] ${className}`}>
+      {/* ambient halo */}
       <div className="pointer-events-none absolute inset-0 grid place-items-center">
-        <div className="h-[85%] w-[85%] rounded-full opacity-60 blur-3xl transition-all duration-700"
-             style={{ background: `radial-gradient(circle, ${color}55, transparent 70%)` }} />
+        <div className="h-[100%] w-[100%] rounded-full opacity-60 blur-3xl transition-all duration-700"
+             style={{ background: `radial-gradient(circle, ${color}66, transparent 72%)` }} />
       </div>
-      <div className="absolute inset-[6%] rounded-full border border-white/10 animate-[spin_18s_linear_infinite]" />
-      <div className="absolute inset-[18%] rounded-full border border-dashed border-white/10 animate-[spin_26s_linear_infinite_reverse]" />
+
+      {/* concentric rings */}
+      <div className="absolute inset-[3%] rounded-full border border-white/10" style={{ animation: "spin 22s linear infinite" }} />
+      <div className="absolute inset-[13%] rounded-full border border-dashed border-white/15" style={{ animation: "spin 32s linear infinite reverse" }} />
+      <div className="absolute inset-[25%] rounded-full border border-white/5" style={{ animation: "spin 15s linear infinite" }} />
+
+      {/* orbiting particles */}
+      {PARTICLES.map((p, i) => (
+        <div key={i} className="absolute inset-0" style={{ animation: `spin ${p.dur}s linear infinite`, animationDelay: `${p.delay}s` }}>
+          <span className="absolute left-1/2 -translate-x-1/2 rounded-full transition-colors duration-700"
+                style={{ top: `${50 - p.r}%`, width: p.size, height: p.size, background: color, boxShadow: `0 0 10px ${color}` }} />
+        </div>
+      ))}
+
+      {/* stage nodes */}
       {NODES.map((n, i) => (
         <div key={i} className="absolute z-10 -translate-x-1/2 -translate-y-1/2" style={{ left: n.x, top: n.y }}>
-          <div className={`grid h-9 w-9 place-items-center rounded-full border text-xs font-bold transition-all duration-500 ${i === activeIndex ? "scale-125" : "scale-100 opacity-50"}`}
-               style={{ background: i === activeIndex ? color : "var(--card)", borderColor: color, color: i === activeIndex ? "#0a0e27" : "var(--muted)" }}>
+          <div className={`grid h-10 w-10 place-items-center rounded-full border text-xs font-bold transition-all duration-500 ${i === activeIndex ? "scale-125" : "scale-100 opacity-40"}`}
+               style={{ background: i === activeIndex ? color : "var(--card)", borderColor: color, color: i === activeIndex ? "#0a0e27" : "var(--muted)", boxShadow: i === activeIndex ? `0 0 24px ${color}88` : "none" }}>
             {STAGES[i].num}
           </div>
         </div>
       ))}
+
+      {/* center orb */}
       <div className="absolute inset-0 grid place-items-center">
-        <div className="grid h-32 w-32 place-items-center rounded-full transition-all duration-700 animate-[haloPulse_4s_ease-in-out_infinite] md:h-36 md:w-36"
-             style={{ background: `radial-gradient(circle at 35% 30%, #ffffff22, ${color})`, boxShadow: `0 0 60px ${color}66` }}>
-          <span className="text-2xl text-[#0a0e27]">{STAGES[activeIndex].icon}</span>
+        <div className="grid h-36 w-36 place-items-center rounded-full transition-all duration-700 animate-[haloPulse_4s_ease-in-out_infinite] md:h-40 md:w-40"
+             style={{ background: `radial-gradient(circle at 35% 30%, #ffffff33, ${color})`, boxShadow: `0 0 80px ${color}77, inset 0 0 30px rgba(255,255,255,.15)` }}>
+          <span className="text-3xl text-[#0a0e27]">{STAGES[activeIndex].icon}</span>
         </div>
       </div>
     </div>
@@ -54,9 +74,7 @@ export function EnginePipeline() {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
   const [active, setActive] = useState(0);
-  useMotionValueEvent(scrollYProgress, "change", (v) => {
-    setActive(Math.min(3, Math.floor(v * 4)));
-  });
+  useMotionValueEvent(scrollYProgress, "change", (v) => setActive(Math.min(3, Math.floor(v * 4))));
   const stage = STAGES[active];
 
   return (
