@@ -4,82 +4,100 @@ import { FAQS } from "@/lib/faqs";
 
 export const metadata = { title: "Plans — KingdomTradeX" };
 
-const tiers = [
-  { name: "Faithful", min: "$100 to $500", rate: "0.5% / day", perk: "Crypto, US stocks and commodities. Starter AI, daily profit, profit-only withdrawals.", verse: "Be faithful with the little things, and you will be trusted with much. — Luke 16:10", hold: "6-month hold, 25% early fee", accent: "from-amber-600 to-gold-light", highlight: false },
-  { name: "Steward", min: "$650 to $1,500", rate: "0.75% / day", perk: "Advanced AI across all markets, priority rebalancing, 0.75% target daily.", verse: "Stewards of the manifold grace of God. — 1 Peter 4:10", hold: "9-month hold, 25% early fee", accent: "from-slate-400 to-cyan-light", highlight: true },
-  { name: "Ambassador", min: "$2,000 and up", rate: "1.0% / day", perk: "Elite AI desk, dedicated risk guardrails across all markets, 1.0% target daily.", verse: "Honour the Lord with your wealth, with the firstfruits of all your crops. — Proverbs 3:9", hold: "12-month hold, 25% early fee", accent: "from-yellow-400 to-gold-light", highlight: false },
+const lineup = [
+  {
+    name: "Faithful", rate: "0.5%", min: "$100 – $500", hold: "6-month hold", hl: false,
+    bullets: ["Crypto, US stocks & commodities", "Starter AI desk", "Daily profit, withdraw anytime"],
+    verse: "Be faithful with the little things. — Luke 16:10",
+  },
+  {
+    name: "Steward", rate: "0.75%", min: "$650 – $1,500", hold: "9-month hold", hl: true,
+    bullets: ["All markets unlocked", "Advanced AI + priority rebalancing", "Profit-only withdrawals"],
+    verse: "Stewards of the manifold grace of God. — 1 Peter 4:10",
+  },
+  {
+    name: "Ambassador", rate: "1.0%", min: "$2,000 and up", hold: "12-month hold", hl: false,
+    bullets: ["Elite AI desk", "Dedicated risk guardrails", "Largest daily target"],
+    verse: "Honour the Lord with your wealth. — Proverbs 3:9",
+  },
 ];
 
-const choose = [
-  { tier: "Faithful", t: "Start small, learn the rhythm", d: "Plant your first $100 and watch daily profit accrue under the Starter AI." },
-  { tier: "Steward", t: "Grow steadily, day by day", d: "Advanced AI, priority rebalancing, and a 0.75% daily target." },
-  { tier: "Ambassador", t: "Build a legacy position", d: "The Elite AI desk with dedicated guardrails and a 1.0% daily target." },
+const groups = [
+  {
+    name: "The seed",
+    rows: [
+      { label: "Deposit range", v: ["$100 – $500", "$650 – $1,500", "$2,000 and up"] },
+      { label: "Hold period", v: ["6 months", "9 months", "12 months"] },
+      { label: "Early deposit withdrawal", v: ["25% fee", "25% fee", "25% fee"] },
+    ],
+  },
+  {
+    name: "The engine",
+    rows: [
+      { label: "AI desk", v: ["Starter AI", "Advanced AI", "Elite AI desk"] },
+      { label: "Markets", v: ["Crypto · Stocks · Commodities", "All markets", "All markets"] },
+      { label: "Rebalancing", v: ["Daily", "Priority", "Dedicated"] },
+      { label: "Risk guardrails", v: ["Standard", "Advanced", "Dedicated"] },
+    ],
+  },
+  {
+    name: "The harvest",
+    rows: [
+      { label: "Target daily profit", v: ["0.5%", "0.75%", "1.0%"] },
+      { label: "Profit withdrawals", v: ["Anytime", "Anytime", "Anytime"] },
+      { label: "Trade transparency", v: ["Full ledger", "Full ledger", "Full ledger"] },
+    ],
+  },
 ];
 
-const rows = [
-  { label: "Deposit range", v: ["$100 – $500", "$650 – $1,500", "$2,000 and up"] },
-  { label: "Target daily profit", v: ["0.5%", "0.75%", "1.0%"] },
-  { label: "Markets", v: ["Crypto, US stocks, commodities", "All markets", "All markets"] },
-  { label: "AI desk", v: ["Starter AI", "Advanced AI", "Elite AI desk"] },
-  { label: "Rebalancing", v: ["Daily", "Priority", "Dedicated"] },
-  { label: "Risk guardrails", v: ["Standard", "Advanced", "Dedicated"] },
-  { label: "Profit withdrawals", v: ["Anytime", "Anytime", "Anytime"] },
-  { label: "Trade transparency", v: ["Full ledger", "Full ledger", "Full ledger"] },
-  { label: "Hold period", v: ["6 months", "9 months", "12 months"] },
-  { label: "Early deposit withdrawal", v: ["25% fee", "25% fee", "25% fee"] },
+const holdChapters = [
+  { n: "I", t: "Planted", d: "Day zero. Your seed goes into the soil — the AI desk opens and begins trading with guardrails on." },
+  { n: "II", t: "Harvest daily", d: "Every day, profit accrues and is withdrawable. The hold never touches your harvest — only the seed." },
+  { n: "III", t: "Released", d: "When the hold ends, your full deposit unlocks. Withdraw everything — no fee, no friction." },
 ];
 
 export default function PlansPage() {
   return (
     <main>
       {/* ── HERO ── */}
-      <section className="container-wide pt-14 text-center md:pt-20">
-        <div className="mx-auto mb-3 flex w-fit justify-center"><SectionIcon name="seed" size={48} /></div>
+      <section className="container-wide pt-16 text-center md:pt-24">
         <p className="eyebrow">Plans</p>
-        <h1 className="section-title mt-2 text-4xl md:text-6xl">Three ways to <span className="gradient-text">grow</span>.</h1>
-        <p className="mx-auto mt-4 max-w-2xl text-[var(--muted)]">
-          Every plan keeps profit-only withdrawals and full transparency. What changes is the size of the seed, the strength of the AI desk, and the daily target.
+        <h1 className="section-title mt-3 text-5xl md:text-7xl">How much will you <span className="gradient-text">plant</span>?</h1>
+        <p className="mx-auto mt-5 max-w-2xl text-[var(--muted)]">
+          Same AI. Same honesty. Three sizes of seed — each with its own daily target and harvest rhythm.
         </p>
+        <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
+          <span className="pill">0.5% – 1.0% daily targets</span>
+          <span className="pill">Profit-only withdrawals</span>
+          <span className="pill">Transparent ledger</span>
+        </div>
       </section>
 
-      {/* ── TIER CARDS ── */}
-      <section className="container-wide py-10">
-        <div className="grid gap-4 md:grid-cols-3">
-          {tiers.map((t, i) => (
-            <Reveal key={t.name} variant="up" index={i}>
-              <div className={`relative flex h-full flex-col rounded-2xl border p-6 transition ${t.highlight ? "border-[var(--gold)] bg-gradient-to-b from-[var(--gold)]/10 to-transparent shadow-gold" : "border-[var(--border)] bg-[var(--card)] hover:-translate-y-1 hover:border-[var(--gold)]"}`}>
-                {t.highlight && <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-gold-light to-royal-violet px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-[#0a0e27]">Most chosen</span>}
-                <div className={`mb-4 h-1 w-full rounded-full bg-gradient-to-r ${t.accent}`} />
-                <h2 className="text-xl font-bold">{t.name}</h2>
-                <p className="mt-1 text-xs text-[var(--muted)]">From {t.min}</p>
-                <p className="mt-3 text-3xl font-extrabold text-[var(--gold)]">{t.rate}</p>
-                <p className="text-xs text-[var(--muted)]">target daily profit</p>
-                <p className="mt-3 flex-1 text-sm text-[var(--muted)]">{t.perk}</p>
-                <p className="mt-3 border-t border-[var(--border)] pt-2 text-xs italic text-[var(--gold)]">{t.verse}</p>
-                <p className="mt-2 text-xs text-[var(--muted)]">{t.hold}</p>
-                <a href="/register" className={`mt-4 ${t.highlight ? "btn-gold" : "btn-ghost"} w-full`}>Start with {t.name}</a>
+      {/* ── LINEUP PILLARS (giant rates) ── */}
+      <section className="container-wide py-14">
+        <div className="grid items-stretch gap-5 md:grid-cols-3">
+          {lineup.map((p, i) => (
+            <Reveal key={p.name} variant="up" index={i}>
+              <div className={`relative flex h-full flex-col rounded-3xl border p-7 text-center transition ${p.hl ? "border-[var(--gold)] bg-gradient-to-b from-[var(--gold)]/[0.12] to-transparent shadow-gold md:-translate-y-4" : "border-[var(--border)] bg-[var(--card)] hover:-translate-y-1 hover:border-[var(--gold)]/60"}`}>
+                {p.hl && <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-gold-light to-royal-violet px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-[#0a0e27]">Most chosen</span>}
+                <p className="eyebrow">{p.name}</p>
+                <p className={`mt-5 text-6xl font-extrabold tracking-tight md:text-7xl ${p.hl ? "gradient-text" : ""}`}>{p.rate}</p>
+                <p className="mt-2 text-[11px] uppercase tracking-[0.25em] text-[var(--muted)]">target / day</p>
+                <p className="mt-3 text-sm text-[var(--muted)]">{p.min}</p>
+                <div className="my-6 h-px w-full bg-gradient-to-r from-transparent via-[var(--border)] to-transparent" />
+                <ul className="flex-1 space-y-2.5 text-left text-sm text-[var(--muted)]">
+                  {p.bullets.map((b) => <li key={b} className="flex gap-2.5"><span className="text-[var(--gold)]">✦</span>{b}</li>)}
+                </ul>
+                <p className="mt-5 text-xs italic leading-relaxed text-[var(--gold)]">{p.verse}</p>
+                <p className="mt-1.5 text-xs text-[var(--muted)]">{p.hold} · 25% early fee</p>
+                <a href="/register" className={`${p.hl ? "btn-gold" : "btn-ghost"} mt-6 w-full`}>Start with {p.name}</a>
               </div>
             </Reveal>
           ))}
         </div>
       </section>
 
-      {/* ── HOW TO CHOOSE ── */}
-      <section className="container-wide py-8">
-        <Reveal variant="up">
-          <div className="card-grad grid gap-6 p-6 md:grid-cols-3 md:p-8">
-            {choose.map((c) => (
-              <div key={c.tier}>
-                <p className="eyebrow">{c.tier}</p>
-                <p className="mt-1 font-semibold">{c.t}</p>
-                <p className="mt-1 text-sm text-[var(--muted)]">{c.d}</p>
-              </div>
-            ))}
-          </div>
-        </Reveal>
-      </section>
-
-      {/* ── COMPARISON (Apple style, sticky header, desktop) ── */}
+      {/* ── COMPARISON (grouped, sticky header, desktop) ── */}
       <section className="container-wide hidden py-12 md:block" id="compare">
         <div className="text-center">
           <p className="eyebrow">Compare</p>
@@ -89,83 +107,76 @@ export default function PlansPage() {
         <div className="mt-10">
           {/* sticky glass bar */}
           <div className="glass sticky top-0 z-30 border-b border-[var(--border)]">
-            <div className="grid grid-cols-[1.1fr_repeat(3,1fr)] gap-3 px-4 py-3">
-              <div />
-              {tiers.map((t) => (
-                <div key={t.name} className="text-center">
-                  <p className="text-sm font-bold">{t.name}</p>
-                  <p className="text-xs text-[var(--gold)]">{t.rate}</p>
+            <div className="grid grid-cols-[1.1fr_repeat(3,1fr)] items-center gap-3 px-4 py-3">
+              <p className="text-[11px] uppercase tracking-[0.25em] text-[var(--muted)]">The plans</p>
+              {lineup.map((p) => (
+                <div key={p.name} className="text-center">
+                  <p className="text-sm font-bold">{p.name} <span className="text-[var(--gold)]">· {p.rate}</span></p>
+                  <a href="/register" className={`${p.hl ? "btn-gold" : "btn-ghost"} mt-1.5 inline-flex !px-4 !py-1 text-xs`}>Start</a>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* guiding verse row */}
-          <div className="grid grid-cols-[1.1fr_repeat(3,1fr)] gap-3 border-b border-[var(--border)] px-4 py-5">
-            <p className="text-sm text-[var(--muted)]">Guiding verse</p>
-            {tiers.map((t) => <p key={t.name} className="text-xs italic leading-relaxed text-[var(--gold)]">{t.verse}</p>)}
-          </div>
-
-          {/* data rows */}
-          {rows.map((r) => (
-            <div key={r.label} className="grid grid-cols-[1.1fr_repeat(3,1fr)] gap-3 border-b border-[var(--border)] px-4 py-4">
-              <p className="text-sm text-[var(--muted)]">{r.label}</p>
-              {r.v.map((val, i) => (
-                <p key={i} className={`text-sm ${i === 1 ? "rounded-lg bg-[var(--gold)]/[0.05] px-2 py-1 font-semibold text-[var(--gold)]" : ""}`}>{val}</p>
+          {groups.map((g, gi) => (
+            <div key={g.name}>
+              <Reveal variant="up">
+                <div className="grid grid-cols-[1.1fr_repeat(3,1fr)] px-4 pb-1 pt-9">
+                  <p className="eyebrow">{gi + 1 === 1 ? "I" : gi + 1 === 2 ? "II" : "III"} · {g.name}</p>
+                </div>
+              </Reveal>
+              {g.rows.map((r, ri) => (
+                <Reveal key={r.label} variant="up" index={ri}>
+                  <div className="grid grid-cols-[1.1fr_repeat(3,1fr)] gap-3 border-b border-[var(--border)] px-4 py-4">
+                    <p className="text-sm text-[var(--muted)]">{r.label}</p>
+                    {r.v.map((val, i) => (
+                      <p key={i} className={`text-sm ${i === 1 ? "rounded-lg bg-[var(--gold)]/[0.05] px-2 py-1 font-semibold text-[var(--gold)]" : ""}`}>{val}</p>
+                    ))}
+                  </div>
+                </Reveal>
               ))}
             </div>
           ))}
-
-          {/* bottom CTA row */}
-          <div className="grid grid-cols-[1.1fr_repeat(3,1fr)] gap-3 px-4 py-6">
-            <div />
-            {tiers.map((t) => (
-              <div key={t.name} className="text-center">
-                <a href="/register" className={`${t.highlight ? "btn-gold" : "btn-ghost"} w-full`}>Start {t.name}</a>
-              </div>
-            ))}
-          </div>
         </div>
       </section>
 
-      {/* ── HOLD, EXPLAINED HONESTLY ── */}
-      <section className="container-wide py-10">
-        <div className="grid items-center gap-8 lg:grid-cols-2">
-          <Reveal variant="left">
-            <p className="eyebrow">The hold, explained honestly</p>
-            <h2 className="section-title mt-2 text-3xl md:text-5xl">Planted seed, <span className="gradient-text">patient harvest</span></h2>
-            <ul className="mt-6 space-y-3 text-sm text-[var(--muted)]">
-              <li className="flex gap-3"><span className="text-profit">✦</span> Your profit is withdrawable every day — the hold never touches it.</li>
-              <li className="flex gap-3"><span className="text-profit">✦</span> Before the hold ends, withdrawing your deposit carries a 25% fee.</li>
-              <li className="flex gap-3"><span className="text-profit">✦</span> After the hold ends, withdraw your full deposit — no fee, no friction.</li>
-            </ul>
-          </Reveal>
-          <Reveal variant="right">
-            <div className="card p-6 md:p-8">
-              <div className="relative">
-                <div className="absolute left-3 right-3 top-3 h-0.5 bg-gradient-to-r from-gold-light via-cyan-light to-profit" />
-                <div className="relative flex justify-between">
-                  <div className="flex flex-col items-center text-center">
-                    <span className="h-6 w-6 rounded-full bg-gold-light shadow-gold" />
-                    <p className="mt-2 text-xs font-semibold">Day 0</p>
-                    <p className="max-w-[90px] text-[10px] text-[var(--muted)]">Seed planted</p>
-                  </div>
-                  <div className="flex flex-col items-center text-center">
-                    <span className="h-6 w-6 rounded-full bg-cyan-light" />
-                    <p className="mt-2 text-xs font-semibold">Every day</p>
-                    <p className="max-w-[90px] text-[10px] text-[var(--muted)]">Profit withdrawable</p>
-                  </div>
-                  <div className="flex flex-col items-center text-center">
-                    <span className="h-6 w-6 rounded-full bg-profit" />
-                    <p className="mt-2 text-xs font-semibold">Hold ends</p>
-                    <p className="max-w-[90px] text-[10px] text-[var(--muted)]">Full deposit, no fee</p>
-                  </div>
-                </div>
-              </div>
-              <p className="mt-6 text-center text-xs text-[var(--muted)]">The hold keeps the AI's strategy stable — and your harvest predictable.</p>
-            </div>
+      {/* ── VERSE INTERLUDE (oversized) ── */}
+      <section className="py-20">
+        <div className="container-page text-center">
+          <Reveal variant="blur">
+            <p className="text-3xl font-light italic leading-snug text-[var(--fg)] md:text-5xl" style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}>
+              "Honour the Lord with your wealth, with the firstfruits of all your crops."
+            </p>
+            <p className="eyebrow mt-6">Proverbs 3:9</p>
           </Reveal>
         </div>
+      </section>
+
+      {/* ── THE HOLD IN THREE CHAPTERS ── */}
+      <section className="container-wide py-12">
+        <div className="text-center">
+          <p className="eyebrow">The hold, explained honestly</p>
+          <h2 className="section-title mt-2 text-3xl md:text-5xl">Planted seed, <span className="gradient-text">patient harvest</span></h2>
+        </div>
+        <div className="relative mt-12 grid gap-8 md:grid-cols-3">
+          <div className="absolute left-0 right-0 top-7 hidden h-px bg-gradient-to-r from-gold-light via-cyan-light to-profit md:block" />
+          {holdChapters.map((c, i) => (
+            <Reveal key={c.n} variant="up" index={i}>
+              <div className="relative text-center md:text-left">
+                <div className="relative z-10 mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--bg)] text-lg font-bold text-[var(--gold)] md:mx-0">
+                  {c.n}
+                </div>
+                <h3 className="mt-4 text-xl font-bold">{c.t}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">{c.d}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+        <Reveal variant="up">
+          <div className="card mt-10 p-6 text-center text-sm text-[var(--muted)]">
+            <span className="text-[var(--gold)]">Full honesty:</span> withdrawing your deposit before the hold ends carries a 25% fee — early exits force the AI to unwind positions. Your daily profit is <span className="text-[var(--fg)]">never</span> affected.
+          </div>
+        </Reveal>
       </section>
 
       {/* ── FAQ TEASER ── */}
@@ -189,8 +200,8 @@ export default function PlansPage() {
       {/* ── CTA ── */}
       <Reveal as="section" variant="blur" className="container-wide py-12 text-center">
         <div className="card-grad p-8">
-          <h2 className="text-3xl font-bold md:text-5xl">Choose your plan. <span className="gradient-text">Begin the harvest.</span></h2>
-          <p className="mx-auto mt-3 max-w-xl text-sm text-[var(--muted)]">Start with your free $50 credit, then plant your seed when you're ready.</p>
+          <h2 className="text-3xl font-bold md:text-5xl">Choose your seed. <span className="gradient-text">Begin the harvest.</span></h2>
+          <p className="mx-auto mt-3 max-w-xl text-sm text-[var(--muted)]">Start with your free $50 credit, then plant when you're ready.</p>
           <a href="/register" className="btn-primary mt-6 inline-flex">Get $50 free</a>
         </div>
       </Reveal>
