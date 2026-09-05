@@ -1111,3 +1111,16 @@ a {
   background: radial-gradient(circle at 35% 30%, #ffffff, var(--cyan) 75%);
   box-shadow: 0 0 16px color-mix(in srgb, var(--cyan) 70%, transparent);
 }
+
+/* markets v3: rotating scan ring around spotlight logo */
+.scan-ring {
+  position: absolute;
+  inset: -14px;
+  border-radius: 50%;
+  background: repeating-conic-gradient(from 0deg, transparent 0deg 8deg, color-mix(in srgb, var(--gold) 45%, transparent) 8deg 9deg);
+  -webkit-mask: radial-gradient(circle, #000 55%, transparent 72%);
+  mask: radial-gradient(circle, #000 55%, transparent 72%);
+  animation: spin 14s linear infinite;
+  opacity: 0.7;
+  pointer-events: none;
+}

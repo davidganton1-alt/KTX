@@ -23,8 +23,6 @@ const CLASS_VERSE: Record<string, string> = {
   Commodities: "The earth is the LORD's, and the fulness thereof. — Psalm 24:1",
 };
 
-const VENUES = ["Coinbase", "Binance", "NYSE", "NASDAQ", "CME", "COMEX", "LME", "ICE"];
-
 const BIBLE_MARKETS = [
   { sym: "XAU", name: "Gold", verse: "More to be desired than much fine gold. — Psalm 19:10", story: "Solomon overlaid the temple with it. Kings measured wisdom by it. The AI weighs it every second." },
   { sym: "XAG", name: "Silver", verse: "The silver is mine, and the gold is mine. — Haggai 2:8", story: "Abraham paid 400 shekels of silver for the field of Machpelah — the first recorded purchase." },
@@ -32,19 +30,6 @@ const BIBLE_MARKETS = [
   { sym: "WTI", name: "Oil", verse: "The wise took oil in their vessels. — Matthew 25:4", story: "Oil lit the temple lamps and the wise virgins' flames. It still moves the world." },
   { sym: "COPPER", name: "Copper", verse: "Out of the earth comes its copper. — Job 28:2", story: "The bronze sea and the temple pillars were cast from it — metalwork as worship." },
 ];
-
-/* ── custom SVG commodity logos ── */
-const GLYPHS: Record<string, React.ReactNode> = {
-  XAU: <><path d="M8 9h8l2 4H6l2-4z" /><path d="M5 15h9l1.5 3H3.5L5 15z" /></>,
-  XAG: <><circle cx="12" cy="12" r="7" /><path d="M12 8.5v7M8.5 12h7" /></>,
-  WTI: <path d="M12 4c3 4 6 7 6 10a6 6 0 1 1-12 0c0-3 3-6 6-10z" />,
-  NG: <path d="M12 4c1 3 5 5 5 9a5 5 0 1 1-10 0c0-2 1-3.5 2-5.5.8 1.6 2 2.5 3-3.5z" />,
-  WHEAT: <><path d="M12 21V8" /><path d="M12 8C9 8 8 6 8 4c3 0 4 2 4 4zm0 0c3 0 4-2 4-4-3 0-4 2-4 4zm0 5c-3 0-4-2-4-4 3 0 4 2 4 4zm0 0c3 0 4-2 4-4-3 0-4 2-4 4z" /></>,
-  CORN: <><path d="M12 3c3 3 4 7 4 10s-1 7-4 8c-3-1-4-5-4-8s1-7 4-8z" /><path d="M12 6v14M9.5 9.5h5M9.5 13.5h5" /></>,
-  COFFEE: <><path d="M5 9h11v5a5 5 0 0 1-10 0V9z" /><path d="M16 10h2a2.5 2.5 0 0 1 0 5h-2M8.5 4.5c0 1-1 1-1 2M12.5 4.5c0 1-1 1-1 2" /></>,
-  SUGAR: <><path d="M8 9h8v8H8z" /><path d="M8 9l3-3h8l-3 3M16 17l3-3V6" /></>,
-  COPPER: <><path d="M12 4l6 3.5v7L12 18l-6-3.5v-7L12 4z" /><circle cx="12" cy="11" r="2" /></>,
-};
 
 const fmt = (p: number) =>
   p >= 1000
@@ -68,22 +53,23 @@ function seedSeries(price: number, change: number): number[] {
 }
 
 function AssetLogo({ a, size = "md" }: { a: Asset; size?: "sm" | "md" | "lg" }) {
-  const dim = size === "sm" ? "h-6 w-6" : size === "lg" ? "h-14 w-14" : "h-10 w-10";
+  const dim = size === "sm" ? "h-6 w-6 text-[8px]" : size === "lg" ? "h-14 w-14 text-base" : "h-10 w-10 text-[10px]";
   const st = CLASS_STYLE[a.class] || CLASS_STYLE.Commodities;
   if (a.image)
     return <img src={a.image} alt={a.symbol} className={`${dim} rounded-full border border-[var(--border)] object-cover`} />;
-  const glyph = GLYPHS[a.symbol];
-  if (glyph)
-    return (
-      <div className={`grid ${dim} shrink-0 place-items-center rounded-full bg-gradient-to-br ${st.grad} text-[#0a0e27] shadow-gold`}>
-        <svg viewBox="0 0 24 24" className={size === "sm" ? "h-3.5 w-3.5" : size === "lg" ? "h-7 w-7" : "h-5 w-5"} fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-          {glyph}
-        </svg>
-      </div>
-    );
   return (
-    <div className={`grid ${dim} shrink-0 place-items-center rounded-full bg-gradient-to-br ${st.grad} font-extrabold text-[#0a0e27] ${size === "sm" ? "text-[8px]" : size === "lg" ? "text-base" : "text-[10px]"}`}>
+    <div className={`grid ${dim} shrink-0 place-items-center rounded-full bg-gradient-to-br ${st.grad} font-extrabold text-[#0a0e27]`}>
       {a.symbol.slice(0, 3)}
+    </div>
+  );
+}
+
+function Monogram({ sym, cls, size = "md" }: { sym: string; cls: string; size?: "md" | "lg" }) {
+  const dim = size === "lg" ? "h-12 w-12 text-sm" : "h-10 w-10 text-[10px]";
+  const st = CLASS_STYLE[cls] || CLASS_STYLE.Commodities;
+  return (
+    <div className={`grid ${dim} shrink-0 place-items-center rounded-full bg-gradient-to-br ${st.grad} font-extrabold text-[#0a0e27] shadow-gold`}>
+      {sym.slice(0, 3)}
     </div>
   );
 }
@@ -97,22 +83,6 @@ function LiveClock() {
   }, []);
   if (!now) return <span className="tabular-nums text-[var(--gold)]">--:--:-- UTC</span>;
   return <span className="tabular-nums text-[var(--gold)]">{now.toUTCString().slice(17, 25)} UTC</span>;
-}
-
-function RangeBar({ price, change }: { price: number; change: number }) {
-  const span = Math.max(0.4, Math.abs(change));
-  const low = price / (1 + span / 100);
-  const high = price * (1 + span / 100);
-  const pos = Math.max(4, Math.min(96, ((price - low) / (high - low)) * 100));
-  return (
-    <div className="mt-3">
-      <div className="relative h-1 rounded-full bg-[var(--border)]">
-        <div className="absolute inset-0 rounded-full bg-gradient-to-r from-loss via-gold-light to-profit opacity-50" />
-        <span className="absolute top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--fg)] shadow-gold" style={{ left: `${pos}%` }} />
-      </div>
-      <div className="mt-1 flex justify-between text-[9px] text-[var(--muted)]"><span>24h low</span><span>24h high</span></div>
-    </div>
-  );
 }
 
 function AssetCard({ a, hist, flash }: { a: Asset; hist: Record<string, number[]>; flash: Record<string, string> }) {
@@ -137,7 +107,6 @@ function AssetCard({ a, hist, flash }: { a: Asset; hist: Record<string, number[]
       </p>
       <p className="text-[11px] text-[var(--muted)]">Mcap {fmtCap(a.marketCap)}</p>
       <div className="mt-3"><Sparkline points={hist[a.id] || [a.price]} up={up} /></div>
-      <RangeBar price={a.price} change={a.change24h} />
     </GlowCard>
   );
 }
@@ -195,12 +164,6 @@ export default function MarketsPage() {
   const shown = filter === "All" ? classes : classes.filter((c) => c === filter);
   const sig = featured ? Math.min(97, Math.round(62 + Math.abs(featured.change24h) * 7)) : 0;
 
-  const gainers = [...assets].filter((a) => a.change24h >= 0).sort((a, b) => b.change24h - a.change24h);
-  const decliners = [...assets].filter((a) => a.change24h < 0).sort((a, b) => a.change24h - b.change24h);
-  const avg = assets.length ? assets.reduce((s, a) => s + a.change24h, 0) / assets.length : 0;
-  const temp = Math.max(4, Math.min(96, 50 + avg * 12));
-  const tempLabel = temp < 35 ? "Cautious" : temp < 65 ? "Steady" : "Bold";
-
   return (
     <main>
       {/* ── TERMINAL HEADER ── */}
@@ -244,7 +207,7 @@ export default function MarketsPage() {
         </div>
       )}
 
-      {/* ── LOGO WALL + VENUES ── */}
+      {/* ── LOGO WALL ── */}
       {assets.length > 0 && (
         <section className="container-wide pt-10">
           <Reveal variant="up">
@@ -261,17 +224,11 @@ export default function MarketsPage() {
                 </div>
               ))}
             </div>
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-2">
-              <span className="text-[10px] uppercase tracking-[0.25em] text-[var(--muted)]">Prices mirror</span>
-              {VENUES.map((v) => (
-                <span key={v} className="pill !py-1 text-[10px] font-bold tracking-wider">{v}</span>
-              ))}
-            </div>
           </Reveal>
         </section>
       )}
 
-      {/* ── AI SPOTLIGHT (scan ring) ── */}
+      {/* ── AI SPOTLIGHT ── */}
       {featured && (
         <section className="container-wide pt-10">
           <Reveal variant="up">
@@ -279,11 +236,8 @@ export default function MarketsPage() {
               <div className="grid items-center gap-8 lg:grid-cols-[1fr_1.2fr]">
                 <div>
                   <p className="eyebrow">AI spotlight</p>
-                  <div className="mt-5 flex items-center gap-5">
-                    <div className="relative">
-                      <div className="scan-ring" />
-                      <AssetLogo a={featured} size="lg" />
-                    </div>
+                  <div className="mt-4 flex items-center gap-4">
+                    <AssetLogo a={featured} size="lg" />
                     <div>
                       <h2 className="text-2xl font-extrabold">{featured.name}</h2>
                       <p className="text-xs text-[var(--muted)]">{featured.class} · {featured.symbol}</p>
@@ -323,40 +277,6 @@ export default function MarketsPage() {
         </section>
       )}
 
-      {/* ── MARKET PULSE TILES ── */}
-      {assets.length > 0 && (
-        <section className="container-wide pt-6">
-          <div className="grid gap-4 md:grid-cols-3">
-            <Reveal variant="up">
-              <GlowCard className="p-5">
-                <div className="flex items-center justify-between text-xs text-[var(--muted)]">
-                  <span>Market temperature</span>
-                  <span className="font-bold text-[var(--gold)]">{tempLabel}</span>
-                </div>
-                <div className="relative mt-3 h-1.5 rounded-full bg-gradient-to-r from-loss via-gold-light to-profit opacity-80">
-                  <span className="absolute top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-[var(--bg)] bg-[var(--fg)] shadow-gold" style={{ left: `${temp}%` }} />
-                </div>
-                <p className="mt-2 text-[10px] text-[var(--muted)]">Average 24h move across all tracked assets</p>
-              </GlowCard>
-            </Reveal>
-            <Reveal variant="up" index={1}>
-              <GlowCard className="p-5">
-                <p className="text-xs text-[var(--muted)]">Gainers</p>
-                <p className="mt-1 text-2xl font-extrabold text-profit">{gainers.length}</p>
-                {gainers[0] && <p className="mt-1 text-[11px] text-[var(--muted)]">Leading: <b className="text-profit">{gainers[0].symbol} +{gainers[0].change24h.toFixed(1)}%</b></p>}
-              </GlowCard>
-            </Reveal>
-            <Reveal variant="up" index={2}>
-              <GlowCard className="p-5">
-                <p className="text-xs text-[var(--muted)]">Decliners</p>
-                <p className="mt-1 text-2xl font-extrabold text-loss">{decliners.length}</p>
-                {decliners[0] && <p className="mt-1 text-[11px] text-[var(--muted)]">Weakest: <b className="text-loss">{decliners[0].symbol} {decliners[0].change24h.toFixed(1)}%</b></p>}
-              </GlowCard>
-            </Reveal>
-          </div>
-        </section>
-      )}
-
       {/* ── FILTERS ── */}
       <section className="container-wide pt-10">
         <div className="flex flex-wrap items-center gap-2">
@@ -373,7 +293,7 @@ export default function MarketsPage() {
         </div>
       </section>
 
-      {/* ── ASSET GROUPS ── */}
+      {/* ── ASSET GROUPS (with class verses) ── */}
       <div className="container-wide space-y-12 pb-4 pt-8">
         {shown.map((cls) => {
           const list = assets.filter((a) => a.class === cls);
@@ -409,12 +329,11 @@ export default function MarketsPage() {
         <div className="mt-10 grid gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5">
           {BIBLE_MARKETS.map((m, i) => {
             const live = assets.find((x) => x.symbol === m.sym);
-            const fake: Asset = { id: m.sym, symbol: m.sym, name: m.name, class: "Commodities", price: live?.price || 0, change24h: 0, marketCap: null };
             return (
               <Reveal key={m.sym} variant="up" index={i}>
                 <GlowCard className="flex h-full flex-col p-5">
                   <div className="flex items-center gap-3">
-                    <AssetLogo a={fake} />
+                    <Monogram sym={m.sym} cls="Commodities" />
                     <div>
                       <p className="font-bold leading-tight">{m.name}</p>
                       <p className="text-[10px] text-[var(--muted)]">{m.sym}</p>
