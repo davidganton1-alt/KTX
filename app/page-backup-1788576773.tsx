@@ -1,8 +1,10 @@
+import { Logo } from "@/components/Logo";
 import { Verse } from "@/components/Verse";
 import { SectionIcon } from "@/components/SectionIcon";
 import { Reveal } from "@/components/Reveal";
-import { CinematicHero } from "@/components/CinematicHero";
+import { HeroLines } from "@/components/HeroLines";
 import { StickySteps } from "@/components/StickySteps";
+import { FloatingCards } from "@/components/FloatingCards";
 import { BentoGrid } from "@/components/BentoGrid";
 import { GlowCard } from "@/components/GlowCard";
 import { StatsBand } from "@/components/StatsBand";
@@ -64,38 +66,24 @@ const voices = [
   { q: "No hype. Just daily growth and peace of mind while I run my business.", n: "Sarah K.", c: "Manila" },
 ];
 
-const shepherds = [
-  { name: "Pastor Daniel", city: "Nairobi", img: "/avatars/daniel.jpg" },
-  { name: "Pastor David", city: "Lagos", img: "/avatars/david.jpg" },
-  { name: "Grace M.", city: "Lagos", img: "/avatars/grace.jpg" },
-  { name: "James O.", city: "London", img: "/avatars/james.jpg" },
-  { name: "Miriam A.", city: "Accra", img: "/avatars/miriam.jpg" },
-  { name: "Ruth P.", city: "Manila", img: "/avatars/ruth.jpg" },
-  { name: "Samuel T.", city: "Houston", img: "/avatars/samuel.jpg" },
-];
-
-const withdrawSteps = [
-  { g: "✦", t: "Daily accrual", v: "Profit appears in your wallet every single day — visible in plain sight." },
-  { g: "↗", t: "Withdraw profit anytime", v: "One tap. Your earnings are never locked, never gated." },
-  { g: "◈", t: "Principal keeps working", v: "Your seed stays planted, compounding while you live on the harvest." },
-];
-
-const trustPoints = [
-  "Drawdown guardrails cap the size of every position",
-  "Kalman-filtered volatility keeps risk estimates honest",
-  "A full ledger of every trade, open for you to read",
-  "Profit-only withdrawals, by design — not by promise",
-];
-
 const WORDS = ["Stewardship", "Integrity", "Clarity", "Discipline", "Transparency", "Faith", "Wisdom", "Peace"];
 
 export default function Home() {
   return (
     <main>
-      {/* ── CINEMATIC HERO (one tight 340vh sequence) ── */}
-      <CinematicHero />
+      <section className="relative overflow-hidden">
+        <div className="container-wide relative flex flex-col items-center pt-12 text-center md:pt-16">
+          <span className="pill"><span className="h-2 w-2 animate-pulse rounded-full bg-profit" /> Faith-aligned AI trading · Live 24/7</span>
+          <div className="mt-6"><Logo size={280} /></div>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <a href="/register" className="btn-primary">Get $50 free</a>
+            <a href="#how" className="btn-ghost">How it works</a>
+          </div>
+        </div>
+        <FloatingCards />
+        <HeroLines lines={[<>Fund it.</>, <>The <span className="gradient-text">AI</span> trades.</>, <>You withdraw the <span className="gradient-text">profit.</span></>]} />
+      </section>
 
-      {/* ── VALUES MARQUEE RIBBON ── */}
       <div className="ticker-fade overflow-hidden border-y border-[var(--border)] bg-white/[0.02] py-4">
         <div className="ticker">
           {[...WORDS, ...WORDS].map((w, i) => (
@@ -106,7 +94,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* ── GIFT BANNER ── */}
       <Reveal as="section" variant="left" className="container-wide py-8">
         <div className="card-grad flex items-center gap-6 p-6">
           <div className="w-28 shrink-0"><IllGift /></div>
@@ -119,15 +106,12 @@ export default function Home() {
         </div>
       </Reveal>
 
-      {/* ── STICKY SCROLLYTELLING ── */}
-      <div id="how"><StickySteps steps={steps} /></div>
+      <div id="how" className="h-[250vh]"><StickySteps steps={steps} /></div>
 
-      {/* ── STATS BAND ── */}
       <Reveal as="section" variant="up" className="container-wide py-8">
         <StatsBand />
       </Reveal>
 
-      {/* ── VERSE INTERLUDE ── */}
       <section className="py-16">
         <div className="container-page">
           <Reveal variant="blur">
@@ -136,7 +120,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── BENTO GRID ── */}
       <section className="container-wide py-12">
         <div className="text-center">
           <div className="mx-auto mb-3 flex w-fit justify-center"><SectionIcon name="bolt" size={48} /></div>
@@ -146,7 +129,6 @@ export default function Home() {
         <div className="mt-10"><BentoGrid /></div>
       </section>
 
-      {/* ── ENGINE: TERMINAL + PIPELINE + FEATURES ── */}
       <section className="container-wide py-12">
         <div className="text-center">
           <div className="mx-auto mb-3 flex w-fit justify-center"><SectionIcon name="bolt" size={48} /></div>
@@ -179,24 +161,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── WITHDRAWAL MECHANICS (NEW) ── */}
-      <section className="container-wide py-10">
-        <Reveal variant="up">
-          <div className="card-grad grid gap-6 p-6 md:grid-cols-3 md:p-8">
-            {withdrawSteps.map((w) => (
-              <div key={w.t} className="flex items-start gap-4">
-                <span className="icon-chip">{w.g}</span>
-                <div>
-                  <p className="font-semibold">{w.t}</p>
-                  <p className="mt-1 text-sm text-[var(--muted)]">{w.v}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Reveal>
-      </section>
-
-      {/* ── VALUES ── */}
       <section className="container-wide py-12">
         <div className="text-center">
           <p className="eyebrow">What we stand on</p>
@@ -218,7 +182,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── MARKETS PREVIEW ── */}
       <section className="container-wide py-12">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
@@ -243,32 +206,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── SHEPHERDS RAIL (NEW — community) ── */}
-      <section className="container-wide py-12">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <p className="eyebrow">The flock</p>
-            <h2 className="section-title mt-2 text-3xl md:text-5xl">Shepherds on the <span className="gradient-text">platform</span></h2>
-          </div>
-          <a href="/pastor" className="btn-ghost">Meet the shepherds</a>
-        </div>
-        <div className="flock-rail mt-8">
-          {shepherds.map((s) => (
-            <div key={s.name} className="shepherd-card card p-5 text-center">
-              <img src={s.img} alt={s.name} className="mx-auto h-16 w-16 rounded-full border border-[var(--border)] object-cover" />
-              <p className="mt-3 font-semibold">{s.name}</p>
-              <p className="text-xs text-[var(--muted)]">{s.city}</p>
-              <span className="pill mt-3">Shepherd</span>
-            </div>
-          ))}
-          <a href="/become-pastor" className="shepherd-ghost">
-            <span className="plus">+</span>
-            <p className="mt-2 text-sm">Your pastor here</p>
-          </a>
-        </div>
-      </section>
-
-      {/* ── OLD WAY vs KINGDOM WAY ── */}
       <section className="container-wide py-12">
         <div className="text-center">
           <p className="eyebrow">The difference</p>
@@ -294,27 +231,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── TRUST BAND (NEW) ── */}
-      <section className="container-wide py-12">
-        <div className="grid items-center gap-8 lg:grid-cols-2">
-          <Reveal variant="left">
-            <div className="relative mx-auto w-fit">
-              <div className="engine-halo" />
-              <div className="h-48 w-48 md:h-56 md:w-56"><IllShield /></div>
-            </div>
-          </Reveal>
-          <Reveal variant="right">
-            <p className="eyebrow">Guarded like a trust</p>
-            <h2 className="section-title mt-2 text-3xl md:text-5xl">Your principal, <span className="gradient-text">protected</span></h2>
-            <ul className="mt-6 space-y-3 text-sm text-[var(--muted)]">
-              {trustPoints.map((t) => <li key={t} className="flex gap-3"><span className="text-profit">✦</span>{t}</li>)}
-            </ul>
-            <a href="/ai-engine" className="btn-ghost mt-6 inline-flex">See the engine</a>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ── VOICES ── */}
       <section className="container-wide py-12">
         <div className="text-center">
           <p className="eyebrow">Voices from the flock</p>
@@ -332,7 +248,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── TIERS ── */}
       <Reveal as="section" variant="up" id="tiers" className="container-wide py-12">
         <div className="text-center">
           <div className="mx-auto mb-3 flex w-fit justify-center"><SectionIcon name="seed" size={48} /></div>
@@ -356,7 +271,6 @@ export default function Home() {
         </div>
       </Reveal>
 
-      {/* ── FAQ ── */}
       <Reveal as="section" variant="up" className="container-page py-12">
         <div className="text-center">
           <div className="mx-auto mb-3 flex w-fit justify-center"><SectionIcon name="book" size={48} /></div>
@@ -373,7 +287,6 @@ export default function Home() {
         </div>
       </Reveal>
 
-      {/* ── CTA ── */}
       <Reveal as="section" variant="blur" className="container-wide py-12 text-center">
         <div className="card-grad p-8">
           <h2 className="text-3xl font-bold md:text-5xl">Plant with <span className="gradient-text">intention.</span><br/>Harvest with <span className="gradient-text">peace.</span></h2>
