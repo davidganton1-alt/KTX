@@ -64,109 +64,27 @@ export default function TeamPage() {
           <div className="mx-auto mb-4 flex w-fit justify-center"><SectionIcon name="compass" size={56} /></div>
           <p className="eyebrow">The Body, mapped in light</p>
           <h2 className="section-title mt-2 text-3xl md:text-4xl">Trace the <span className="gradient-text">constellation</span></h2>
-          <p className="mx-auto mt-3 max-w-xl text-sm text-[var(--muted)]">Hover a star to read its story. The lines are the bonds that hold the body together.</p>
+          <p className="mx-auto mt-3 max-w-xl text-sm text-[var(--muted)]">Hover a star to read its name. The lines are the bonds that hold the body together.</p>
         </div>
 
-        <div className="relative mx-auto mt-12 aspect-[4/3] w-full max-w-5xl">
-          {/* cosmic background */}
-          <div className="absolute inset-0 rounded-3xl border border-[var(--border)] bg-gradient-to-br from-[#0a0e27] via-[#0f1435] to-[#0a0e27] overflow-hidden">
-            <div className="absolute inset-0 opacity-30" style={{ background: "radial-gradient(600px 400px at 50% 50%, rgba(245,201,123,0.15), transparent 70%)" }} />
-          </div>
-
-          {/* central Source */}
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-            <div className="relative grid h-20 w-20 place-items-center">
-              <div className="absolute inset-0 rounded-full opacity-70 blur-2xl animate-[haloPulse_4s_ease-in-out_infinite]" style={{ background: "radial-gradient(circle, rgba(245,201,123,0.6), transparent 70%)" }} />
-              <div className="relative grid h-12 w-12 place-items-center rounded-full" style={{ background: "radial-gradient(circle at 35% 30%, #ffffff33, var(--gold))", boxShadow: "0 0 60px rgba(245,201,123,0.7)" }}>
-                <span className="text-xl text-[#0a0e27]">✦</span>
-              </div>
-            </div>
-          </div>
-
-          {/* SVG lines (animated) */}
-          <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 75" preserveAspectRatio="none">
-            {LINKS.map(([a, b], i) => {
-              const x1 = stars[a].x;
-              const y1 = stars[a].y * 0.75;
-              const x2 = stars[b].x;
-              const y2 = stars[b].y * 0.75;
-              return (
-                <line
-                  key={i}
-                  x1={x1}
-                  y1={y1}
-                  x2={x2}
-                  y2={y2}
-                  stroke="rgba(245,201,123,0.3)"
-                  strokeWidth="0.15"
-                  className="animate-pulse"
-                  style={{ animationDelay: `${i * 0.2}s` }}
-                />
-              );
-            })}
+        <div className="constellation mt-12 hidden md:block" role="img" aria-label="Constellation of the KingdomTradeX team">
+          <svg viewBox="0 0 100 75" preserveAspectRatio="none">
+            {LINKS.map(([a, b], i) => (
+              <line key={i} x1={stars[a].x} y1={stars[a].y * 0.75} x2={stars[b].x} y2={stars[b].y * 0.75} />
+            ))}
           </svg>
-
-          {/* stars */}
-          {stars.map((s, i) => {
-            const isPastor = s.kind === "pastor";
-            const size = isPastor ? "h-16 w-16 md:h-20 md:w-20" : "h-14 w-14 md:h-16 md:w-16";
-            return (
-              <div
-                key={s.name}
-                className="group absolute -translate-x-1/2 -translate-y-1/2 transition-all duration-500 hover:scale-110 hover:z-50"
-                style={{ left: `${s.x}%`, top: `${s.y * 0.75}%` }}
-              >
-                {/* glow halo */}
-                <div className={`absolute inset-0 rounded-full opacity-0 blur-xl transition-opacity duration-500 group-hover:opacity-100 ${isPastor ? "bg-[var(--gold)]" : "bg-[var(--cyan)]"}`} />
-
-                {/* the star */}
-                <div className={`relative ${size} cursor-pointer`}>
-                  <img
-                    src={s.avatar}
-                    alt={s.name}
-                    className={`h-full w-full rounded-full object-cover ring-2 transition-all duration-500 ${isPastor ? "ring-[var(--gold)]" : "ring-[var(--cyan)]"}`}
-                    loading="lazy"
-                  />
-                  <span className={`absolute -bottom-1 -right-1 grid h-6 w-6 place-items-center rounded-full text-xs font-black text-[#0a0e27] ${isPastor ? "bg-[var(--gold)]" : "bg-[var(--cyan)]"}`}>
-                    {s.glyph}
-                  </span>
-                </div>
-
-                {/* hover tooltip */}
-                <div className="pointer-events-none absolute left-1/2 top-full z-50 mt-3 w-56 -translate-x-1/2 rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 opacity-0 shadow-2xl transition-opacity duration-300 group-hover:opacity-100">
-                  <p className="text-sm font-bold">{s.name}</p>
-                  <p className={`font-mono text-[10px] uppercase tracking-widest ${isPastor ? "text-[var(--gold)]" : "text-[var(--cyan)]"}`}>{s.role}</p>
-                  {s.line && <p className="mt-2 text-xs leading-relaxed text-[var(--muted)]">{s.line}</p>}
-                  {s.ministry && <p className="mt-2 text-xs font-semibold text-[var(--gold)]">{s.ministry}</p>}
-                  {s.verse && (
-                    <blockquote className="mt-2 border-l-2 border-[var(--gold)] pl-2 text-[10px] italic text-[var(--gold)]">
-                      &ldquo;{s.verse.text}&rdquo;
-                    </blockquote>
-                  )}
-                </div>
-
-                {/* name label */}
-                <p className="mt-2 text-center text-[10px] font-semibold text-[var(--muted)] transition-colors duration-300 group-hover:text-[var(--fg)]">
-                  {s.name.split(" ")[0]}
-                </p>
+          {stars.map((s) => (
+            <div key={s.name} className={`cstar ${s.kind === "pastor" ? "cstar--pastor" : ""}`} style={{ left: `${s.x}%`, top: `${s.y}%` }}>
+              <div className="orb">
+                <img src={s.avatar} alt={s.name} className="h-full w-full rounded-full object-cover" loading="lazy" />
               </div>
-            );
-          })}
-
-          {/* legend */}
-          <div className="absolute bottom-4 left-4 flex gap-4 rounded-lg border border-[var(--border)] bg-[var(--card)]/80 px-4 py-2 backdrop-blur-sm">
-            <div className="flex items-center gap-2">
-              <div className="h-3 w-3 rounded-full bg-[var(--cyan)]" />
-              <span className="text-[10px] text-[var(--muted)]">Builders</span>
+              <div className="lbl">{s.name}</div>
+              <div className="role">{s.role}</div>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="h-3 w-3 rounded-full bg-[var(--gold)]" />
-              <span className="text-[10px] text-[var(--muted)]">Shepherds</span>
-            </div>
-          </div>
+          ))}
         </div>
 
-        {/* mobile fallback */}
+        {/* mobile list */}
         <div className="star-list mt-10 md:hidden">
           {stars.map((s) => (
             <div key={s.name} className="card flex items-center gap-3 p-4">
