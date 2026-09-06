@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { createChart, ColorType, IChartApi, ISeriesApi, Time } from "lightweight-charts";
+import { createChart, ColorType, IChartApi, ISeriesApi, Time, CandlestickData } from "lightweight-charts";
 
 type Candle = { t: number; o: number; h: number; l: number; c: number };
 type Position = { id: string; symbol: string; side: string; entry: number; qty: number; openedAt: number; technique: string };
@@ -9,6 +9,8 @@ export function ProEngine({ symbol = "BTC" }: { symbol?: string }) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
+  const initializedRef = useRef(false);
+  const prevSymbolRef = useRef(symbol);
   
   const [price, setPrice] = useState(0);
   const [change, setChange] = useState(0);
@@ -16,40 +18,61 @@ export function ProEngine({ symbol = "BTC" }: { symbol?: string }) {
   const [source, setSource] = useState("live");
   const [lastUpdate, setLastUpdate] = useState(Date.now());
 
-  // Initialize Chart
+  // Initialize Chart (once)
   useEffect(() => {
     if (!chartContainerRef.current) return;
+    
     const chart = createChart(chartContainerRef.current, {
       layout: { background: { type: ColorType.Solid, color: "transparent" }, textColor: "#94a3b8" },
       grid: { vertLines: { color: "rgba(255,255,255,0.03)" }, horzLines: { color: "rgba(255,255,255,0.03)" } },
       crosshair: { mode: 0, vertLine: { color: "#F5C97B", width: 1, style: 2 }, horzLine: { color: "#F5C97B", width: 1, style: 2 } },
       rightPriceScale: { borderColor: "rgba(255,255,255,0.1)" },
-      timeScale: { borderColor: "rgba(255,255,255,0.1)", timeVisible: true },
+      timeScale: { borderColor: "rgba(255,255,255,0.1)", timeVisible: true, rightOffset: 5 },
       width: chartContainerRef.current.clientWidth,
       height: 350,
     });
+    
     const series = chart.addCandlestickSeries({
       upColor: "#10b981", downColor: "#ef4444",
       borderUpColor: "#10b981", borderDownColor: "#ef4444",
       wickUpColor: "#10b981", wickDownColor: "#ef4444",
     });
+    
     chartRef.current = chart;
     seriesRef.current = series;
 
-    const handleResize = () => chart.applyOptions({ width: chartContainerRef.current?.clientWidth });
+    const handleResize = () => {
+      if (chartContainerRef.current) {
+        chart.applyOptions({ width: chartContainerRef.current.clientWidth });
+      }
+    };
     window.addEventListener("resize", handleResize);
-    return () => { window.removeEventListener("resize", handleResize); chart.remove(); };
+    
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      chart.remove();
+      chartRef.current = null;
+      seriesRef.current = null;
+      initializedRef.current = false;
+    };
   }, []);
 
-  // Data Polling (500ms)
+  // Data Polling (500ms) — FIXED: uses update() instead of setData()
   useEffect(() => {
     let active = true;
+    
+    // Reset initialization flag when symbol changes
+    if (prevSymbolRef.current !== symbol) {
+      initializedRef.current = false;
+      prevSymbolRef.current = symbol;
+    }
+
     async function pull() {
       try {
         const res = await fetch(`/api/aitrading2?symbol=${symbol}&range=1D`, { cache: "no-store" });
         if (!res.ok) return;
         const data = await res.json();
-        if (!active) return;
+        if (!active || !seriesRef.current || !data.candles?.length) return;
         
         setPrice(data.price);
         setChange(data.change24h);
@@ -57,17 +80,35 @@ export function ProEngine({ symbol = "BTC" }: { symbol?: string }) {
         setSource(data.source);
         setLastUpdate(Date.now());
 
-        if (seriesRef.current && data.candles?.length) {
-          seriesRef.current.setData(data.candles.map((c: Candle) => ({
-            time: (c.t / 1000) as Time,
-            open: c.o, high: c.h, low: c.l, close: c.c,
-          })));
+        const mappedCandles: CandlestickData<Time>[] = data.candles.map((c: Candle) => ({
+          time: (c.t / 1000) as Time,
+          open: c.o, high: c.h, low: c.l, close: c.c,
+        }));
+
+        if (!initializedRef.current) {
+          // First load or symbol change: set all data
+          seriesRef.current.setData(mappedCandles);
+          chartRef.current?.timeScale().fitContent();
+          initializedRef.current = true;
+        } else {
+          // Subsequent updates: only update the LAST candle (smooth, no flicker)
+          const lastCandle = mappedCandles[mappedCandles.length - 1];
+          if (lastCandle) {
+            seriesRef.current.update(lastCandle);
+          }
         }
-      } catch {}
+      } catch {
+        // Silently keep last good data
+      }
     }
-    pull();
-    const t = setInterval(pull, 500);
-    return () => { active = false; clearInterval(t); };
+    
+    pull(); // Initial fetch
+    const t = setInterval(pull, 500); // Poll every 500ms
+    
+    return () => {
+      active = false;
+      clearInterval(t);
+    };
   }, [symbol]);
 
   const up = change >= 0;
