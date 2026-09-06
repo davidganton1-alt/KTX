@@ -5,13 +5,14 @@ import { AnimatedNumber } from "@/components/AnimatedNumber";
 
 const fmt = (p: number) => p >= 1000 ? p.toLocaleString(undefined, { maximumFractionDigits: 0 }) : p.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const fmtDate = (ms: number) => new Date(ms).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+const fmtDateTime = (ms: number) => new Date(ms).toLocaleString();
 
 const TABS = [
   { id: "overview", label: "Overview", icon: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" },
-  { id: "users", label: "User Management", icon: "M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" },
-  { id: "pastors", label: "Pastor Approvals", icon: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" },
+  { id: "users", label: "Users", icon: "M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" },
+  { id: "pastors", label: "Pastors", icon: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" },
   { id: "withdrawals", label: "Withdrawals", icon: "M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" },
-  { id: "engine", label: "Engine Control", icon: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" },
+  { id: "engine", label: "Engine", icon: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" },
   { id: "announcements", label: "Announcements", icon: "M11 5.882V19.24a1.765 1.765 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" },
 ];
 
@@ -19,59 +20,194 @@ export default function AdminPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("overview");
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [stats, setStats] = useState<any>(null);
-  const [users, setUsers] = useState<any[]>([]);
-  const [pastorApps, setPastorApps] = useState<any[]>([]);
-  const [withdrawals, setWithdrawals] = useState<any[]>([]);
-  const [engineMode, setEngineMode] = useState("demo");
-  const [announcement, setAnnouncement] = useState("");
-  const [msg, setMsg] = useState("");
 
-  useEffect(() => {
-    loadAll();
-  }, []);
+  // Data from /api/admin/data
+  const [users, setUsers] = useState<any[]>([]);
+  const [pastors, setPastors] = useState<any[]>([]);
+  const [apps, setApps] = useState<any[]>([]);
+  const [withdrawals, setWithdrawals] = useState<any[]>([]);
+  const [announcements, setAnnouncements] = useState<any[]>([]);
+
+  const [engineMode, setEngineMode] = useState<"demo" | "live">("demo");
+  const [msg, setMsg] = useState("");
+  const [actionBusy, setActionBusy] = useState<string | null>(null);
+
+  // Pastor approval modal
+  const [newCreds, setNewCreds] = useState<{ email: string; password: string; name: string } | null>(null);
+
+  // Announcements form
+  const [annTitle, setAnnTitle] = useState("");
+  const [annBody, setAnnBody] = useState("");
+
+  // Pastor share rate editor
+  const [editRate, setEditRate] = useState<{ id: string; value: string } | null>(null);
 
   async function loadAll() {
     try {
-      const [dataRes, usersRes, pastorsRes, withdrawalsRes, engineRes] = await Promise.all([
+      const [dataRes, engRes] = await Promise.all([
         fetch("/api/admin/data", { cache: "no-store" }),
-        fetch("/api/admin/user", { cache: "no-store" }),
-        fetch("/api/admin/pastor", { cache: "no-store" }),
-        fetch("/api/admin/withdrawal", { cache: "no-store" }),
         fetch("/api/admin/engine-mode", { cache: "no-store" }),
       ]);
-      if (dataRes.ok) setStats(await dataRes.json());
-      if (usersRes.ok) { const d = await usersRes.json(); setUsers(Array.isArray(d) ? d : d.users ?? []); }
-      if (pastorsRes.ok) { const d = await pastorsRes.json(); setPastorApps(Array.isArray(d) ? d : d.applications ?? d.pending ?? []); }
-      if (withdrawalsRes.ok) { const d = await withdrawalsRes.json(); setWithdrawals(Array.isArray(d) ? d : d.withdrawals ?? d.pending ?? []); }
-      if (engineRes.ok) { const d = await engineRes.json(); setEngineMode(d.engineMode ?? "demo"); }
+      if (dataRes.ok) {
+        const d = await dataRes.json();
+        setUsers(d.users ?? []);
+        setPastors(d.pastors ?? []);
+        setApps(d.pastorApplications ?? []);
+        setWithdrawals(d.withdrawals ?? []);
+        setAnnouncements(d.announcements ?? []);
+      }
+      if (engRes.ok) {
+        const d = await engRes.json();
+        setEngineMode(d.engineMode ?? "demo");
+      }
     } catch {}
   }
 
-  async function toggleEngine() {
-    const newMode = engineMode === "demo" ? "live" : "demo";
-    try {
-      const res = await fetch("/api/admin/engine-mode", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode: newMode }) });
-      if (res.ok) { setEngineMode(newMode); setMsg(`Engine mode set to ${newMode}.`); }
-      else setMsg("Failed to update engine mode.");
-    } catch { setMsg("Network error."); }
-    setTimeout(() => setMsg(""), 3000);
+  useEffect(() => { loadAll(); }, []);
+
+  function flash(text: string) {
+    setMsg(text);
+    setTimeout(() => setMsg(""), 3500);
   }
 
-  async function postAnnouncement() {
-    if (!announcement.trim()) return;
+  // ── Pastor actions ──
+  async function decidePastor(id: string, status: "approved" | "rejected", app?: any) {
+    const key = `pastor-${id}-${status}`;
+    setActionBusy(key);
     try {
-      const res = await fetch("/api/admin/announcements", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text: announcement }) });
-      if (res.ok) { setMsg("Announcement published."); setAnnouncement(""); }
-      else setMsg("Failed to publish.");
-    } catch { setMsg("Network error."); }
-    setTimeout(() => setMsg(""), 3000);
+      const res = await fetch("/api/admin/pastor", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id,
+          status,
+          name: app?.name,
+          email: app?.email,
+        }),
+      });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) { flash(d.error || "Failed."); setActionBusy(null); return; }
+      if (status === "approved" && d.pastor?.credentials) {
+        setNewCreds({ email: d.pastor.credentials.email, password: d.pastor.credentials.password, name: app?.name ?? d.pastor.name });
+      } else {
+        flash(`Pastor ${status}.`);
+      }
+      loadAll();
+    } catch { flash("Network error."); }
+    setActionBusy(null);
+  }
+
+  async function saveShareRate() {
+    if (!editRate) return;
+    const v = Number(editRate.value);
+    if (!Number.isFinite(v) || v < 0 || v > 50) { flash("Rate must be 0–50."); return; }
+    setActionBusy(`rate-${editRate.id}`);
+    try {
+      const res = await fetch("/api/admin/pastor", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "set-rate", id: editRate.id, shareRate: v }),
+      });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) { flash(d.error || "Failed."); setActionBusy(null); return; }
+      flash("Share rate updated.");
+      setEditRate(null);
+      loadAll();
+    } catch { flash("Network error."); }
+    setActionBusy(null);
+  }
+
+  async function reviewPayout(pastorId: string, payoutId: string, status: "approved" | "rejected") {
+    const key = `payout-${payoutId}-${status}`;
+    setActionBusy(key);
+    try {
+      const res = await fetch("/api/admin/pastor", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "payout", id: pastorId, payoutId, status }),
+      });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) { flash(d.error || "Failed."); setActionBusy(null); return; }
+      flash(`Payout ${status}.`);
+      loadAll();
+    } catch { flash("Network error."); }
+    setActionBusy(null);
+  }
+
+  // ── Withdrawal actions (query params) ──
+  async function decideWithdrawal(wid: string, status: "approved" | "rejected") {
+    const key = `w-${wid}-${status}`;
+    setActionBusy(key);
+    try {
+      const res = await fetch(`/api/admin/withdrawal?wid=${encodeURIComponent(wid)}&status=${status}`, { method: "POST" });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) { flash(d.error || "Failed."); setActionBusy(null); return; }
+      flash(`Withdrawal ${status}.`);
+      loadAll();
+    } catch { flash("Network error."); }
+    setActionBusy(null);
+  }
+
+  // ── Announcements (title + body) ──
+  async function postAnnouncement() {
+    if (!annTitle.trim()) { flash("Title is required."); return; }
+    setActionBusy("ann-post");
+    try {
+      const res = await fetch("/api/admin/announcements", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: annTitle.trim(), body: annBody.trim() }),
+      });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) { flash(d.error || "Failed."); setActionBusy(null); return; }
+      flash("Announcement published.");
+      setAnnTitle("");
+      setAnnBody("");
+      loadAll();
+    } catch { flash("Network error."); }
+    setActionBusy(null);
+  }
+
+  async function deleteAnnouncement(id: string) {
+    setActionBusy(`ann-del-${id}`);
+    try {
+      const res = await fetch(`/api/admin/announcements?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+      if (!res.ok) { flash("Failed to delete."); setActionBusy(null); return; }
+      flash("Announcement deleted.");
+      loadAll();
+    } catch { flash("Network error."); }
+    setActionBusy(null);
+  }
+
+  // ── Engine mode ──
+  async function toggleEngine() {
+    const next = engineMode === "demo" ? "live" : "demo";
+    setActionBusy("engine");
+    try {
+      const res = await fetch("/api/admin/engine-mode", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode: next }),
+      });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) { flash(d.error || "Failed to update engine mode."); setActionBusy(null); return; }
+      setEngineMode(d.engineMode);
+      flash(`Engine mode set to ${d.engineMode.toUpperCase()}.`);
+    } catch { flash("Network error."); }
+    setActionBusy(null);
   }
 
   async function handleLogout() {
     await fetch("/api/auth/logout", { method: "POST" });
     router.push("/login");
   }
+
+  // ── Derived stats ──
+  const totalDeposits = users.reduce((s, u) => s + (u.deposited ?? 0), 0);
+  const totalProfit = users.reduce((s, u) => s + (u.profit ?? 0), 0);
+  const pendingWithdrawals = withdrawals.filter(w => w.status === "pending").length;
+  const activePastors = pastors.length;
+  const pendingApps = apps.length;
 
   return (
     <div className="flex min-h-screen bg-[#05080F] text-slate-300 font-sans">
@@ -86,6 +222,8 @@ export default function AdminPage() {
               className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-colors ${activeTab === tab.id ? "bg-red-500/10 text-red-400" : "text-slate-400 hover:bg-white/5 hover:text-white"}`}>
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d={tab.icon} /></svg>
               {tab.label}
+              {tab.id === "pastors" && pendingApps > 0 && <span className="ml-auto rounded-full bg-red-500 px-2 py-0.5 text-[10px] font-bold text-white">{pendingApps}</span>}
+              {tab.id === "withdrawals" && pendingWithdrawals > 0 && <span className="ml-auto rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-bold text-black">{pendingWithdrawals}</span>}
             </button>
           ))}
         </nav>
@@ -119,31 +257,51 @@ export default function AdminPage() {
               <div className="grid gap-4 md:grid-cols-4">
                 <div className="rounded-xl border border-white/5 bg-[#0B0F19] p-6">
                   <p className="text-sm text-slate-500">Total Users</p>
-                  <p className="mt-2 text-3xl font-extrabold text-white tabular-nums"><AnimatedNumber value={stats?.totalUsers ?? users.length} /></p>
+                  <p className="mt-2 text-3xl font-extrabold text-white tabular-nums"><AnimatedNumber value={users.length} /></p>
                 </div>
                 <div className="rounded-xl border border-white/5 bg-[#0B0F19] p-6">
                   <p className="text-sm text-slate-500">Total Deposits</p>
-                  <p className="mt-2 text-3xl font-extrabold text-emerald-400 tabular-nums">$<AnimatedNumber value={stats?.totalDeposits ?? 0} /></p>
+                  <p className="mt-2 text-3xl font-extrabold text-emerald-400 tabular-nums">$<AnimatedNumber value={totalDeposits} /></p>
+                </div>
+                <div className="rounded-xl border border-white/5 bg-[#0B0F19] p-6">
+                  <p className="text-sm text-slate-500">Accrued Profit</p>
+                  <p className="mt-2 text-3xl font-extrabold text-[var(--gold)] tabular-nums">$<AnimatedNumber value={totalProfit} /></p>
                 </div>
                 <div className="rounded-xl border border-white/5 bg-[#0B0F19] p-6">
                   <p className="text-sm text-slate-500">Active Pastors</p>
-                  <p className="mt-2 text-3xl font-extrabold text-[var(--gold)] tabular-nums"><AnimatedNumber value={stats?.activePastors ?? 0} /></p>
-                </div>
-                <div className="rounded-xl border border-white/5 bg-[#0B0F19] p-6">
-                  <p className="text-sm text-slate-500">Pending Withdrawals</p>
-                  <p className="mt-2 text-3xl font-extrabold text-red-400 tabular-nums"><AnimatedNumber value={withdrawals.length} /></p>
+                  <p className="mt-2 text-3xl font-extrabold text-cyan-400 tabular-nums"><AnimatedNumber value={activePastors} /></p>
                 </div>
               </div>
 
-              {/* Engine Status */}
+              {/* Pending items */}
+              <div className="grid gap-4 md:grid-cols-3">
+                <button onClick={() => setActiveTab("pastors")} className="rounded-xl border border-white/5 bg-[#0B0F19] p-6 text-left transition hover:border-[var(--gold)]/40">
+                  <p className="text-sm text-slate-500">Pending Pastor Apps</p>
+                  <p className="mt-2 text-3xl font-extrabold text-amber-400 tabular-nums"><AnimatedNumber value={pendingApps} /></p>
+                  <p className="mt-1 text-xs text-slate-500">Click to review →</p>
+                </button>
+                <button onClick={() => setActiveTab("withdrawals")} className="rounded-xl border border-white/5 bg-[#0B0F19] p-6 text-left transition hover:border-[var(--gold)]/40">
+                  <p className="text-sm text-slate-500">Pending Withdrawals</p>
+                  <p className="mt-2 text-3xl font-extrabold text-amber-400 tabular-nums"><AnimatedNumber value={pendingWithdrawals} /></p>
+                  <p className="mt-1 text-xs text-slate-500">Click to review →</p>
+                </button>
+                <div className="rounded-xl border border-white/5 bg-[#0B0F19] p-6">
+                  <p className="text-sm text-slate-500">Announcements</p>
+                  <p className="mt-2 text-3xl font-extrabold text-white tabular-nums"><AnimatedNumber value={announcements.length} /></p>
+                  <p className="mt-1 text-xs text-slate-500">Currently active</p>
+                </div>
+              </div>
+
+              {/* Engine status */}
               <div className="rounded-xl border border-white/5 bg-[#0B0F19] p-6">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between flex-wrap gap-4">
                   <div>
                     <h3 className="text-lg font-bold text-white">Engine Status</h3>
-                    <p className="mt-1 text-sm text-slate-500">Currently running in <b className={engineMode === "live" ? "text-emerald-400" : "text-amber-400"}>{engineMode.toUpperCase()}</b> mode</p>
+                    <p className="mt-1 text-sm text-slate-500">Running in <b className={engineMode === "live" ? "text-emerald-400" : "text-amber-400"}>{engineMode.toUpperCase()}</b> mode</p>
                   </div>
-                  <button onClick={toggleEngine} className={`rounded-lg px-6 py-3 text-sm font-bold transition ${engineMode === "demo" ? "bg-emerald-500 text-white hover:bg-emerald-400" : "bg-amber-500 text-black hover:bg-amber-400"}`}>
-                    Switch to {engineMode === "demo" ? "LIVE" : "DEMO"}
+                  <button onClick={toggleEngine} disabled={actionBusy === "engine"}
+                    className={`rounded-lg px-6 py-3 text-sm font-bold transition disabled:opacity-50 ${engineMode === "demo" ? "bg-emerald-500 text-white hover:bg-emerald-400" : "bg-amber-500 text-black hover:bg-amber-400"}`}>
+                    {actionBusy === "engine" ? "Saving..." : `Switch to ${engineMode === "demo" ? "LIVE" : "DEMO"}`}
                   </button>
                 </div>
               </div>
@@ -158,106 +316,288 @@ export default function AdminPage() {
                 <table className="w-full text-left font-mono text-[11px]">
                   <thead><tr className="border-b border-white/10 text-[9px] uppercase tracking-widest text-slate-500">
                     <th className="px-3 py-2">Name</th><th className="px-3 py-2">Email</th><th className="px-3 py-2">Tier</th>
-                    <th className="px-3 py-2">Deposited</th><th className="px-3 py-2">Verified</th><th className="px-3 py-2">Role</th>
+                    <th className="px-3 py-2">Deposited</th><th className="px-3 py-2">Profit</th><th className="px-3 py-2">Status</th>
                   </tr></thead>
                   <tbody>
-                    {users.map((u: any, i: number) => (
-                      <tr key={u.id ?? i} className="border-b border-white/5">
+                    {users.map((u: any) => (
+                      <tr key={u.id} className="border-b border-white/5">
                         <td className="px-3 py-3 font-bold text-white">{u.name}</td>
                         <td className="px-3 py-3 text-slate-500">{u.email}</td>
                         <td className="px-3 py-3 capitalize text-[var(--gold)]">{u.tier ?? "none"}</td>
                         <td className="px-3 py-3 text-white">${fmt(u.deposited ?? 0)}</td>
-                        <td className="px-3 py-3">{u.emailVerified ? <span className="text-emerald-400">✓</span> : <span className="text-red-400">✕</span>}</td>
-                        <td className="px-3 py-3 capitalize text-slate-400">{u.role ?? "user"}</td>
+                        <td className="px-3 py-3 text-emerald-400">${fmt(u.profit ?? 0)}</td>
+                        <td className="px-3 py-3">
+                          {u.suspended
+                            ? <span className="rounded-full bg-red-500/15 px-2 py-0.5 text-[10px] font-bold text-red-400">Suspended</span>
+                            : <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-bold text-emerald-400">Active</span>}
+                        </td>
                       </tr>
                     ))}
+                    {users.length === 0 && <tr><td colSpan={6} className="py-8 text-center text-slate-500">No users yet.</td></tr>}
                   </tbody>
                 </table>
               </div>
             </div>
           )}
 
-          {/* ═══ PASTOR APPROVALS ═══ */}
+          {/* ═══ PASTORS ═══ */}
           {activeTab === "pastors" && (
-            <div className="rounded-xl border border-white/5 bg-[#0B0F19] p-6">
-              <h3 className="mb-4 text-lg font-bold text-white">Pending Pastor Applications ({pastorApps.length})</h3>
-              {pastorApps.length === 0 ? (
-                <p className="py-8 text-center text-sm text-slate-500">No pending applications.</p>
-              ) : (
-                <div className="space-y-3">
-                  {pastorApps.map((p: any, i: number) => (
-                    <div key={p.id ?? i} className="flex items-center justify-between rounded-xl border border-white/5 bg-white/[0.02] p-4">
-                      <div>
-                        <p className="font-bold text-white">{p.name}</p>
-                        <p className="text-xs text-slate-500">{p.email} · {p.ministry}</p>
-                        {p.message && <p className="mt-1 text-xs text-slate-400 italic">"{p.message}"</p>}
+            <div className="space-y-6">
+              {/* Applications */}
+              <div className="rounded-xl border border-white/5 bg-[#0B0F19] p-6">
+                <h3 className="mb-4 text-lg font-bold text-white">Pending Applications ({apps.length})</h3>
+                {apps.length === 0 ? (
+                  <p className="py-8 text-center text-sm text-slate-500">No pending applications.</p>
+                ) : (
+                  <div className="space-y-3">
+                    {apps.map((p: any) => (
+                      <div key={p.id} className="flex items-start justify-between gap-4 rounded-xl border border-white/5 bg-white/[0.02] p-4">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-bold text-white">{p.name}</p>
+                          <p className="text-xs text-slate-500">{p.email} · {p.ministry || "—"}</p>
+                          {p.message && <p className="mt-2 text-xs text-slate-400 italic">"{p.message}"</p>}
+                          <p className="mt-1 text-[10px] text-slate-600">{fmtDateTime(p.createdAt ?? Date.now())}</p>
+                        </div>
+                        <div className="flex shrink-0 gap-2">
+                          <button
+                            onClick={() => decidePastor(p.id, "approved", p)}
+                            disabled={actionBusy?.startsWith(`pastor-${p.id}`)}
+                            className="rounded-lg bg-emerald-500 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-400 disabled:opacity-50">
+                            {actionBusy === `pastor-${p.id}-approved` ? "..." : "Approve"}
+                          </button>
+                          <button
+                            onClick={() => decidePastor(p.id, "rejected", p)}
+                            disabled={actionBusy?.startsWith(`pastor-${p.id}`)}
+                            className="rounded-lg bg-red-500/20 px-4 py-2 text-xs font-bold text-red-400 hover:bg-red-500/30 disabled:opacity-50">
+                            {actionBusy === `pastor-${p.id}-rejected` ? "..." : "Reject"}
+                          </button>
+                        </div>
                       </div>
-                      <div className="flex gap-2">
-                        <button className="rounded-lg bg-emerald-500 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-400">Approve</button>
-                        <button className="rounded-lg bg-red-500/20 px-4 py-2 text-xs font-bold text-red-400 hover:bg-red-500/30">Reject</button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Active pastors */}
+              <div className="rounded-xl border border-white/5 bg-[#0B0F19] p-6">
+                <h3 className="mb-4 text-lg font-bold text-white">Active Pastors ({pastors.length})</h3>
+                {pastors.length === 0 ? (
+                  <p className="py-6 text-center text-sm text-slate-500">No active pastors yet.</p>
+                ) : (
+                  <div className="space-y-3">
+                    {pastors.map((p: any) => (
+                      <div key={p.id} className="rounded-xl border border-white/5 bg-white/[0.02] p-4">
+                        <div className="flex items-start justify-between gap-4 flex-wrap">
+                          <div>
+                            <p className="font-bold text-white">{p.name}</p>
+                            <p className="text-xs text-slate-500">{p.email} · {p.ministry || "—"}</p>
+                            <div className="mt-2 flex gap-4 text-xs text-slate-400">
+                              <span>Referrals: <b className="text-cyan-400">{p.referrals ?? 0}</b></span>
+                              <span>Earned: <b className="text-emerald-400">${fmt(p.earnedTotal ?? 0)}</b></span>
+                              <span>Available: <b className="text-[var(--gold)]">${fmt(p.available ?? 0)}</b></span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            {editRate && editRate.id === p.id ? (
+                              <div className="flex items-center gap-2">
+                                <input type="number" value={editRate.value} onChange={(e) => setEditRate({ ...editRate, value: e.target.value })}
+                                  className="w-20 rounded-lg border border-white/10 bg-[#05080F] px-2 py-1 text-xs text-white outline-none" />
+                                <span className="text-xs text-slate-500">%</span>
+                                <button onClick={saveShareRate} className="rounded-lg bg-emerald-500 px-3 py-1 text-xs font-bold text-white hover:bg-emerald-400">Save</button>
+                                <button onClick={() => setEditRate(null)} className="rounded-lg bg-white/10 px-3 py-1 text-xs text-slate-300 hover:bg-white/20">Cancel</button>
+                              </div>
+                            ) : (
+                              <button onClick={() => setEditRate({ id: p.id, value: String(p.shareRate ?? 5) })}
+                                className="rounded-lg border border-white/10 px-3 py-1 text-xs text-slate-300 hover:border-[var(--gold)] hover:text-[var(--gold)]">
+                                Rate: {p.shareRate ?? 5}% · Edit
+                              </button>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Payout requests */}
+                        {(p.payouts ?? []).filter((x: any) => x.status === "pending").length > 0 && (
+                          <div className="mt-3 border-t border-white/5 pt-3">
+                            <p className="mb-2 text-xs font-bold uppercase tracking-wider text-amber-400">Pending Payouts</p>
+                            <div className="space-y-2">
+                              {(p.payouts as any[]).filter(x => x.status === "pending").map((pw: any) => (
+                                <div key={pw.id} className="flex items-center justify-between rounded-lg border border-white/5 bg-[#05080F] p-2.5">
+                                  <span className="text-sm font-bold text-white">${fmt(pw.amount)}</span>
+                                  <span className="text-xs text-slate-500">{fmtDateTime(pw.requestedAt ?? Date.now())}</span>
+                                  <div className="flex gap-2">
+                                    <button
+                                      onClick={() => reviewPayout(p.id, pw.id, "approved")}
+                                      disabled={actionBusy?.startsWith(`payout-${pw.id}`)}
+                                      className="rounded bg-emerald-500 px-3 py-1 text-[10px] font-bold text-white hover:bg-emerald-400 disabled:opacity-50">Approve</button>
+                                    <button
+                                      onClick={() => reviewPayout(p.id, pw.id, "rejected")}
+                                      disabled={actionBusy?.startsWith(`payout-${pw.id}`)}
+                                      className="rounded bg-red-500/20 px-3 py-1 text-[10px] font-bold text-red-400 hover:bg-red-500/30 disabled:opacity-50">Reject</button>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
           {/* ═══ WITHDRAWALS ═══ */}
           {activeTab === "withdrawals" && (
             <div className="rounded-xl border border-white/5 bg-[#0B0F19] p-6">
-              <h3 className="mb-4 text-lg font-bold text-white">Pending Withdrawals ({withdrawals.length})</h3>
-              {withdrawals.length === 0 ? (
+              <h3 className="mb-4 text-lg font-bold text-white">Pending Withdrawals ({pendingWithdrawals})</h3>
+              {withdrawals.filter(w => w.status === "pending").length === 0 ? (
                 <p className="py-8 text-center text-sm text-slate-500">No pending withdrawals.</p>
               ) : (
                 <div className="space-y-3">
-                  {withdrawals.map((w: any, i: number) => (
-                    <div key={w.id ?? i} className="flex items-center justify-between rounded-xl border border-white/5 bg-white/[0.02] p-4">
+                  {withdrawals.filter(w => w.status === "pending").map((w: any) => (
+                    <div key={w.id} className="flex items-center justify-between gap-4 rounded-xl border border-white/5 bg-white/[0.02] p-4">
                       <div>
-                        <p className="font-bold text-white">${fmt(w.amount ?? 0)}</p>
-                        <p className="text-xs text-slate-500">{w.userName ?? w.email ?? "User"} · {fmtDate(w.date ?? w.requestedAt ?? Date.now())}</p>
+                        <p className="font-bold text-white">${fmt(w.amount)}</p>
+                        <p className="text-xs text-slate-500">{w.userName ?? "User"} · {w.userEmail}</p>
+                        <p className="text-[10px] text-slate-600">{fmtDateTime(w.requestedAt ?? Date.now())}</p>
                       </div>
                       <div className="flex gap-2">
-                        <button className="rounded-lg bg-emerald-500 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-400">Approve</button>
-                        <button className="rounded-lg bg-red-500/20 px-4 py-2 text-xs font-bold text-red-400 hover:bg-red-500/30">Reject</button>
+                        <button
+                          onClick={() => decideWithdrawal(w.id, "approved")}
+                          disabled={actionBusy?.startsWith(`w-${w.id}`)}
+                          className="rounded-lg bg-emerald-500 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-400 disabled:opacity-50">
+                          {actionBusy === `w-${w.id}-approved` ? "..." : "Approve"}
+                        </button>
+                        <button
+                          onClick={() => decideWithdrawal(w.id, "rejected")}
+                          disabled={actionBusy?.startsWith(`w-${w.id}`)}
+                          className="rounded-lg bg-red-500/20 px-4 py-2 text-xs font-bold text-red-400 hover:bg-red-500/30 disabled:opacity-50">
+                          {actionBusy === `w-${w.id}-rejected` ? "..." : "Reject"}
+                        </button>
                       </div>
                     </div>
                   ))}
                 </div>
               )}
+
+              {/* Recent history */}
+              {withdrawals.filter(w => w.status !== "pending").length > 0 && (
+                <div className="mt-8">
+                  <h4 className="mb-3 text-sm font-bold text-slate-400">Recent Decisions</h4>
+                  <div className="space-y-1.5 max-h-[300px] overflow-y-auto">
+                    {withdrawals.filter(w => w.status !== "pending").slice(0, 20).map((w: any) => (
+                      <div key={w.id} className="flex items-center justify-between rounded-lg border border-white/5 bg-white/[0.02] px-4 py-2.5">
+                        <span className="font-mono font-bold text-white">${fmt(w.amount)}</span>
+                        <span className="text-xs text-slate-500">{w.userName}</span>
+                        <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${w.status === "approved" ? "bg-emerald-500/15 text-emerald-400" : "bg-red-500/15 text-red-400"}`}>{w.status}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
-          {/* ═══ ENGINE CONTROL ═══ */}
+          {/* ═══ ENGINE ═══ */}
           {activeTab === "engine" && (
             <div className="rounded-xl border border-white/5 bg-[#0B0F19] p-6">
               <h3 className="text-lg font-bold text-white">Engine Control Panel</h3>
-              <p className="mt-2 text-sm text-slate-500">Toggle between demo and live trading modes. Changes apply instantly across the platform.</p>
-              <div className="mt-6 flex items-center gap-4">
-                <div className={`flex h-16 w-32 items-center justify-center rounded-xl border-2 font-bold ${engineMode === "live" ? "border-emerald-500 bg-emerald-500/10 text-emerald-400" : "border-amber-500 bg-amber-500/10 text-amber-400"}`}>
+              <p className="mt-2 text-sm text-slate-500">Toggle between demo and live trading modes. Changes take effect immediately across the platform.</p>
+              <div className="mt-6 flex items-center gap-4 flex-wrap">
+                <div className={`flex h-20 w-40 items-center justify-center rounded-xl border-2 font-bold text-lg ${engineMode === "live" ? "border-emerald-500 bg-emerald-500/10 text-emerald-400" : "border-amber-500 bg-amber-500/10 text-amber-400"}`}>
                   {engineMode.toUpperCase()}
                 </div>
-                <button onClick={toggleEngine} className="rounded-lg bg-white/10 px-6 py-3 text-sm font-bold text-white transition hover:bg-white/20">
-                  Toggle Mode
+                <button onClick={toggleEngine} disabled={actionBusy === "engine"}
+                  className="rounded-lg bg-white/10 px-6 py-3 text-sm font-bold text-white transition hover:bg-white/20 disabled:opacity-50">
+                  {actionBusy === "engine" ? "Saving..." : `Switch to ${engineMode === "demo" ? "LIVE" : "DEMO"}`}
                 </button>
               </div>
+              <p className="mt-6 text-xs text-slate-600">Persistence: <code className="text-slate-400">data/engine-mode.json</code></p>
             </div>
           )}
 
           {/* ═══ ANNOUNCEMENTS ═══ */}
           {activeTab === "announcements" && (
-            <div className="rounded-xl border border-white/5 bg-[#0B0F19] p-6">
-              <h3 className="text-lg font-bold text-white">Publish Announcement</h3>
-              <p className="mt-2 text-sm text-slate-500">This will appear as a banner across all user dashboards.</p>
-              <textarea value={announcement} onChange={(e) => setAnnouncement(e.target.value)} rows={4} placeholder="Type your announcement..."
-                className="mt-4 w-full rounded-lg border border-white/10 bg-[#05080F] px-4 py-3 text-sm text-white outline-none focus:border-[var(--gold)]" />
-              <button onClick={postAnnouncement} disabled={!announcement.trim()} className="mt-3 rounded-lg bg-[var(--gold)] px-6 py-3 text-sm font-bold text-black transition hover:brightness-110 disabled:opacity-50">
-                Publish
-              </button>
+            <div className="space-y-6">
+              <div className="rounded-xl border border-white/5 bg-[#0B0F19] p-6">
+                <h3 className="text-lg font-bold text-white">Publish New Announcement</h3>
+                <p className="mt-1 text-sm text-slate-500">Will appear as a banner across all user and pastor dashboards.</p>
+                <input
+                  type="text" value={annTitle} onChange={(e) => setAnnTitle(e.target.value)}
+                  placeholder="Title (required)"
+                  className="mt-4 w-full rounded-lg border border-white/10 bg-[#05080F] px-4 py-3 text-sm text-white outline-none focus:border-[var(--gold)]" />
+                <textarea
+                  value={annBody} onChange={(e) => setAnnBody(e.target.value)}
+                  rows={4} placeholder="Body (optional)"
+                  className="mt-3 w-full rounded-lg border border-white/10 bg-[#05080F] px-4 py-3 text-sm text-white outline-none focus:border-[var(--gold)]" />
+                <button
+                  onClick={postAnnouncement}
+                  disabled={!annTitle.trim() || actionBusy === "ann-post"}
+                  className="mt-3 rounded-lg bg-[var(--gold)] px-6 py-3 text-sm font-bold text-black transition hover:brightness-110 disabled:opacity-50">
+                  {actionBusy === "ann-post" ? "Publishing..." : "Publish"}
+                </button>
+              </div>
+
+              <div className="rounded-xl border border-white/5 bg-[#0B0F19] p-6">
+                <h3 className="mb-4 text-lg font-bold text-white">Active Announcements ({announcements.length})</h3>
+                {announcements.length === 0 ? (
+                  <p className="py-6 text-center text-sm text-slate-500">No announcements published.</p>
+                ) : (
+                  <div className="space-y-3">
+                    {announcements.map((a: any) => (
+                      <div key={a.id} className="rounded-xl border border-white/5 bg-white/[0.02] p-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex-1 min-w-0">
+                            <p className="font-bold text-white">{a.title}</p>
+                            {a.body && <p className="mt-1 text-sm text-slate-400 whitespace-pre-wrap">{a.body}</p>}
+                            {a.createdAt && <p className="mt-2 text-[10px] text-slate-600">{fmtDateTime(a.createdAt)}</p>}
+                          </div>
+                          <button
+                            onClick={() => deleteAnnouncement(a.id)}
+                            disabled={actionBusy === `ann-del-${a.id}`}
+                            className="rounded-lg bg-red-500/20 px-3 py-1.5 text-xs font-bold text-red-400 hover:bg-red-500/30 disabled:opacity-50">
+                            {actionBusy === `ann-del-${a.id}` ? "..." : "Delete"}
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>
       </main>
+
+      {/* CREDENTIALS MODAL */}
+      {newCreds && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md rounded-2xl border border-[var(--gold)]/40 bg-[#0B0F19] p-8 shadow-2xl">
+            <div className="mb-4 flex items-center gap-3">
+              <div className="grid h-10 w-10 place-items-center rounded-full bg-emerald-500/20 text-xl text-emerald-400">✓</div>
+              <h2 className="text-xl font-bold text-white">Pastor Approved</h2>
+            </div>
+            <p className="text-sm text-slate-400">Share these credentials securely with <b className="text-white">{newCreds.name}</b>:</p>
+            <div className="mt-4 space-y-3">
+              <div className="rounded-lg border border-white/10 bg-[#05080F] p-3">
+                <p className="text-[10px] uppercase tracking-wider text-slate-500">Email</p>
+                <p className="mt-1 font-mono text-sm text-white">{newCreds.email}</p>
+              </div>
+              <div className="rounded-lg border border-[var(--gold)]/40 bg-[var(--gold)]/10 p-3">
+                <p className="text-[10px] uppercase tracking-wider text-[var(--gold)]">Temporary Password</p>
+                <p className="mt-1 font-mono text-sm font-bold text-white">{newCreds.password}</p>
+              </div>
+            </div>
+            <p className="mt-4 text-xs text-amber-400">⚠ Advise them to change this password immediately after first login.</p>
+            <button
+              onClick={() => setNewCreds(null)}
+              className="mt-6 w-full rounded-lg bg-[var(--gold)] py-3 text-sm font-bold text-black transition hover:brightness-110">
+              Done
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
