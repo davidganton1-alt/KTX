@@ -11,10 +11,11 @@ export async function GET() {
   // Fetch full user to check isPastor status
   const user = db.findById(session.id);
   
-  return NextResponse.json({ 
-    role: session.role, 
+  return NextResponse.json({
+    role: session.role,
     name: session.name,
     isPastor: user?.isPastor ?? false,
-    hasSeenTour: user?.hasSeenTour ?? false  // <-- ADD THIS
+    hasSeenTour: user?.hasSeenTour ?? false,
+    hasSignedAgreement: user?.hasSignedAgreement ?? false,
   });
 }

@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatedNumber } from "@/components/AnimatedNumber";
+import { TradingAgreementModal } from "@/components/TradingAgreementModal";
 
 const fmt = (p: number) => p >= 1000 ? p.toLocaleString(undefined, { maximumFractionDigits: 0 }) : p.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const fmtDate = (ms: number) => new Date(ms).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
@@ -19,6 +20,8 @@ export default function PastorPage() {
   const router = useRouter();
   const [data, setData] = useState<any>(null);
   const [wallet, setWallet] = useState<any>(null);
+  const [me, setMe] = useState<any>(null);
+  const [showAgreement, setShowAgreement] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   
@@ -39,6 +42,15 @@ export default function PastorPage() {
 
     const wRes = await fetch("/api/wallet/state", { cache: "no-store" });
     if (wRes.ok) setWallet(await wRes.json());
+
+    const meRes = await fetch("/api/auth/me", { cache: "no-store" });
+    if (meRes.ok) {
+      const meData = await meRes.json();
+      setMe(meData);
+      if (meData && !meData.hasSignedAgreement) {
+        setShowAgreement(true);
+      }
+    }
   }
 
   useEffect(() => { load(); }, []);
@@ -369,6 +381,16 @@ export default function PastorPage() {
           )}
         </div>
       </main>
+
+      {showAgreement && (
+        <TradingAgreementModal
+          userName={me?.name}
+          onAgree={() => {
+            setShowAgreement(false);
+            setMe((m: any) => m ? { ...m, hasSignedAgreement: true } : m);
+          }}
+        />
+      )}
     </div>
   );
 }

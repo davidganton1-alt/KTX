@@ -66,6 +66,8 @@ export type User = {
   // Admin controls
   suspended?: boolean;
   hasSeenTour?: boolean;
+  hasSignedAgreement?: boolean;
+  agreementSignedAt?: number;
   // Notifications feed (merged with platform announcements client-side)
   notifications: UserNotification[];
   lastSeenNotifs: number;

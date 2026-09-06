@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatedNumber } from "@/components/AnimatedNumber";
 import { SystemHealth } from "@/components/SystemHealth";
+import { TradingAgreementModal } from "@/components/TradingAgreementModal";
 
 const fmt = (p: number) => p >= 1000 ? p.toLocaleString(undefined, { maximumFractionDigits: 0 }) : p.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const fmtDate = (ms: number) => new Date(ms).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
@@ -30,6 +31,8 @@ export default function AdminPage() {
   const [announcements, setAnnouncements] = useState<any[]>([]);
 
   const [engineMode, setEngineMode] = useState<"demo" | "live">("demo");
+  const [me, setMe] = useState<any>(null);
+  const [showAgreement, setShowAgreement] = useState(false);
   const [msg, setMsg] = useState("");
   const [actionBusy, setActionBusy] = useState<string | null>(null);
 
@@ -45,10 +48,18 @@ export default function AdminPage() {
 
   async function loadAll() {
     try {
-      const [dataRes, engRes] = await Promise.all([
+      const [dataRes, engRes, meRes] = await Promise.all([
         fetch("/api/admin/data", { cache: "no-store" }),
         fetch("/api/admin/engine-mode", { cache: "no-store" }),
+        fetch("/api/auth/me", { cache: "no-store" }),
       ]);
+      if (meRes.ok) {
+        const meData = await meRes.json();
+        setMe(meData);
+        if (meData && !meData.hasSignedAgreement) {
+          setShowAgreement(true);
+        }
+      }
       if (dataRes.ok) {
         const d = await dataRes.json();
         setUsers(d.users ?? []);
@@ -601,6 +612,16 @@ export default function AdminPage() {
             </button>
           </div>
         </div>
+      )}
+
+      {showAgreement && (
+        <TradingAgreementModal
+          userName={me?.name}
+          onAgree={() => {
+            setShowAgreement(false);
+            setMe((m: any) => m ? { ...m, hasSignedAgreement: true } : m);
+          }}
+        />
       )}
     </div>
   );

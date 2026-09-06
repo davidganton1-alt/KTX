@@ -5,6 +5,7 @@ import { AnimatedNumber } from "@/components/AnimatedNumber";
 import { ProEngine } from "@/components/ProEngine";
 import { TierComparison } from "@/components/TierComparison";
 import { PortfolioChart } from "@/components/PortfolioChart";
+import { TradingAgreementModal } from "@/components/TradingAgreementModal";
 import { SpotlightTour } from "@/components/SpotlightTour";
 
 const fmt = (p: number) => p >= 1000 ? p.toLocaleString(undefined, { maximumFractionDigits: 0 }) : p.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -36,6 +37,7 @@ export default function ConsolePage() {
   const [referral, setReferral] = useState<any>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showTierModal, setShowTierModal] = useState(false);
+  const [showAgreement, setShowAgreement] = useState(false);
   const [depositAmount, setDepositAmount] = useState("");
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const [actionMsg, setActionMsg] = useState("");
@@ -51,8 +53,12 @@ export default function ConsolePage() {
           fetch("/api/user/referral", { cache: "no-store" }),
         ]);
         if (wRes.ok) setWallet(await wRes.json());
-        if (meRes.ok) setMe(await meRes.json());
+        const meData = meRes.ok ? await meRes.json() : null;
+        if (meData) setMe(meData);
         if (rRes.ok) setReferral(await rRes.json());
+        if (meData && !meData.hasSignedAgreement) {
+          setShowAgreement(true);
+        }
       } catch {}
     }
     load();
@@ -396,6 +402,16 @@ export default function ConsolePage() {
         isOpen={showTierModal}
         onClose={() => setShowTierModal(false)}
       />
+
+      {showAgreement && (
+        <TradingAgreementModal
+          userName={me?.name}
+          onAgree={() => {
+            setShowAgreement(false);
+            setMe((m: any) => m ? { ...m, hasSignedAgreement: true } : m);
+          }}
+        />
+      )}
     </div>
   );
 }
