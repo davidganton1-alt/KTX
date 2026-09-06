@@ -1,779 +1,263 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { TradeEngine } from "@/components/TradeEngine";
+import { AnimatedNumber } from "@/components/AnimatedNumber";
 
-type UserRow = {
-  id: string;
-  name: string;
-  email: string;
-  tier: string;
-  deposited: number;
-  profit: number;
-  balance: number;
-  createdAt: number;
-  referredBy?: string;
-  pastorName?: string;
-  pastorShareRate?: number;
-  suspended: boolean;
-};
-type WithdrawalRow = {
-  id: string;
-  userId: string;
-  userName: string;
-  userEmail: string;
-  amount: number;
-  requestedAt: number;
-  status: string;
-};
-type PayoutRow = {
-  id: string;
-  amount: number;
-  requestedAt: number;
-  status: string;
-};
-type PastorRow = {
-  id: string;
-  name: string;
-  email: string;
-  ministry: string;
-  shareRate: number;
-  earnedTotal: number;
-  available: number;
-  referrals: number;
-  payouts: PayoutRow[];
-  profitHistory: { date: string; profit: number }[];
-};
-type PastorAppRow = {
-  id: string;
-  name: string;
-  email: string;
-  ministry: string;
-  message: string;
-  shareRate: number;
-  createdAt: number;
-};
-type AnnouncementRow = {
-  id: string;
-  title: string;
-  body: string;
-  createdAt: number;
-};
-type AdminData = {
-  users: UserRow[];
-  withdrawals: WithdrawalRow[];
-  pastors: PastorRow[];
-  pastorApplications: PastorAppRow[];
-  announcements: AnnouncementRow[];
-};
+const fmt = (p: number) => p >= 1000 ? p.toLocaleString(undefined, { maximumFractionDigits: 0 }) : p.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmtDate = (ms: number) => new Date(ms).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
 
-const TIER_LABEL: Record<string, string> = {
-  faithful: "Faithful",
-  steward: "Steward",
-  ambassador: "Ambassador",
-  none: "No plan",
-};
 const TABS = [
-  { id: "overview", label: "Overview" },
-  { id: "analytics", label: "Analytics" },
-  { id: "users", label: "Users" },
-  { id: "pastors", label: "Pastors" },
-  { id: "deposits", label: "Deposits" },
-  { id: "withdrawals", label: "Withdrawals" },
-  { id: "announcements", label: "Announcements" },
-  { id: "engine", label: "AI Trade Engine" },
-  { id: "markets", label: "Markets" },
-  { id: "plans", label: "Plans" },
+  { id: "overview", label: "Overview", icon: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" },
+  { id: "users", label: "User Management", icon: "M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" },
+  { id: "pastors", label: "Pastor Approvals", icon: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" },
+  { id: "withdrawals", label: "Withdrawals", icon: "M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" },
+  { id: "engine", label: "Engine Control", icon: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" },
+  { id: "announcements", label: "Announcements", icon: "M11 5.882V19.24a1.765 1.765 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" },
 ];
 
-const SKELETON_ADMIN: AdminData = {
-  users: [],
-  withdrawals: [],
-  pastors: [],
-  pastorApplications: [],
-  announcements: [],
-};
-
-export default function AdminConsole() {
+export default function AdminPage() {
   const router = useRouter();
-  const [tab, setTab] = useState("overview");
-  const [data, setData] = useState<AdminData>(SKELETON_ADMIN);
-  const [markets, setMarkets] = useState<{ symbol: string; name: string; class: string; price: number; change24h: number }[]>([]);
-  const [note, setNote] = useState<string | null>(null);
-  // Announcements form
-  const [annTitle, setAnnTitle] = useState("");
-  const [annBody, setAnnBody] = useState("");
-  // User management
-  const [adjustTarget, setAdjustTarget] = useState<string | null>(null);
-  const [adjustAmount, setAdjustAmount] = useState("");
-
-  async function load() {
-    const res = await fetch("/api/admin/data");
-    if (res.status === 401 || res.status === 403) {
-      router.push("/login");
-      return;
-    }
-    setData(await res.json());
-  }
+  const [activeTab, setActiveTab] = useState("overview");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [stats, setStats] = useState<any>(null);
+  const [users, setUsers] = useState<any[]>([]);
+  const [pastorApps, setPastorApps] = useState<any[]>([]);
+  const [withdrawals, setWithdrawals] = useState<any[]>([]);
+  const [engineMode, setEngineMode] = useState("demo");
+  const [announcement, setAnnouncement] = useState("");
+  const [msg, setMsg] = useState("");
 
   useEffect(() => {
-    load();
+    loadAll();
   }, []);
 
-  useEffect(() => {
-    if (tab === "markets") fetch("/api/markets").then((r) => r.json()).then((j) => setMarkets(j.assets));
-  }, [tab]);
-
-  async function decide(wid: string, status: "approved" | "rejected") {
-    setNote(null);
-    const res = await fetch(`/api/admin/withdrawal?wid=${wid}&status=${status}`, { method: "POST" });
-    const json = await res.json();
-    if (res.ok) {
-      setNote(`Withdrawal ${status}.`);
-      load();
-    } else setNote(json.error || "Failed");
+  async function loadAll() {
+    try {
+      const [dataRes, usersRes, pastorsRes, withdrawalsRes, engineRes] = await Promise.all([
+        fetch("/api/admin/data", { cache: "no-store" }),
+        fetch("/api/admin/user", { cache: "no-store" }),
+        fetch("/api/admin/pastor", { cache: "no-store" }),
+        fetch("/api/admin/withdrawal", { cache: "no-store" }),
+        fetch("/api/admin/engine-mode", { cache: "no-store" }),
+      ]);
+      if (dataRes.ok) setStats(await dataRes.json());
+      if (usersRes.ok) { const d = await usersRes.json(); setUsers(Array.isArray(d) ? d : d.users ?? []); }
+      if (pastorsRes.ok) { const d = await pastorsRes.json(); setPastorApps(Array.isArray(d) ? d : d.applications ?? d.pending ?? []); }
+      if (withdrawalsRes.ok) { const d = await withdrawalsRes.json(); setWithdrawals(Array.isArray(d) ? d : d.withdrawals ?? d.pending ?? []); }
+      if (engineRes.ok) { const d = await engineRes.json(); setEngineMode(d.engineMode ?? "demo"); }
+    } catch {}
   }
 
-  async function reviewPastor(id: string, status: "approved" | "rejected") {
-    setNote(null);
-    const res = await fetch(`/api/admin/pastor`, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ id, status }),
-    });
-    const json = await res.json();
-    if (res.ok) {
-      if (status === "approved" && json.pastor?.credentials) {
-        const c = json.pastor.credentials;
-        setNote(`Pastor approved. Login: ${c.email} · password: ${c.password} (share with the pastor, they can change it later).`);
-      } else {
-        setNote(`Pastor ${status}.`);
-      }
-      load();
-    } else setNote(json.error || "Failed");
-  }
-
-  async function setPastorRate(id: string, rate: number) {
-    setNote(null);
-    const res = await fetch("/api/admin/pastor", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ id, action: "set-rate", shareRate: rate }),
-    });
-    const json = await res.json();
-    if (res.ok) {
-      setNote(`Share rate updated to ${rate}%.`);
-      load();
-    } else setNote(json.error || "Failed");
-  }
-
-  async function payoutDecision(pastorId: string, payoutId: string, status: "approved" | "rejected") {
-    setNote(null);
-    const res = await fetch("/api/admin/pastor", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ id: pastorId, action: "payout", payoutId, status }),
-    });
-    const json = await res.json();
-    if (res.ok) {
-      setNote(`Payout ${status}.`);
-      load();
-    } else setNote(json.error || "Failed");
-  }
-
-  async function userAction(id: string, action: string, extra?: Record<string, unknown>) {
-    setNote(null);
-    const res = await fetch("/api/admin/user", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ id, action, ...extra }),
-    });
-    const json = await res.json();
-    if (res.ok) {
-      setNote(action === "suspend" ? "User suspended." : action === "reactivate" ? "User reactivated." : "User updated.");
-      setAdjustTarget(null);
-      setAdjustAmount("");
-      load();
-    } else setNote(json.error || "Failed");
+  async function toggleEngine() {
+    const newMode = engineMode === "demo" ? "live" : "demo";
+    try {
+      const res = await fetch("/api/admin/engine-mode", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode: newMode }) });
+      if (res.ok) { setEngineMode(newMode); setMsg(`Engine mode set to ${newMode}.`); }
+      else setMsg("Failed to update engine mode.");
+    } catch { setMsg("Network error."); }
+    setTimeout(() => setMsg(""), 3000);
   }
 
   async function postAnnouncement() {
-    setNote(null);
-    const res = await fetch("/api/admin/announcements", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ title: annTitle, body: annBody }),
-    });
-    const json = await res.json();
-    if (res.ok) {
-      setNote("Announcement published. It now appears on every member and pastor panel.");
-      setAnnTitle("");
-      setAnnBody("");
-      load();
-    } else setNote(json.error || "Failed");
+    if (!announcement.trim()) return;
+    try {
+      const res = await fetch("/api/admin/announcements", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text: announcement }) });
+      if (res.ok) { setMsg("Announcement published."); setAnnouncement(""); }
+      else setMsg("Failed to publish.");
+    } catch { setMsg("Network error."); }
+    setTimeout(() => setMsg(""), 3000);
   }
 
-  async function deleteAnnouncement(id: string) {
-    setNote(null);
-    const res = await fetch(`/api/admin/announcements?id=${id}`, { method: "DELETE" });
-    if (res.ok) {
-      setNote("Announcement removed.");
-      load();
-    } else setNote("Failed to remove.");
+  async function handleLogout() {
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.push("/login");
   }
-
-  const funded = data.users.filter((u) => u.deposited > 0);
-  const totalDeposited = data.users.reduce((s, u) => s + u.deposited, 0);
-  const totalProfit = data.users.reduce((s, u) => s + u.profit, 0);
-  const pending = data.withdrawals.filter((w) => w.status === "pending");
-  const pendingPayouts = data.pastors.flatMap((p) =>
-    (p.payouts || []).filter((x) => x.status === "pending").map((x) => ({ ...x, pastor: p }))
-  );
 
   return (
-    <div className="flex min-h-screen flex-col md:flex-row">
-      <aside className="w-full shrink-0 border-b border-[var(--border)] bg-[var(--card)] p-4 md:w-64 md:border-b-0 md:border-r">
-        <div className="flex items-center gap-3 px-2 pb-4">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-r from-loss to-royal-violet font-bold text-white">A</div>
-          <div>
-            <p className="text-sm font-semibold">Admin</p>
-            <p className="text-xs text-[var(--gold)]">Console</p>
-          </div>
+    <div className="flex min-h-screen bg-[#05080F] text-slate-300 font-sans">
+      {/* SIDEBAR */}
+      <aside className={`fixed inset-y-0 left-0 z-40 w-64 transform border-r border-white/5 bg-[#0B0F19] transition-transform duration-300 lg:static lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
+        <div className="flex h-16 items-center justify-center border-b border-white/5">
+          <span className="text-xl font-bold tracking-tight text-white">KTX <span className="text-red-400">Admin</span></span>
         </div>
-        <nav className="flex flex-row flex-wrap gap-1 md:flex-col">
-          {TABS.map((t) => (
-            <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
-              className={`rounded-xl px-3 py-2 text-left text-sm transition ${
-                tab === t.id ? "bg-gradient-to-r from-royal-violet/30 to-cyan-light/20 text-[var(--fg)]" : "text-[var(--muted)] hover:bg-[var(--bg)]"
-              }`}
-            >
-              {t.label}
-              {t.id === "withdrawals" && pending.length > 0 && (
-                <span className="ml-2 rounded-full bg-loss px-1.5 text-xs text-white">{pending.length}</span>
-              )}
-              {t.id === "pastors" && pendingPayouts.length > 0 && (
-                <span className="ml-2 rounded-full bg-loss px-1.5 text-xs text-white">{pendingPayouts.length}</span>
-              )}
+        <nav className="mt-6 space-y-1 px-3">
+          {TABS.map((tab) => (
+            <button key={tab.id} onClick={() => { setActiveTab(tab.id); setSidebarOpen(false); }}
+              className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-colors ${activeTab === tab.id ? "bg-red-500/10 text-red-400" : "text-slate-400 hover:bg-white/5 hover:text-white"}`}>
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d={tab.icon} /></svg>
+              {tab.label}
             </button>
           ))}
         </nav>
-        <button
-          onClick={async () => {
-            await fetch("/api/auth/logout", { method: "POST" });
-            router.push("/");
-          }}
-          className="mt-4 w-full rounded-xl border border-[var(--border)] px-3 py-2 text-left text-sm text-loss transition hover:border-loss"
-        >
-          Sign out
-        </button>
+        <div className="absolute bottom-6 left-0 w-full px-3">
+          <button onClick={handleLogout} className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-red-400/80 hover:bg-red-500/10 hover:text-red-400">
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+            Sign Out
+          </button>
+        </div>
       </aside>
 
-      <main className="flex-1 px-4 py-8 md:px-10 md:py-10">
-        <div className="container-wide">
-        {note && <p className="mb-4 rounded-xl border border-[var(--gold)]/40 bg-[var(--card)] px-4 py-2 text-sm text-[var(--gold)]">{note}</p>}
+      {/* MAIN */}
+      <main className="flex-1 overflow-y-auto">
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-white/5 bg-[#05080F]/80 px-6 backdrop-blur-md">
+          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-slate-400 lg:hidden">
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
+          </button>
+          <h2 className="text-lg font-bold text-white">{TABS.find(t => t.id === activeTab)?.label}</h2>
+          <div className="flex items-center gap-3">
+            <span className="rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-xs font-bold text-red-400">⚡ Admin</span>
+            <div className="h-8 w-8 rounded-full bg-gradient-to-br from-red-400 to-red-600" />
+          </div>
+        </header>
 
-        {tab === "overview" && (
-          <>
-            <h2 className="text-2xl font-bold">Platform overview</h2>
-            <div className="mt-6 grid gap-4 sm:grid-cols-4">
-              <Stat label="Total users" value={`${data.users.length}`} />
-              <Stat label="Funded users" value={`${funded.length}`} />
-              <Stat label="Total deposited" value={`$${totalDeposited.toLocaleString("en-US")}`} accent="text-[var(--gold)]" />
-              <Stat label="Accrued profit" value={`$${totalProfit.toLocaleString("en-US", { maximumFractionDigits: 2 })}`} accent="text-profit" />
-              <Stat label="Pending withdrawals" value={`${pending.length}`} accent="text-loss" />
-              <Stat label="Active pastors" value={`${data.pastors.length}`} accent="text-[var(--gold)]" />
-              <Stat label="Pending pastor payouts" value={`${pendingPayouts.length}`} accent="text-loss" />
-              <Stat label="Status" value="Live demo" />
-            </div>
-          </>
-        )}
+        <div className="p-6 lg:p-8">
+          {msg && <div className="mb-4 rounded-xl border border-[var(--gold)]/40 bg-[var(--gold)]/10 p-3 text-center text-sm text-[var(--gold)]">{msg}</div>}
 
-        {tab === "analytics" && <Analytics data={data} />}
-
-        {tab === "users" && (
-          <>
-            <h2 className="text-2xl font-bold">Users</h2>
-            <p className="mt-1 text-sm text-[var(--muted)]">
-              Suspend or reactivate accounts, change plans, or adjust profit. Changes are
-              notified to the member automatically.
-            </p>
-            <div className="mt-4 overflow-x-auto">
-              <table className="w-full min-w-[860px] text-sm">
-                <thead>
-                  <tr className="text-left text-[var(--muted)]">
-                    <th className="py-2">Name</th>
-                    <th>Email</th>
-                    <th>Plan</th>
-                    <th>Deposited</th>
-                    <th>Profit</th>
-                    <th>Joined</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.users.map((u) => (
-                    <tr key={u.id} className="border-t border-[var(--border)]">
-                      <td className="py-2 font-medium">{u.name}</td>
-                      <td className="text-[var(--muted)]">{u.email}</td>
-                      <td>
-                        <select
-                          value={u.tier}
-                          onChange={(e) => userAction(u.id, "set-tier", { tier: e.target.value })}
-                          className="rounded-lg border border-[var(--border)] bg-[var(--bg)] px-2 py-1 text-xs outline-none"
-                        >
-                          <option value="none">No plan</option>
-                          <option value="faithful">Faithful</option>
-                          <option value="steward">Steward</option>
-                          <option value="ambassador">Ambassador</option>
-                        </select>
-                      </td>
-                      <td>${u.deposited.toLocaleString("en-US")}</td>
-                      <td className="text-profit">${u.profit.toFixed(2)}</td>
-                      <td className="text-xs text-[var(--muted)]">{new Date(u.createdAt).toLocaleDateString()}</td>
-                      <td>
-                        <span className={`rounded-full px-2 py-0.5 text-[10px] uppercase tracking-wide ${u.suspended ? "bg-loss/20 text-loss" : "bg-profit/20 text-profit"}`}>
-                          {u.suspended ? "Suspended" : "Active"}
-                        </span>
-                      </td>
-                      <td>
-                        <div className="flex flex-wrap items-center gap-1.5">
-                          {u.suspended ? (
-                            <button onClick={() => userAction(u.id, "reactivate")} className="rounded-full bg-profit/20 px-3 py-1 text-xs text-profit transition hover:bg-profit/30">
-                              Reactivate
-                            </button>
-                          ) : (
-                            <button onClick={() => userAction(u.id, "suspend")} className="rounded-full bg-loss/20 px-3 py-1 text-xs text-loss transition hover:bg-loss/30">
-                              Suspend
-                            </button>
-                          )}
-                          {adjustTarget === u.id ? (
-                            <span className="flex items-center gap-1">
-                              <input
-                                type="number"
-                                value={adjustAmount}
-                                onChange={(e) => setAdjustAmount(e.target.value)}
-                                placeholder="+/- $"
-                                className="w-24 rounded-lg border border-[var(--border)] bg-[var(--bg)] px-2 py-1 text-xs outline-none"
-                              />
-                              <button
-                                onClick={() => userAction(u.id, "adjust-profit", { amount: Number(adjustAmount) })}
-                                className="rounded-full bg-gradient-to-r from-gold-light to-royal-violet px-3 py-1 text-xs font-semibold text-white"
-                              >
-                                Apply
-                              </button>
-                              <button onClick={() => setAdjustTarget(null)} className="rounded-full border border-[var(--border)] px-2 py-1 text-xs text-[var(--muted)]">
-                                ✕
-                              </button>
-                            </span>
-                          ) : (
-                            <button onClick={() => { setAdjustTarget(u.id); setAdjustAmount(""); }} className="rounded-full border border-[var(--border)] px-3 py-1 text-xs text-[var(--muted)] transition hover:border-[var(--gold)]">
-                              Adjust profit
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </>
-        )}
-
-        {tab === "pastors" && (
-          <>
-            <h2 className="text-2xl font-bold">Pastors &amp; referrals</h2>
-
-            <h3 className="mt-6 text-sm font-semibold uppercase tracking-widest text-[var(--muted)]">
-              Active pastors
-            </h3>
-            <div className="mt-3 overflow-x-auto">
-              <table className="w-full min-w-[760px] text-sm">
-                <thead>
-                  <tr className="text-left text-[var(--muted)]">
-                    <th className="py-2">Name</th>
-                    <th>Login email</th>
-                    <th>Ministry</th>
-                    <th>Share rate</th>
-                    <th>Referrals</th>
-                    <th>Earned</th>
-                    <th>Available</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.pastors.map((p) => (
-                    <tr key={p.id} className="border-t border-[var(--border)]">
-                      <td className="py-2 font-medium">{p.name}</td>
-                      <td className="text-[var(--muted)]">{p.email}</td>
-                      <td className="text-[var(--muted)]">{p.ministry}</td>
-                      <td>
-                        <span className="flex items-center gap-1">
-                          <input
-                            type="number"
-                            defaultValue={p.shareRate}
-                            min={0}
-                            max={50}
-                            onBlur={(e) => {
-                              const v = Number(e.target.value);
-                              if (v !== p.shareRate) setPastorRate(p.id, v);
-                            }}
-                            className="w-16 rounded-lg border border-[var(--border)] bg-[var(--bg)] px-2 py-1 text-xs text-[var(--gold)] outline-none"
-                          />
-                          <span className="text-xs text-[var(--muted)]">%</span>
-                        </span>
-                      </td>
-                      <td>{p.referrals}</td>
-                      <td className="text-profit">${p.earnedTotal.toFixed(2)}</td>
-                      <td className="text-[var(--gold)]">${p.available.toFixed(2)}</td>
-                    </tr>
-                  ))}
-                  {data.pastors.length === 0 && (
-                    <tr><td colSpan={7} className="py-3 text-[var(--muted)]">No active pastors yet.</td></tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-
-            <h3 className="mt-8 text-sm font-semibold uppercase tracking-widest text-[var(--muted)]">
-              Pastor payout requests
-            </h3>
-            <div className="mt-3 flex flex-col gap-3">
-              {pendingPayouts.length === 0 && (
-                <p className="text-sm text-[var(--muted)]">No pending payout requests.</p>
-              )}
-              {pendingPayouts.map((x) => (
-                <div key={x.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[var(--border)] px-4 py-3">
-                  <div>
-                    <p className="font-medium">{x.pastor.name} <span className="text-xs text-[var(--muted)]">{x.pastor.email}</span></p>
-                    <p className="text-sm text-[var(--muted)]">${x.amount.toFixed(2)} · requested {new Date(x.requestedAt).toLocaleString()}</p>
-                  </div>
-                  <div className="flex gap-2">
-                    <button onClick={() => payoutDecision(x.pastor.id, x.id, "approved")} className="rounded-full bg-profit/20 px-4 py-1.5 text-sm text-profit transition hover:bg-profit/30">Approve</button>
-                    <button onClick={() => payoutDecision(x.pastor.id, x.id, "rejected")} className="rounded-full bg-loss/20 px-4 py-1.5 text-sm text-loss transition hover:bg-loss/30">Reject</button>
-                  </div>
+          {/* ═══ OVERVIEW ═══ */}
+          {activeTab === "overview" && (
+            <div className="space-y-6">
+              <div className="grid gap-4 md:grid-cols-4">
+                <div className="rounded-xl border border-white/5 bg-[#0B0F19] p-6">
+                  <p className="text-sm text-slate-500">Total Users</p>
+                  <p className="mt-2 text-3xl font-extrabold text-white tabular-nums"><AnimatedNumber value={stats?.totalUsers ?? users.length} /></p>
                 </div>
-              ))}
-            </div>
-
-            <h3 className="mt-8 text-sm font-semibold uppercase tracking-widest text-[var(--muted)]">
-              Pending applications
-            </h3>
-            <div className="mt-3 flex flex-col gap-3">
-              {data.pastorApplications.length === 0 && (
-                <p className="text-sm text-[var(--muted)]">No pending applications.</p>
-              )}
-              {data.pastorApplications.map((a) => (
-                <div key={a.id} className="flex flex-wrap items-start justify-between gap-3 rounded-xl border border-[var(--border)] px-4 py-3">
-                  <div>
-                    <p className="font-medium">{a.name} <span className="text-xs text-[var(--muted)]">{a.email}</span></p>
-                    <p className="text-sm text-[var(--muted)]">{a.ministry}</p>
-                    {a.message && <p className="mt-1 max-w-xl text-sm text-[var(--muted)]">{a.message}</p>}
-                  </div>
-                  <div className="flex gap-2">
-                    <button onClick={() => reviewPastor(a.id, "approved")} className="rounded-full bg-profit/20 px-4 py-1.5 text-sm text-profit transition hover:bg-profit/30">Approve</button>
-                    <button onClick={() => reviewPastor(a.id, "rejected")} className="rounded-full bg-loss/20 px-4 py-1.5 text-sm text-loss transition hover:bg-loss/30">Reject</button>
-                  </div>
+                <div className="rounded-xl border border-white/5 bg-[#0B0F19] p-6">
+                  <p className="text-sm text-slate-500">Total Deposits</p>
+                  <p className="mt-2 text-3xl font-extrabold text-emerald-400 tabular-nums">$<AnimatedNumber value={stats?.totalDeposits ?? 0} /></p>
                 </div>
-              ))}
-            </div>
-          </>
-        )}
+                <div className="rounded-xl border border-white/5 bg-[#0B0F19] p-6">
+                  <p className="text-sm text-slate-500">Active Pastors</p>
+                  <p className="mt-2 text-3xl font-extrabold text-[var(--gold)] tabular-nums"><AnimatedNumber value={stats?.activePastors ?? 0} /></p>
+                </div>
+                <div className="rounded-xl border border-white/5 bg-[#0B0F19] p-6">
+                  <p className="text-sm text-slate-500">Pending Withdrawals</p>
+                  <p className="mt-2 text-3xl font-extrabold text-red-400 tabular-nums"><AnimatedNumber value={withdrawals.length} /></p>
+                </div>
+              </div>
 
-        {tab === "announcements" && (
-          <>
-            <h2 className="text-2xl font-bold">Announcements</h2>
-            <p className="mt-1 text-sm text-[var(--muted)]">
-              Broadcast to every member and pastor panel. New posts appear at the top of
-              their notifications feed.
-            </p>
-            <div className="mt-6 max-w-2xl rounded-2xl border border-[var(--gold)]/30 p-5">
-              <p className="text-sm font-semibold">Publish a new announcement</p>
-              <div className="mt-4 flex flex-col gap-3">
-                <input
-                  value={annTitle}
-                  onChange={(e) => setAnnTitle(e.target.value)}
-                  placeholder="Title, e.g. Weekend maintenance window"
-                  className="rounded-xl border border-[var(--border)] bg-[var(--bg)] px-4 py-3 outline-none focus:border-[var(--gold)]"
-                />
-                <textarea
-                  value={annBody}
-                  onChange={(e) => setAnnBody(e.target.value)}
-                  placeholder="Message shown to all members"
-                  rows={4}
-                  className="rounded-xl border border-[var(--border)] bg-[var(--bg)] px-4 py-3 outline-none focus:border-[var(--gold)]"
-                />
-                <button
-                  onClick={postAnnouncement}
-                  disabled={!annTitle.trim()}
-                  className="self-start rounded-full bg-gradient-to-r from-gold-light to-royal-violet px-6 py-3 font-semibold text-white shadow-gold transition hover:brightness-110 disabled:opacity-50"
-                >
-                  Publish
+              {/* Engine Status */}
+              <div className="rounded-xl border border-white/5 bg-[#0B0F19] p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-bold text-white">Engine Status</h3>
+                    <p className="mt-1 text-sm text-slate-500">Currently running in <b className={engineMode === "live" ? "text-emerald-400" : "text-amber-400"}>{engineMode.toUpperCase()}</b> mode</p>
+                  </div>
+                  <button onClick={toggleEngine} className={`rounded-lg px-6 py-3 text-sm font-bold transition ${engineMode === "demo" ? "bg-emerald-500 text-white hover:bg-emerald-400" : "bg-amber-500 text-black hover:bg-amber-400"}`}>
+                    Switch to {engineMode === "demo" ? "LIVE" : "DEMO"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ═══ USERS ═══ */}
+          {activeTab === "users" && (
+            <div className="rounded-xl border border-white/5 bg-[#0B0F19] p-6">
+              <h3 className="mb-4 text-lg font-bold text-white">All Users ({users.length})</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left font-mono text-[11px]">
+                  <thead><tr className="border-b border-white/10 text-[9px] uppercase tracking-widest text-slate-500">
+                    <th className="px-3 py-2">Name</th><th className="px-3 py-2">Email</th><th className="px-3 py-2">Tier</th>
+                    <th className="px-3 py-2">Deposited</th><th className="px-3 py-2">Verified</th><th className="px-3 py-2">Role</th>
+                  </tr></thead>
+                  <tbody>
+                    {users.map((u: any, i: number) => (
+                      <tr key={u.id ?? i} className="border-b border-white/5">
+                        <td className="px-3 py-3 font-bold text-white">{u.name}</td>
+                        <td className="px-3 py-3 text-slate-500">{u.email}</td>
+                        <td className="px-3 py-3 capitalize text-[var(--gold)]">{u.tier ?? "none"}</td>
+                        <td className="px-3 py-3 text-white">${fmt(u.deposited ?? 0)}</td>
+                        <td className="px-3 py-3">{u.emailVerified ? <span className="text-emerald-400">✓</span> : <span className="text-red-400">✕</span>}</td>
+                        <td className="px-3 py-3 capitalize text-slate-400">{u.role ?? "user"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* ═══ PASTOR APPROVALS ═══ */}
+          {activeTab === "pastors" && (
+            <div className="rounded-xl border border-white/5 bg-[#0B0F19] p-6">
+              <h3 className="mb-4 text-lg font-bold text-white">Pending Pastor Applications ({pastorApps.length})</h3>
+              {pastorApps.length === 0 ? (
+                <p className="py-8 text-center text-sm text-slate-500">No pending applications.</p>
+              ) : (
+                <div className="space-y-3">
+                  {pastorApps.map((p: any, i: number) => (
+                    <div key={p.id ?? i} className="flex items-center justify-between rounded-xl border border-white/5 bg-white/[0.02] p-4">
+                      <div>
+                        <p className="font-bold text-white">{p.name}</p>
+                        <p className="text-xs text-slate-500">{p.email} · {p.ministry}</p>
+                        {p.message && <p className="mt-1 text-xs text-slate-400 italic">"{p.message}"</p>}
+                      </div>
+                      <div className="flex gap-2">
+                        <button className="rounded-lg bg-emerald-500 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-400">Approve</button>
+                        <button className="rounded-lg bg-red-500/20 px-4 py-2 text-xs font-bold text-red-400 hover:bg-red-500/30">Reject</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ═══ WITHDRAWALS ═══ */}
+          {activeTab === "withdrawals" && (
+            <div className="rounded-xl border border-white/5 bg-[#0B0F19] p-6">
+              <h3 className="mb-4 text-lg font-bold text-white">Pending Withdrawals ({withdrawals.length})</h3>
+              {withdrawals.length === 0 ? (
+                <p className="py-8 text-center text-sm text-slate-500">No pending withdrawals.</p>
+              ) : (
+                <div className="space-y-3">
+                  {withdrawals.map((w: any, i: number) => (
+                    <div key={w.id ?? i} className="flex items-center justify-between rounded-xl border border-white/5 bg-white/[0.02] p-4">
+                      <div>
+                        <p className="font-bold text-white">${fmt(w.amount ?? 0)}</p>
+                        <p className="text-xs text-slate-500">{w.userName ?? w.email ?? "User"} · {fmtDate(w.date ?? w.requestedAt ?? Date.now())}</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <button className="rounded-lg bg-emerald-500 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-400">Approve</button>
+                        <button className="rounded-lg bg-red-500/20 px-4 py-2 text-xs font-bold text-red-400 hover:bg-red-500/30">Reject</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ═══ ENGINE CONTROL ═══ */}
+          {activeTab === "engine" && (
+            <div className="rounded-xl border border-white/5 bg-[#0B0F19] p-6">
+              <h3 className="text-lg font-bold text-white">Engine Control Panel</h3>
+              <p className="mt-2 text-sm text-slate-500">Toggle between demo and live trading modes. Changes apply instantly across the platform.</p>
+              <div className="mt-6 flex items-center gap-4">
+                <div className={`flex h-16 w-32 items-center justify-center rounded-xl border-2 font-bold ${engineMode === "live" ? "border-emerald-500 bg-emerald-500/10 text-emerald-400" : "border-amber-500 bg-amber-500/10 text-amber-400"}`}>
+                  {engineMode.toUpperCase()}
+                </div>
+                <button onClick={toggleEngine} className="rounded-lg bg-white/10 px-6 py-3 text-sm font-bold text-white transition hover:bg-white/20">
+                  Toggle Mode
                 </button>
               </div>
             </div>
-            <h3 className="mt-8 text-sm font-semibold uppercase tracking-widest text-[var(--muted)]">Published</h3>
-            <div className="mt-3 flex flex-col gap-3">
-              {data.announcements.length === 0 && (
-                <p className="text-sm text-[var(--muted)]">Nothing published yet.</p>
-              )}
-              {data.announcements.map((a) => (
-                <div key={a.id} className="flex flex-wrap items-start justify-between gap-3 rounded-xl border border-[var(--border)] px-4 py-3">
-                  <div className="max-w-xl">
-                    <p className="font-medium">{a.title}</p>
-                    {a.body && <p className="mt-1 text-sm text-[var(--muted)]">{a.body}</p>}
-                    <p className="mt-1 text-xs text-[var(--muted)]">{new Date(a.createdAt).toLocaleString()}</p>
-                  </div>
-                  <button onClick={() => deleteAnnouncement(a.id)} className="rounded-full bg-loss/20 px-3 py-1 text-xs text-loss transition hover:bg-loss/30">
-                    Remove
-                  </button>
-                </div>
-              ))}
-            </div>
-          </>
-        )}
+          )}
 
-        {tab === "deposits" && (
-          <>
-            <h2 className="text-2xl font-bold">Deposits</h2>
-            <div className="mt-4 overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="text-left text-[var(--muted)]">
-                    <th className="py-2">User</th>
-                    <th>Plan</th>
-                    <th>Amount</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.users.filter((u) => u.deposited > 0).map((u) => (
-                    <tr key={u.id} className="border-t border-[var(--border)]">
-                      <td className="py-2 font-medium">{u.name}</td>
-                      <td>{TIER_LABEL[u.tier]}</td>
-                      <td>${u.deposited.toLocaleString("en-US")}</td>
-                    </tr>
-                  ))}
-                  {data.users.filter((u) => u.deposited > 0).length === 0 && (
-                    <tr><td colSpan={3} className="py-3 text-[var(--muted)]">No deposits yet.</td></tr>
-                  )}
-                </tbody>
-              </table>
+          {/* ═══ ANNOUNCEMENTS ═══ */}
+          {activeTab === "announcements" && (
+            <div className="rounded-xl border border-white/5 bg-[#0B0F19] p-6">
+              <h3 className="text-lg font-bold text-white">Publish Announcement</h3>
+              <p className="mt-2 text-sm text-slate-500">This will appear as a banner across all user dashboards.</p>
+              <textarea value={announcement} onChange={(e) => setAnnouncement(e.target.value)} rows={4} placeholder="Type your announcement..."
+                className="mt-4 w-full rounded-lg border border-white/10 bg-[#05080F] px-4 py-3 text-sm text-white outline-none focus:border-[var(--gold)]" />
+              <button onClick={postAnnouncement} disabled={!announcement.trim()} className="mt-3 rounded-lg bg-[var(--gold)] px-6 py-3 text-sm font-bold text-black transition hover:brightness-110 disabled:opacity-50">
+                Publish
+              </button>
             </div>
-          </>
-        )}
-
-        {tab === "withdrawals" && (
-          <>
-            <h2 className="text-2xl font-bold">Withdrawals</h2>
-            <div className="mt-4 flex flex-col gap-3">
-              {data.withdrawals.length === 0 && <p className="text-sm text-[var(--muted)]">No withdrawal requests.</p>}
-              {data.withdrawals.map((x) => (
-                <div key={x.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[var(--border)] px-4 py-3">
-                  <div>
-                    <p className="font-medium">{x.userName} <span className="text-xs text-[var(--muted)]">{x.userEmail}</span></p>
-                    <p className="text-sm text-[var(--muted)]">${x.amount.toFixed(2)} · {x.status} · {new Date(x.requestedAt).toLocaleString()}</p>
-                  </div>
-                  {x.status === "pending" && (
-                    <div className="flex gap-2">
-                      <button onClick={() => decide(x.id, "approved")} className="rounded-full bg-profit/20 px-4 py-1.5 text-sm text-profit transition hover:bg-profit/30">Approve</button>
-                      <button onClick={() => decide(x.id, "rejected")} className="rounded-full bg-loss/20 px-4 py-1.5 text-sm text-loss transition hover:bg-loss/30">Reject</button>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </>
-        )}
-
-        {tab === "markets" && (
-          <>
-            <h2 className="text-2xl font-bold">Markets</h2>
-            <div className="mt-4 overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="text-left text-[var(--muted)]">
-                    <th className="py-2">Symbol</th>
-                    <th>Name</th>
-                    <th>Class</th>
-                    <th>Price</th>
-                    <th>24h</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {markets.map((m) => (
-                    <tr key={m.symbol} className="border-t border-[var(--border)]">
-                      <td className="py-2 font-mono font-medium">{m.symbol}</td>
-                      <td className="text-[var(--muted)]">{m.name}</td>
-                      <td>{m.class}</td>
-                      <td>${m.price.toLocaleString("en-US")}</td>
-                      <td className={m.change24h >= 0 ? "text-profit" : "text-loss"}>{m.change24h >= 0 ? "+" : ""}{m.change24h}%</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </>
-        )}
-
-        {tab === "engine" && (
-          <TradeEngine />
-        )}
-
-        {tab === "plans" && (
-          <>
-            <h2 className="text-2xl font-bold">Plans</h2>
-            <div className="mt-6 grid gap-4 md:grid-cols-3">
-              {[
-                { name: "Faithful", range: "$100 to $500", rate: "0.5% / day" },
-                { name: "Steward", range: "$650 to $1,500", rate: "0.75% / day" },
-                { name: "Ambassador", range: "$2,000 and up", rate: "1.0% / day" },
-              ].map((p) => (
-                <div key={p.name} className="rounded-2xl border border-[var(--border)] p-5">
-                  <p className="text-lg font-bold">{p.name}</p>
-                  <p className="mt-1 text-sm text-[var(--muted)]">{p.range}</p>
-                  <p className="mt-4 text-2xl font-extrabold text-[var(--gold)]">{p.rate}</p>
-                </div>
-              ))}
-            </div>
-          </>
-        )}
+          )}
         </div>
       </main>
-    </div>
-  );
-}
-
-function Stat({ label, value, accent = "" }: { label: string; value: string; accent?: string }) {
-  return (
-    <div className="rounded-2xl border border-[var(--border)] p-4">
-      <p className="text-xs uppercase tracking-widest text-[var(--muted)]">{label}</p>
-      <p className={`mt-2 text-xl font-bold ${accent}`}>{value}</p>
-    </div>
-  );
-}
-
-/* ---------------- Analytics tab ---------------- */
-
-function Analytics({ data }: { data: AdminData }) {
-  const users = data.users;
-  const funded = users.filter((u) => u.deposited > 0);
-
-  // Deposits by plan
-  const byPlan = (["faithful", "steward", "ambassador"] as const).map((t) => ({
-    label: TIER_LABEL[t],
-    count: users.filter((u) => u.tier === t).length,
-    sum: users.filter((u) => u.tier === t).reduce((s, u) => s + u.deposited, 0),
-  }));
-  const maxSum = Math.max(1, ...byPlan.map((b) => b.sum));
-
-  // Signup momentum: new members per week (last 8 weeks).
-  const weeks: { label: string; count: number }[] = [];
-  for (let i = 7; i >= 0; i--) {
-    const start = Date.now() - (i + 1) * 7 * 86400_000;
-    const end = Date.now() - i * 7 * 86400_000;
-    weeks.push({
-      label: i === 0 ? "This week" : `${i}w ago`,
-      count: users.filter((u) => u.createdAt >= start && u.createdAt < end).length,
-    });
-  }
-  const maxWeek = Math.max(1, ...weeks.map((w) => w.count));
-
-  const totalDeposited = users.reduce((s, u) => s + u.deposited, 0);
-  const totalProfit = users.reduce((s, u) => s + u.profit, 0);
-  const pastorEarnings = data.pastors.reduce((s, p) => s + p.earnedTotal, 0);
-  const topPastors = data.pastors.slice().sort((a, b) => b.earnedTotal - a.earnedTotal).slice(0, 5);
-
-  return (
-    <>
-      <h2 className="text-2xl font-bold">Analytics</h2>
-      <p className="mt-1 text-sm text-[var(--muted)]">
-        Live numbers from the platform store, refreshed on every load.
-      </p>
-
-      <div className="mt-6 grid gap-4 sm:grid-cols-4">
-        <Stat label="Deposits" value={`$${totalDeposited.toLocaleString("en-US")}`} accent="text-[var(--gold)]" />
-        <Stat label="Member profit accrued" value={`$${totalProfit.toLocaleString("en-US", { maximumFractionDigits: 2 })}`} accent="text-profit" />
-        <Stat label="Pastor earnings" value={`$${pastorEarnings.toLocaleString("en-US", { maximumFractionDigits: 2 })}`} accent="text-[var(--gold)]" />
-        <Stat label="Funded ratio" value={`${users.length ? Math.round((funded.length / users.length) * 100) : 0}%`} />
-      </div>
-
-      <div className="mt-6 grid gap-4 lg:grid-cols-2">
-        <div className="rounded-2xl border border-[var(--border)] p-5">
-          <p className="text-sm font-semibold">Deposits by plan</p>
-          <div className="mt-4 flex flex-col gap-3">
-            {byPlan.map((b) => (
-              <div key={b.label}>
-                <div className="flex justify-between text-xs text-[var(--muted)]">
-                  <span>{b.label} · {b.count} member{b.count === 1 ? "" : "s"}</span>
-                  <span>${b.sum.toLocaleString("en-US")}</span>
-                </div>
-                <div className="mt-1 h-2.5 overflow-hidden rounded-full bg-[var(--bg)]">
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-gold-light to-royal-violet transition-all"
-                    style={{ width: `${(b.sum / maxSum) * 100}%` }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-[var(--border)] p-5">
-          <p className="text-sm font-semibold">New members per week</p>
-          <div className="mt-4 flex h-32 items-end gap-2">
-            {weeks.map((w) => (
-              <div key={w.label} className="flex flex-1 flex-col items-center gap-1">
-                <span className="text-xs text-[var(--muted)]">{w.count || ""}</span>
-                <div
-                  className="w-full rounded-t-md bg-gradient-to-t from-royal-violet to-cyan-light"
-                  style={{ height: `${(w.count / maxWeek) * 88 + 4}px` }}
-                />
-                <span className="text-[9px] text-[var(--muted)]">{w.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-[var(--border)] p-5">
-          <p className="text-sm font-semibold">Top pastors by earnings</p>
-          <div className="mt-4 flex flex-col gap-2">
-            {topPastors.length === 0 && (
-              <p className="text-sm text-[var(--muted)]">No pastor earnings yet.</p>
-            )}
-            {topPastors.map((p, i) => (
-              <div key={p.id} className="flex items-center justify-between rounded-xl border border-[var(--border)] px-3 py-2 text-sm">
-                <span className="flex items-center gap-2">
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--gold)]/20 text-xs font-bold text-[var(--gold)]">{i + 1}</span>
-                  {p.name}
-                </span>
-                <span className="text-[var(--gold)]">${p.earnedTotal.toFixed(2)}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-[var(--border)] p-5">
-          <p className="text-sm font-semibold">Account status</p>
-          <div className="mt-4 grid grid-cols-2 gap-3">
-            <MiniStat label="Active" value={users.filter((u) => !u.suspended).length} accent="text-profit" />
-            <MiniStat label="Suspended" value={users.filter((u) => u.suspended).length} accent="text-loss" />
-            <MiniStat label="Pastors" value={data.pastors.length} accent="text-[var(--gold)]" />
-            <MiniStat label="Applications" value={data.pastorApplications.length} />
-          </div>
-        </div>
-      </div>
-    </>
-  );
-}
-
-function MiniStat({ label, value, accent = "" }: { label: string; value: number; accent?: string }) {
-  return (
-    <div className="rounded-xl border border-[var(--border)] p-3 text-center">
-      <p className={`text-2xl font-bold ${accent}`}>{value}</p>
-      <p className="mt-1 text-xs uppercase tracking-widest text-[var(--muted)]">{label}</p>
     </div>
   );
 }
