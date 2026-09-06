@@ -2,59 +2,71 @@ import Link from "next/link";
 import { stars, pastors } from "@/lib/team";
 import { Reveal } from "@/components/Reveal";
 import { SectionIcon } from "@/components/SectionIcon";
-import { Verse } from "@/components/Verse";
-import { MemberEmblem } from "@/components/MemberEmblem";
+import { Starfield } from "@/components/Starfield";
 
-export const metadata = { title: "The Team — KingdomTradeX" };
+export const metadata = { title: "The Constellation — KingdomTradeX" };
 
-const LINKS: [number, number][] = [[0, 1], [1, 2], [2, 3], [0, 4], [1, 4], [4, 5], [5, 6], [2, 6], [3, 6], [1, 5]];
-
-const TIMELINE = [
-  { n: "I", t: "The verse", d: "It began with Matthew 6:21 — 'where your treasure is, there your heart will be also.' A question: what if treasure could be grown with wisdom, not worry?" },
-  { n: "II", t: "The build", d: "Engineers and stewards built an engine that trades with discipline — models, guardrails, and a ledger open to every member." },
-  { n: "III", t: "The flock", d: "Pastors joined to pray over the work and shepherd the community. The constellation is still growing — star by star." },
+const LINKS: [number, number][] = [
+  [0, 1], [1, 2], [2, 3], [0, 4], [1, 4], [1, 5], [4, 5], [5, 6], [2, 6], [3, 6],
 ];
+
+const builders = stars.filter((s) => s.kind === "builder");
+const shepherds = stars.filter((s) => s.kind === "pastor");
+
+// Map a member's 0-100 sky coords into a pseudo celestial coordinate string.
+function celestial(s: { x: number; y: number }): string {
+  const ra = ((s.x / 100) * 24).toFixed(1).padStart(4, "0");
+  const dec = ((50 - s.y) * 0.9).toFixed(1);
+  return `RA ${ra}ʰ · DEC ${Number(dec) >= 0 ? "+" : ""}${dec}°`;
+}
 
 export default function TeamPage() {
   return (
     <main>
-      {/* ── HERO: orbiting emblems ── */}
-      <section className="container-wide relative overflow-hidden pt-16 text-center md:pt-24">
-        <p className="eyebrow">The Body, mapped in light</p>
-        <h1 className="section-title mt-3 text-4xl md:text-6xl">Every star is <span className="gradient-text">called by name</span></h1>
-        <p className="mx-auto mt-4 max-w-2xl text-[var(--muted)]">
-          Builders and shepherds, engineers and pastors — one body, one standard. He counts the stars and calls them all by name; so do we.
-        </p>
-        <div className="relative mx-auto mt-12 h-72 w-72 md:h-96 md:w-96">
-          <div className="absolute inset-0 rounded-full border border-white/10" style={{ animation: "spin 40s linear infinite" }} />
-          <div className="absolute inset-[14%] rounded-full border border-dashed border-white/10" style={{ animation: "spin 28s linear infinite reverse" }} />
-          <div className="absolute inset-0" style={{ animation: "spin 60s linear infinite" }}>
-            {stars.map((s, i) => {
-              const angle = (i / stars.length) * 2 * Math.PI;
-              const x = 50 + 46 * Math.cos(angle);
-              const y = 50 + 46 * Math.sin(angle);
-              return (
-                <div key={s.name} className="absolute -translate-x-1/2 -translate-y-1/2" style={{ left: `${x}%`, top: `${y}%`, animation: `spin 60s linear infinite reverse` }}>
-                  <MemberEmblem name={s.name} className="h-12 w-12 md:h-14 md:w-14" />
-                </div>
-              );
-            })}
-          </div>
-          <div className="absolute inset-0 grid place-items-center">
-            <div className="text-center">
-              <p className="text-3xl text-[var(--gold)]">✦</p>
-              <p className="eyebrow mt-1">One body</p>
+      {/* ── THE SKY: cosmic hero ── */}
+      <section className="relative flex min-h-[88vh] items-center justify-center overflow-hidden">
+        <Starfield density={160} />
+        <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(700px 400px at 50% 40%, rgba(22,27,69,0.55), transparent 70%)" }} />
+
+        {/* central glowing Source */}
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+          <div className="relative grid h-40 w-40 place-items-center md:h-52 md:w-52">
+            <div className="absolute inset-0 rounded-full opacity-70 blur-3xl animate-[haloPulse_5s_ease-in-out_infinite]" style={{ background: "radial-gradient(circle, rgba(245,201,123,0.5), transparent 70%)" }} />
+            <div className="relative grid h-20 w-20 place-items-center rounded-full md:h-24 md:w-24" style={{ background: "radial-gradient(circle at 35% 30%, #ffffff33, var(--gold))", boxShadow: "0 0 80px rgba(245,201,123,0.6)" }}>
+              <span className="text-2xl text-[#0a0e27] md:text-3xl">✦</span>
             </div>
+          </div>
+        </div>
+
+        <div className="container-wide relative z-10 mt-64 text-center md:mt-80">
+          <p className="eyebrow">The constellation of KingdomTradeX</p>
+          <h1 className="section-title mt-3 text-4xl md:text-6xl">
+            Every star is <span className="gradient-text">called by name</span>
+          </h1>
+          <p className="mx-auto mt-4 max-w-2xl text-[var(--muted)]">
+            He determines the number of the stars and calls them each by name. So it is with this body —
+            builders and shepherds, every one numbered, every one known.
+          </p>
+          <p className="eyebrow mt-5">Psalm 147:4</p>
+        </div>
+
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-center">
+          <span className="text-[10px] uppercase tracking-[0.3em] text-[var(--muted)]">Descend into the sky</span>
+          <div className="mx-auto mt-2 h-9 w-5 rounded-full border border-[var(--border)]">
+            <div className="mx-auto mt-1.5 h-2 w-1 animate-bounce rounded-full bg-[var(--gold)]" />
           </div>
         </div>
       </section>
 
-      {/* ── CONSTELLATION SKY ── */}
-      <section className="container-wide mt-20">
+      {/* ── THE INTERACTIVE SKY ── */}
+      <section className="container-wide py-24">
         <div className="text-center">
           <div className="mx-auto mb-4 flex w-fit justify-center"><SectionIcon name="compass" size={56} /></div>
-          <h2 className="section-title mt-2 text-3xl md:text-4xl">The <span className="gradient-text">constellation</span></h2>
+          <p className="eyebrow">The Body, mapped in light</p>
+          <h2 className="section-title mt-2 text-3xl md:text-4xl">Trace the <span className="gradient-text">constellation</span></h2>
+          <p className="mx-auto mt-3 max-w-xl text-sm text-[var(--muted)]">Hover a star to read its name. The lines are the bonds that hold the body together.</p>
         </div>
+
         <div className="constellation mt-12 hidden md:block" role="img" aria-label="Constellation of the KingdomTradeX team">
           <svg viewBox="0 0 100 75" preserveAspectRatio="none">
             {LINKS.map(([a, b], i) => (
@@ -63,16 +75,22 @@ export default function TeamPage() {
           </svg>
           {stars.map((s) => (
             <div key={s.name} className={`cstar ${s.kind === "pastor" ? "cstar--pastor" : ""}`} style={{ left: `${s.x}%`, top: `${s.y}%` }}>
-              <div className="orb"><img src={s.avatar} alt={s.name} className="h-full w-full rounded-full object-cover" loading="lazy" /></div>
+              <div className="orb">
+                <img src={s.avatar} alt={s.name} className="h-full w-full rounded-full object-cover" loading="lazy" />
+              </div>
               <div className="lbl">{s.name}</div>
               <div className="role">{s.role}</div>
             </div>
           ))}
         </div>
+
+        {/* mobile list */}
         <div className="star-list mt-10 md:hidden">
           {stars.map((s) => (
             <div key={s.name} className="card flex items-center gap-3 p-4">
-              <MemberEmblem name={s.name} className="h-11 w-11" />
+              <div className="orb h-12 w-12 shrink-0">
+                <img src={s.avatar} alt={s.name} className="h-full w-full rounded-full object-cover" loading="lazy" />
+              </div>
               <div>
                 <div className="text-sm font-semibold">{s.name}</div>
                 <div className="text-xs text-[var(--gold)]">{s.role}</div>
@@ -82,94 +100,104 @@ export default function TeamPage() {
         </div>
       </section>
 
-      {/* ── CALLED BY NAME — detail cards ── */}
-      <section className="container-wide mt-20">
-        <div className="grid gap-6 md:grid-cols-2">
-          {stars.map((s, i) => (
-            <Reveal as="div" variant="up" index={i} key={s.name} className="card flex flex-col gap-4 border-l-2 border-[var(--gold)] p-7">
-              <div className="flex items-center gap-4">
-                <div className="relative shrink-0">
-                  <MemberEmblem name={s.name} className="h-14 w-14" />
-                  <img src={s.avatar} alt={s.name} className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full border-2 border-[var(--bg)] object-cover" loading="lazy" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold">{s.name}</h3>
-                  <p className="text-sm text-[var(--gold)]">{s.role}</p>
-                </div>
-                <span className="ml-auto text-xl text-[var(--muted)]">{s.glyph}</span>
-              </div>
-              {s.line && <p className="text-sm text-[var(--muted)]">{s.line}</p>}
-              {s.word && <p className="text-sm text-[var(--muted)]">{s.word}</p>}
-              {s.ministry && <span className="pill w-fit">{s.ministry}</span>}
-              {s.verse && (
-                <blockquote className="mt-auto border-l-2 border-[var(--gold)] pl-3 text-sm italic text-[var(--gold)]">
-                  &ldquo;{s.verse.text}&rdquo;
-                  <span className="mt-1 block not-italic text-[var(--muted)]">— {s.verse.ref}</span>
-                </blockquote>
-              )}
-            </Reveal>
-          ))}
-        </div>
-      </section>
-
-      {/* ── FROM A VERSE TO A VISION ── */}
-      <section className="container-wide mt-20">
+      {/* ── THE CATALOGUE: builders as star entries ── */}
+      <section className="container-wide py-24">
         <div className="text-center">
-          <p className="eyebrow">Our story</p>
-          <h2 className="section-title mt-2 text-3xl md:text-5xl">From a verse to a <span className="gradient-text">vision</span></h2>
+          <p className="eyebrow">Stellar catalogue · Sector I</p>
+          <h2 className="section-title mt-2 text-3xl md:text-5xl">The <span className="gradient-text">builders</span></h2>
+          <p className="mx-auto mt-3 max-w-xl text-sm text-[var(--muted)]">Those who shape the engine and keep the platform faithful to its promises.</p>
         </div>
-        <div className="relative mt-12 grid gap-8 md:grid-cols-3">
-          <div className="absolute left-0 right-0 top-7 hidden h-px bg-gradient-to-r from-gold-light via-cyan-light to-profit md:block" />
-          {TIMELINE.map((c, i) => (
-            <Reveal key={c.n} variant="up" index={i}>
-              <div className="relative text-center md:text-left">
-                <div className="relative z-10 mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--bg)] text-lg font-bold text-[var(--gold)] md:mx-0">{c.n}</div>
-                <h3 className="mt-4 text-xl font-bold">{c.t}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">{c.d}</p>
+
+        <div className="mt-12 grid gap-6 md:grid-cols-2">
+          {builders.map((s, i) => (
+            <Reveal as="div" variant="up" index={i} key={s.name} className="group card relative overflow-hidden p-0">
+              {/* catalogue header strip */}
+              <div className="flex items-center justify-between border-b border-[var(--border)] bg-[var(--bg-soft)]/40 px-6 py-3 font-mono text-[10px] uppercase tracking-widest text-[var(--muted)]">
+                <span>★ KTX-{String(i + 1).padStart(3, "0")}</span>
+                <span className="text-[var(--gold)]">{celestial(s)}</span>
+              </div>
+
+              <div className="flex gap-6 p-6">
+                {/* the celestial body */}
+                <div className="relative shrink-0">
+                  <div className="absolute inset-0 rounded-full opacity-60 blur-xl transition duration-500 group-hover:opacity-100" style={{ background: "radial-gradient(circle, rgba(245,201,123,0.5), transparent 70%)" }} />
+                  <img src={s.avatar} alt={s.name} className="relative h-20 w-20 rounded-full object-cover ring-2 ring-[var(--gold)]/60 md:h-24 md:w-24" loading="lazy" />
+                  <span className="absolute -bottom-1 -right-1 grid h-7 w-7 place-items-center rounded-full bg-[var(--gold)] text-sm font-black text-[#0a0e27]">{s.glyph}</span>
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-lg font-bold">{s.name}</h3>
+                  <p className="font-mono text-xs uppercase tracking-widest text-[var(--gold)]">{s.role}</p>
+                  {s.line && <p className="mt-3 text-sm leading-relaxed text-[var(--muted)]">{s.line}</p>}
+                  {s.verse && (
+                    <blockquote className="mt-4 border-l-2 border-[var(--gold)] pl-3 text-sm italic text-[var(--gold)]">
+                      &ldquo;{s.verse.text}&rdquo;
+                      <span className="mt-1 block font-mono text-[10px] not-italic tracking-widest text-[var(--muted)]">— {s.verse.ref}</span>
+                    </blockquote>
+                  )}
+                </div>
               </div>
             </Reveal>
           ))}
         </div>
       </section>
 
-      {/* ── THE FLOCK RAIL ── */}
-      <section className="container-wide mt-20">
-        <div className="card-grad p-8 md:p-12">
-          <div className="text-center">
-            <div className="mx-auto mb-4 flex w-fit justify-center"><SectionIcon name="cross" size={56} /></div>
-            <p className="eyebrow">Our shepherds</p>
-            <h2 className="section-title mt-2 text-3xl md:text-4xl">The pastors who <span className="gradient-text">watch over the flock</span></h2>
-          </div>
-          <div className="flock-rail mt-10">
-            {pastors.map((p) => (
-              <Reveal as="div" variant="up" key={p.name} className="shepherd-card card flex flex-col items-center gap-3 p-6 text-center">
-                <div className="relative">
-                  <MemberEmblem name={p.name} className="h-16 w-16" />
-                  <img src={p.avatar} alt={p.name} className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full border-2 border-[var(--bg)] object-cover" loading="lazy" />
+      {/* ── THE SHEPHERDS' CROWN ── */}
+      <section className="container-wide py-24">
+        <div className="text-center">
+          <div className="mx-auto mb-4 flex w-fit justify-center"><SectionIcon name="cross" size={56} /></div>
+          <p className="eyebrow">Stellar catalogue · Sector II</p>
+          <h2 className="section-title mt-2 text-3xl md:text-5xl">The shepherds&rsquo; <span className="gradient-text">crown</span></h2>
+          <p className="mx-auto mt-3 max-w-xl text-sm text-[var(--muted)]">A circle of pastors who pray over the work and hold it to a standard higher than the market&rsquo;s.</p>
+        </div>
+
+        {/* crown layout: pastors arranged around a center */}
+        <div className="relative mx-auto mt-14 flex max-w-4xl flex-wrap items-start justify-center gap-6 md:gap-8">
+          {pastors.map((s, i) => (
+            <Reveal as="div" variant="up" index={i} key={s.name} className="group w-64">
+              <div className="card relative p-6 text-center transition duration-500 hover:-translate-y-2">
+                <div className="relative mx-auto w-fit">
+                  <div className="absolute inset-0 rounded-full opacity-60 blur-xl transition duration-500 group-hover:opacity-100" style={{ background: "radial-gradient(circle, rgba(245,201,123,0.5), transparent 70%)" }} />
+                  <img src={s.avatar} alt={s.name} className="relative h-24 w-24 rounded-full object-cover" style={{ boxShadow: "0 0 0 3px var(--gold)" }} loading="lazy" />
+                  <span className="absolute -bottom-1 -right-1 grid h-7 w-7 place-items-center rounded-full bg-[var(--gold)] text-sm font-black text-[#0a0e27]">{s.glyph}</span>
                 </div>
-                <h3 className="text-lg font-semibold">{p.name}</h3>
-                <p className="text-xs font-semibold uppercase tracking-widest text-[var(--gold)]">{p.role}</p>
-                <span className="pill">{p.ministry}</span>
-                <p className="mt-1 text-sm text-[var(--muted)]">{p.word}</p>
-              </Reveal>
-            ))}
-            <div className="shepherd-ghost" aria-hidden="true">
-              <div className="plus">+</div>
-              <p className="mt-2 text-sm">Shepherd being added</p>
-            </div>
-          </div>
-          <div className="mt-8 text-center">
-            <Link href="/become-pastor" className="btn-primary inline-flex">List as a pastor</Link>
-            <p className="mt-3 text-sm text-[var(--muted)]">Pastors who join can refer members and share in the fruit of their growth.</p>
-          </div>
+                <h3 className="mt-4 text-lg font-bold">{s.name}</h3>
+                <p className="font-mono text-[10px] uppercase tracking-widest text-[var(--gold)]">{s.role}</p>
+                <span className="pill mt-3">{s.ministry}</span>
+                {s.word && <p className="mt-3 text-sm leading-relaxed text-[var(--muted)]">{s.word}</p>}
+              </div>
+            </Reveal>
+          ))}
+
+          {/* the open seat */}
+          <Reveal as="div" variant="up" index={pastors.length} className="w-64">
+            <Link href="/become-pastor" className="card flex h-full min-h-[280px] flex-col items-center justify-center gap-3 border-dashed p-6 text-center transition duration-500 hover:-translate-y-2 hover:border-[var(--gold)]">
+              <div className="grid h-24 w-24 place-items-center rounded-full border-2 border-dashed border-[var(--border)] text-3xl text-[var(--muted)] transition group-hover:border-[var(--gold)]">+</div>
+              <p className="font-semibold">An open seat</p>
+              <p className="text-xs text-[var(--muted)]">The crown is still being formed.</p>
+              <span className="btn-gold mt-2 inline-flex !px-4 !py-1.5 text-xs">Take your place</span>
+            </Link>
+          </Reveal>
         </div>
       </section>
 
-      {/* ── CLOSING VERSE ── */}
-      <section className="container-page py-20">
-        <Reveal variant="blur">
-          <Verse variant="random" className="text-center" />
-        </Reveal>
+      {/* ── JOIN THE CONSTELLATION ── */}
+      <section className="relative overflow-hidden py-24">
+        <Starfield density={90} />
+        <div className="container-wide relative z-10 text-center">
+          <Reveal variant="blur">
+            <h2 className="section-title text-3xl md:text-5xl">
+              This sky is still <span className="gradient-text">gaining stars</span>
+            </h2>
+            <p className="mx-auto mt-4 max-w-xl text-[var(--muted)]">
+              Whether you build with your hands or shepherd with your word, there is a coordinate here with your name on it.
+            </p>
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+              <Link href="/become-pastor" className="btn-primary inline-flex">List as a pastor</Link>
+              <Link href="/register" className="btn-ghost inline-flex">Join as a member</Link>
+            </div>
+          </Reveal>
+        </div>
       </section>
     </main>
   );

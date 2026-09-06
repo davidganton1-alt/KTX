@@ -1,125 +1,78 @@
 import Link from "next/link";
-import { Verse } from "@/components/Verse";
-import { SectionIcon } from "@/components/SectionIcon";
+import { stars, pastors } from "@/lib/team";
 import { Reveal } from "@/components/Reveal";
-import {
-  stars,
-  pastors,
-  morningStar,
-  scriptureWall,
-  ribbon,
-} from "@/lib/team";
+import { SectionIcon } from "@/components/SectionIcon";
+import { Verse } from "@/components/Verse";
+import { MemberEmblem } from "@/components/MemberEmblem";
 
-// Connection lines between stars (by index into `stars`) to form a constellation.
-const links: [number, number][] = [
-  [0, 1],
-  [1, 2],
-  [2, 3],
-  [0, 4],
-  [4, 5],
-  [5, 6],
-  [1, 4],
-  [2, 6],
+export const metadata = { title: "The Team — KingdomTradeX" };
+
+const LINKS: [number, number][] = [[0, 1], [1, 2], [2, 3], [0, 4], [1, 4], [4, 5], [5, 6], [2, 6], [3, 6], [1, 5]];
+
+const TIMELINE = [
+  { n: "I", t: "The verse", d: "It began with Matthew 6:21 — 'where your treasure is, there your heart will be also.' A question: what if treasure could be grown with wisdom, not worry?" },
+  { n: "II", t: "The build", d: "Engineers and stewards built an engine that trades with discipline — models, guardrails, and a ledger open to every member." },
+  { n: "III", t: "The flock", d: "Pastors joined to pray over the work and shepherd the community. The constellation is still growing — star by star." },
 ];
 
 export default function TeamPage() {
   return (
-    <Reveal as="main" variant="up" className="container-page py-16">
-      {/* HERO — The Bright Morning Star */}
-      <section className="cosmos text-center">
-        <div className="cosmos-field" aria-hidden="true" />
-        {/* a few twinkling stars */}
-        {[
-          [10, 18],
-          [85, 22],
-          [70, 80],
-          [22, 78],
-          [50, 10],
-          [92, 60],
-        ].map(([l, t], i) => (
-          <span
-            key={i}
-            className="twinkle"
-            style={{ left: `${l}%`, top: `${t}%`, animationDelay: `${i * 0.5}s` }}
-            aria-hidden="true"
-          />
-        ))}
-
-        <div className="relative">
-          <div className="morning-star">
-            <span className="cross text-4xl font-black">✚</span>
+    <main>
+      {/* ── HERO: orbiting emblems ── */}
+      <section className="container-wide relative overflow-hidden pt-16 text-center md:pt-24">
+        <p className="eyebrow">The Body, mapped in light</p>
+        <h1 className="section-title mt-3 text-4xl md:text-6xl">Every star is <span className="gradient-text">called by name</span></h1>
+        <p className="mx-auto mt-4 max-w-2xl text-[var(--muted)]">
+          Builders and shepherds, engineers and pastors — one body, one standard. He counts the stars and calls them all by name; so do we.
+        </p>
+        <div className="relative mx-auto mt-12 h-72 w-72 md:h-96 md:w-96">
+          <div className="absolute inset-0 rounded-full border border-white/10" style={{ animation: "spin 40s linear infinite" }} />
+          <div className="absolute inset-[14%] rounded-full border border-dashed border-white/10" style={{ animation: "spin 28s linear infinite reverse" }} />
+          <div className="absolute inset-0" style={{ animation: "spin 60s linear infinite" }}>
+            {stars.map((s, i) => {
+              const angle = (i / stars.length) * 2 * Math.PI;
+              const x = 50 + 46 * Math.cos(angle);
+              const y = 50 + 46 * Math.sin(angle);
+              return (
+                <div key={s.name} className="absolute -translate-x-1/2 -translate-y-1/2" style={{ left: `${x}%`, top: `${y}%`, animation: `spin 60s linear infinite reverse` }}>
+                  <MemberEmblem name={s.name} className="h-12 w-12 md:h-14 md:w-14" />
+                </div>
+              );
+            })}
           </div>
-          <p className="eyebrow mt-8">{morningStar.title}</p>
-          <h1 className="mt-2 text-4xl font-extrabold leading-[1.05] tracking-tight md:text-6xl">
-            A sky of <span className="gradient-text">named stars</span>
-          </h1>
-          <p className="mx-auto mt-5 max-w-2xl text-[var(--muted)]">
-            &ldquo;He determines the number of the stars and calls them each by name.&rdquo; This is
-            not a company. It is a constellation, every light placed on purpose and known by the
-            One who hung it there. Below, the stars of our work.
-          </p>
-          <p className="mx-auto mt-4 max-w-xl text-sm italic text-[var(--gold)]">{morningStar.verse}</p>
+          <div className="absolute inset-0 grid place-items-center">
+            <div className="text-center">
+              <p className="text-3xl text-[var(--gold)]">✦</p>
+              <p className="eyebrow mt-1">One body</p>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* SCRIPTURE RIBBON */}
-      <div className="relative mt-10 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)] py-4">
-        <div className="team-ribbon">
-          {[...ribbon, ...ribbon].map((r, i) => (
-            <span key={i} className="whitespace-nowrap text-sm text-[var(--gold)]">
-              {r}
-            </span>
-          ))}
-        </div>
-      </div>
-
-      {/* THE CONSTELLATION */}
-      <section className="mt-20">
+      {/* ── CONSTELLATION SKY ── */}
+      <section className="container-wide mt-20">
         <div className="text-center">
-          <div className="mx-auto mb-4 flex w-fit justify-center">
-            <SectionIcon name="compass" size={56} />
-          </div>
-          <p className="eyebrow">The Body, mapped in light</p>
-          <h2 className="section-title mt-2 text-3xl md:text-4xl">
-            Every star is <span className="gradient-text">called by name</span>
-          </h2>
+          <div className="mx-auto mb-4 flex w-fit justify-center"><SectionIcon name="compass" size={56} /></div>
+          <h2 className="section-title mt-2 text-3xl md:text-4xl">The <span className="gradient-text">constellation</span></h2>
         </div>
-
-        {/* desktop / tablet: constellation sky */}
         <div className="constellation mt-12 hidden md:block" role="img" aria-label="Constellation of the KingdomTradeX team">
           <svg viewBox="0 0 100 75" preserveAspectRatio="none">
-            {links.map(([a, b], i) => (
-              <line
-                key={i}
-                x1={stars[a].x * (100 / 100)}
-                y1={stars[a].y * (75 / 100)}
-                x2={stars[b].x * (100 / 100)}
-                y2={stars[b].y * (75 / 100)}
-              />
+            {LINKS.map(([a, b], i) => (
+              <line key={i} x1={stars[a].x} y1={stars[a].y * 0.75} x2={stars[b].x} y2={stars[b].y * 0.75} />
             ))}
           </svg>
           {stars.map((s) => (
-            <div
-              key={s.name}
-              className={`cstar ${s.kind === "pastor" ? "cstar--pastor" : ""}`}
-              style={{ left: `${s.x}%`, top: `${s.y}%` }}
-            >
-              <div className="orb">
-                <img src={s.avatar} alt={s.name} className="h-full w-full rounded-full object-cover" loading="lazy" />
-              </div>
+            <div key={s.name} className={`cstar ${s.kind === "pastor" ? "cstar--pastor" : ""}`} style={{ left: `${s.x}%`, top: `${s.y}%` }}>
+              <div className="orb"><img src={s.avatar} alt={s.name} className="h-full w-full rounded-full object-cover" loading="lazy" /></div>
               <div className="lbl">{s.name}</div>
               <div className="role">{s.role}</div>
             </div>
           ))}
         </div>
-
-        {/* mobile: simple star list */}
         <div className="star-list mt-10 md:hidden">
           {stars.map((s) => (
             <div key={s.name} className="card flex items-center gap-3 p-4">
-              <div className="orb h-12 w-12 shrink-0">
-                <img src={s.avatar} alt={s.name} className="h-full w-full rounded-full object-cover" loading="lazy" />
-              </div>
+              <MemberEmblem name={s.name} className="h-11 w-11" />
               <div>
                 <div className="text-sm font-semibold">{s.name}</div>
                 <div className="text-xs text-[var(--gold)]">{s.role}</div>
@@ -129,37 +82,21 @@ export default function TeamPage() {
         </div>
       </section>
 
-      {/* CALLED BY NAME — member detail cards */}
-      <section className="mt-20">
+      {/* ── CALLED BY NAME — detail cards ── */}
+      <section className="container-wide mt-20">
         <div className="grid gap-6 md:grid-cols-2">
           {stars.map((s, i) => (
-            <Reveal
-              as="div"
-              variant="up"
-              index={i}
-              key={s.name}
-              className="card flex flex-col gap-4 border-l-2 border-[var(--gold)] p-7"
-            >
+            <Reveal as="div" variant="up" index={i} key={s.name} className="card flex flex-col gap-4 border-l-2 border-[var(--gold)] p-7">
               <div className="flex items-center gap-4">
                 <div className="relative shrink-0">
-                  <img
-                    src={s.avatar}
-                    alt={s.name}
-                    className="h-14 w-14 rounded-full object-cover ring-2"
-                    style={{ boxShadow: `0 0 0 2px ${s.kind === "pastor" ? "var(--gold)" : "var(--cyan)"}` }}
-                    loading="lazy"
-                  />
-                  <span
-                    className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full text-xs font-black text-[#0a0e27]"
-                    style={{ background: s.kind === "pastor" ? "var(--gold)" : "var(--cyan)" }}
-                  >
-                    {s.glyph}
-                  </span>
+                  <MemberEmblem name={s.name} className="h-14 w-14" />
+                  <img src={s.avatar} alt={s.name} className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full border-2 border-[var(--bg)] object-cover" loading="lazy" />
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold">{s.name}</h3>
                   <p className="text-sm text-[var(--gold)]">{s.role}</p>
                 </div>
+                <span className="ml-auto text-xl text-[var(--muted)]">{s.glyph}</span>
               </div>
               {s.line && <p className="text-sm text-[var(--muted)]">{s.line}</p>}
               {s.word && <p className="text-sm text-[var(--muted)]">{s.word}</p>}
@@ -175,50 +112,43 @@ export default function TeamPage() {
         </div>
       </section>
 
-      {/* THE FLOCK — ongoing, scrollable roster of shepherds */}
-      <section className="mt-20">
+      {/* ── FROM A VERSE TO A VISION ── */}
+      <section className="container-wide mt-20">
+        <div className="text-center">
+          <p className="eyebrow">Our story</p>
+          <h2 className="section-title mt-2 text-3xl md:text-5xl">From a verse to a <span className="gradient-text">vision</span></h2>
+        </div>
+        <div className="relative mt-12 grid gap-8 md:grid-cols-3">
+          <div className="absolute left-0 right-0 top-7 hidden h-px bg-gradient-to-r from-gold-light via-cyan-light to-profit md:block" />
+          {TIMELINE.map((c, i) => (
+            <Reveal key={c.n} variant="up" index={i}>
+              <div className="relative text-center md:text-left">
+                <div className="relative z-10 mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--bg)] text-lg font-bold text-[var(--gold)] md:mx-0">{c.n}</div>
+                <h3 className="mt-4 text-xl font-bold">{c.t}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">{c.d}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+
+      {/* ── THE FLOCK RAIL ── */}
+      <section className="container-wide mt-20">
         <div className="card-grad p-8 md:p-12">
           <div className="text-center">
-            <div className="mx-auto mb-4 flex w-fit justify-center">
-              <SectionIcon name="cross" size={56} />
-            </div>
+            <div className="mx-auto mb-4 flex w-fit justify-center"><SectionIcon name="cross" size={56} /></div>
             <p className="eyebrow">Our shepherds</p>
-            <h2 className="section-title mt-2 text-3xl md:text-4xl">
-              The pastors who <span className="gradient-text">watch over the flock</span>
-            </h2>
-            <p className="mx-auto mt-3 max-w-2xl text-[var(--muted)]">
-              We do not build alone. A circle of pastors walks with this work, praying over it,
-              teaching through it, and holding it to a standard higher than the market&rsquo;s.
-              The circle is growing; new shepherds are added as the work expands.
-            </p>
+            <h2 className="section-title mt-2 text-3xl md:text-4xl">The pastors who <span className="gradient-text">watch over the flock</span></h2>
           </div>
-
           <div className="flock-rail mt-10">
             {pastors.map((p) => (
-              <Reveal
-                as="div"
-                variant="up"
-                key={p.name}
-                className="shepherd-card card flex flex-col items-center gap-3 p-6 text-center"
-              >
+              <Reveal as="div" variant="up" key={p.name} className="shepherd-card card flex flex-col items-center gap-3 p-6 text-center">
                 <div className="relative">
-                  <img
-                    src={p.avatar}
-                    alt={p.name}
-                    className="h-16 w-16 rounded-full object-cover"
-                    style={{ boxShadow: "0 0 0 3px var(--gold)" }}
-                    loading="lazy"
-                  />
-                  <span
-                    className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-[var(--gold)] text-xs font-black text-[#0a0e27]"
-                  >
-                    {p.glyph}
-                  </span>
+                  <MemberEmblem name={p.name} className="h-16 w-16" />
+                  <img src={p.avatar} alt={p.name} className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full border-2 border-[var(--bg)] object-cover" loading="lazy" />
                 </div>
                 <h3 className="text-lg font-semibold">{p.name}</h3>
-                <p className="text-xs font-semibold uppercase tracking-widest text-[var(--gold)]">
-                  {p.role}
-                </p>
+                <p className="text-xs font-semibold uppercase tracking-widest text-[var(--gold)]">{p.role}</p>
                 <span className="pill">{p.ministry}</span>
                 <p className="mt-1 text-sm text-[var(--muted)]">{p.word}</p>
               </Reveal>
@@ -228,56 +158,19 @@ export default function TeamPage() {
               <p className="mt-2 text-sm">Shepherd being added</p>
             </div>
           </div>
-
           <div className="mt-8 text-center">
-            <Link href="/become-pastor" className="btn-primary inline-flex">
-              List as a pastor
-            </Link>
-            <p className="mt-3 text-sm text-[var(--muted)]">
-              Pastors who join can refer members and share in the fruit of their growth.
-            </p>
+            <Link href="/become-pastor" className="btn-primary inline-flex">List as a pastor</Link>
+            <p className="mt-3 text-sm text-[var(--muted)]">Pastors who join can refer members and share in the fruit of their growth.</p>
           </div>
         </div>
       </section>
 
-      {/* SCRIPTURE COLLAGE */}
-      <section className="mt-20">
-        <div className="text-center">
-          <div className="mx-auto mb-4 flex w-fit justify-center">
-            <SectionIcon name="book" size={56} />
-          </div>
-          <p className="eyebrow">Written on our hearts</p>
-          <h2 className="section-title mt-2 text-3xl md:text-4xl">
-            The <span className="gradient-text">word</span> we build by
-          </h2>
-        </div>
-        <div className="verse-collage mt-12">
-          {scriptureWall.map((v, i) => (
-            <Reveal as="div" variant="up" index={i} key={v.ref} className="team-verse-card card p-7">
-              <p className={`text-[var(--fg)] ${v.size === "lg" ? "verse-lg" : "verse-sm"}`}>
-                {v.text}
-              </p>
-              <p className="mt-4 text-sm font-semibold text-[var(--gold)]">{v.ref}</p>
-            </Reveal>
-          ))}
-        </div>
-      </section>
-
-      {/* CLOSING */}
-      <section className="mt-20">
-        <Reveal as="div" variant="blur" className="card-grad p-10 text-center">
-          <p className="text-2xl font-bold md:text-3xl">
-            &ldquo;Now you are the body of Christ, and each one of you is a part of it.&rdquo;
-          </p>
-          <p className="mt-2 text-sm text-[var(--gold)]">— 1 Corinthians 12:27</p>
-          <Link href="/support" className="btn-primary mt-6 inline-flex">
-            Walk with us
-          </Link>
-        </Reveal>
-        <div className="mt-8">
+      {/* ── CLOSING VERSE ── */}
+      <section className="container-page py-20">
+        <Reveal variant="blur">
           <Verse variant="random" className="text-center" />
-        </div>
+        </Reveal>
       </section>
-    </Reveal>
+    </main>
   );
 }
