@@ -55,7 +55,7 @@ export const FAQS: Faq[] = [
   {
     category: "Plans & Trading",
     q: "What are the holding periods for each plan?",
-    a: "Each plan has a holding period during which your principal remains active in the engine. Faithful is 3 months, Steward is 6 months, and Ambassador is 12 months. Your daily profit is available for withdrawal throughout the holding period.",
+    a: "Each plan has a holding period during which your principal remains active in the engine. Faithful is 6 months, Steward is 9 months, and Ambassador is 12 months. Your daily profit is available for withdrawal throughout the holding period.",
   },
   {
     category: "Plans & Trading",
