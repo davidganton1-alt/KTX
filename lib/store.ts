@@ -65,6 +65,7 @@ export type User = {
   referralBonusEarned: number; // total bonus earned from member referrals
   // Admin controls
   suspended?: boolean;
+  hasSeenTour?: boolean;
   // Notifications feed (merged with platform announcements client-side)
   notifications: UserNotification[];
   lastSeenNotifs: number;
