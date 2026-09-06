@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatedNumber } from "@/components/AnimatedNumber";
+import { FlockAnalytics } from "@/components/FlockAnalytics";
 import { ProEngine } from "@/components/ProEngine";
 
 const fmt = (p: number) => p >= 1000 ? p.toLocaleString(undefined, { maximumFractionDigits: 0 }) : p.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -153,6 +154,9 @@ export default function PastorPage() {
                   </div>
                 </div>
               </div>
+
+              {/* Flock Analytics */}
+              <FlockAnalytics referrals={data.referrals ?? []} shareRate={data.shareRate ?? 5} />
             </div>
           )}
 

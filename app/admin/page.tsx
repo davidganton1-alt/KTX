@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatedNumber } from "@/components/AnimatedNumber";
+import { SystemHealth } from "@/components/SystemHealth";
 
 const fmt = (p: number) => p >= 1000 ? p.toLocaleString(undefined, { maximumFractionDigits: 0 }) : p.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const fmtDate = (ms: number) => new Date(ms).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
@@ -305,6 +306,9 @@ export default function AdminPage() {
                   </button>
                 </div>
               </div>
+
+              {/* System Health Monitor */}
+              <SystemHealth />
             </div>
           )}
 

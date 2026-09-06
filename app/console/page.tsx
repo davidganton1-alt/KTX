@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatedNumber } from "@/components/AnimatedNumber";
 import { ProEngine } from "@/components/ProEngine";
+import { TierComparison } from "@/components/TierComparison";
+import { PortfolioChart } from "@/components/PortfolioChart";
 import { SpotlightTour } from "@/components/SpotlightTour";
 
 const fmt = (p: number) => p >= 1000 ? p.toLocaleString(undefined, { maximumFractionDigits: 0 }) : p.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -33,6 +35,7 @@ export default function ConsolePage() {
   const [me, setMe] = useState<any>(null);
   const [referral, setReferral] = useState<any>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showTierModal, setShowTierModal] = useState(false);
   const [depositAmount, setDepositAmount] = useState("");
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const [actionMsg, setActionMsg] = useState("");
@@ -199,6 +202,21 @@ export default function ConsolePage() {
                   <span className="text-2xl text-[var(--gold)]">🧠</span>
                   <p className="mt-2 font-bold text-[var(--gold)]">AI Engine</p>
                   <p className="mt-1 text-xs text-slate-500">Watch live execution</p>
+                </button>
+              </div>
+
+              {/* Portfolio Allocation + Tier Button */}
+              <div className="grid gap-4 lg:grid-cols-3">
+                <div className="lg:col-span-2">
+                  <PortfolioChart deposited={wallet.deposited} profit={wallet.profit} freeCredit={wallet.freeCreditUnlocked ? 50 : 0} />
+                </div>
+                <button
+                  onClick={() => setShowTierModal(true)}
+                  className="rounded-xl border border-[var(--gold)]/20 bg-[var(--gold)]/5 p-6 text-left transition hover:bg-[var(--gold)]/10"
+                >
+                  <span className="text-2xl">👑</span>
+                  <p className="mt-2 font-bold text-[var(--gold)]">Compare Tiers</p>
+                  <p className="mt-1 text-xs text-slate-500">See what each tier unlocks and how to upgrade</p>
                 </button>
               </div>
 
@@ -370,6 +388,14 @@ export default function ConsolePage() {
 
       {/* TOUR */}
       <SpotlightTour steps={TOUR_STEPS} activeStep={tourStep} onComplete={completeTour} />
+
+      {/* Tier Comparison Modal */}
+      <TierComparison
+        currentTier={wallet.tier}
+        deposited={wallet.deposited}
+        isOpen={showTierModal}
+        onClose={() => setShowTierModal(false)}
+      />
     </div>
   );
 }
