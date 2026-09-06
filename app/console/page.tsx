@@ -56,7 +56,7 @@ export default function ConsolePage() {
         const meData = meRes.ok ? await meRes.json() : null;
         if (meData) setMe(meData);
         if (rRes.ok) setReferral(await rRes.json());
-        if (meData && !meData.hasSignedAgreement) {
+        if (meData?.role && !meData.hasSignedAgreement) {
           setShowAgreement(true);
         }
       } catch {}

@@ -47,7 +47,7 @@ export default function PastorPage() {
     if (meRes.ok) {
       const meData = await meRes.json();
       setMe(meData);
-      if (meData && !meData.hasSignedAgreement) {
+      if (meData?.role && !meData.hasSignedAgreement) {
         setShowAgreement(true);
       }
     }

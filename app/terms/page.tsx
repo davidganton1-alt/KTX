@@ -46,7 +46,7 @@ const sections = [
     h: "7. Withdrawals",
     list: [
       "Profit withdrawals: Your accrued profit is withdrawable at any time, subject to routine review to prevent fraud.",
-      "Principal withdrawals: Your deposited principal becomes fully withdrawable after your tier's holding period (3 months for Faithful, 6 months for Steward, 12 months for Ambassador).",
+      "Principal withdrawals: Your deposited principal becomes fully withdrawable after your tier's holding period (6 months for Faithful, 9 months for Steward, 12 months for Ambassador).",
       "Early principal withdrawal: Withdrawing your principal before the holding period completes incurs a 25% deduction to cover engine rebalancing and administrative costs.",
       "The free $50 welcome credit is a promotional gift and is not part of your withdrawable principal.",
     ],
@@ -54,7 +54,7 @@ const sections = [
   {
     id: "holding",
     h: "8. Holding Periods",
-    p: "Each tier's holding period reflects the time the engine needs to execute its full strategy across market cycles. Withdrawing early disrupts this cycle and reduces the engine's ability to protect and grow your principal, which is why the early-withdrawal deduction exists.",
+    p: "Each tier's holding period reflects the time the engine needs to execute its full strategy across market cycles: 6 months for Faithful, 9 months for Steward, and 12 months for Ambassador. Withdrawing early disrupts this cycle and reduces the engine's ability to protect and grow your principal, which is why the early-withdrawal deduction exists.",
   },
   {
     id: "risk",

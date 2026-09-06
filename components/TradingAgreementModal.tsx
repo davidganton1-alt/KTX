@@ -29,7 +29,7 @@ const AGREEMENT_SECTIONS = [
   },
   {
     title: "7. Holding Periods and Withdrawals",
-    body: "Each tier has a holding period during which your principal is intended to remain active in the engine (3 months for Faithful, 6 months for Steward, 12 months for Ambassador). Early withdrawal of principal incurs a 25% deduction. Your accrued profit is withdrawable at any time, subject to routine fraud-prevention review.",
+    body: "Each tier has a holding period during which your principal is intended to remain active in the engine (6 months for Faithful, 9 months for Steward, 12 months for Ambassador). Early withdrawal of principal incurs a 25% deduction. Your accrued profit is withdrawable at any time, subject to routine fraud-prevention review.",
   },
   {
     title: "8. The Free $50 Welcome Credit",
