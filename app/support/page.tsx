@@ -1,63 +1,119 @@
 "use client";
-
 import { useState } from "react";
+import Link from "next/link";
+import { motion } from "framer-motion";
 import { SectionIcon } from "@/components/SectionIcon";
-import { Reveal } from "@/components/Reveal";
+import { GlowCard } from "@/components/GlowCard";
 
 export default function SupportPage() {
+  const [email, setEmail] = useState("");
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState("");
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    try {
+      const res = await fetch("/api/support", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, subject, message }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        setError(data?.error || "Failed to send. Please try again.");
+        setLoading(false);
+        return;
+      }
+      setSent(true);
+    } catch {
+      setError("Network error. Please try again.");
+    }
+    setLoading(false);
+  }
+
   return (
-    <Reveal as="main" variant="blur" className="container-page py-16">
+    <main className="container-wide pb-24 pt-14">
+      {/* Header */}
       <div className="text-center">
-        <div className="mx-auto mb-4 flex w-fit justify-center">
-          <SectionIcon name="help" size={56} />
-        </div>
-        <p className="eyebrow">Support</p>
-        <h1 className="mt-2 text-4xl font-bold md:text-5xl">
-          We are <span className="gradient-text">here to help</span>
-        </h1>
+        <div className="mx-auto mb-4 flex w-fit justify-center"><SectionIcon name="help" size={56} /></div>
+        <p className="eyebrow">We&rsquo;re here for you</p>
+        <h1 className="section-title mt-2 text-4xl md:text-6xl">How can we <span className="gradient-text">help?</span></h1>
         <p className="mx-auto mt-4 max-w-2xl text-[var(--muted)]">
-          Questions about your account, a withdrawal or how the AI works? Send us a
-          note and a real person will reply. No bots, no runaround.
+          Reach out with any question about your account, deposits, withdrawals, or the platform. Our team responds within 24 hours.
         </p>
       </div>
 
-      <div className="mx-auto mt-12 grid max-w-3xl gap-4 sm:grid-cols-3">
-        <div className="card p-5">
-          <p className="text-sm font-semibold">Email</p>
-          <p className="mt-1 text-sm text-[var(--muted)]">help@kingdomtradex.com</p>
+      <div className="mt-14 grid gap-8 lg:grid-cols-[1.4fr_1fr]">
+        {/* Contact Form */}
+        <div>
+          {sent ? (
+            <GlowCard className="p-10 text-center">
+              <div className="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-full bg-profit/20 text-3xl text-profit">✓</div>
+              <h2 className="text-xl font-semibold text-profit">Message received</h2>
+              <p className="mt-2 text-sm text-[var(--muted)]">
+                Thank you for reaching out. Our support team will review your message and respond to <b className="text-[var(--fg)]">{email}</b> within 24 hours.
+              </p>
+              <button onClick={() => { setSent(false); setEmail(""); setSubject(""); setMessage(""); }}
+                className="btn-ghost mt-6 inline-flex">Send another message</button>
+            </GlowCard>
+          ) : (
+            <GlowCard className="p-6 md:p-8">
+              <p className="eyebrow">Send a message</p>
+              <h2 className="section-title mt-2 text-2xl">Contact <span className="gradient-text">our team</span></h2>
+              <form onSubmit={submit} className="mt-6 space-y-4">
+                <div>
+                  <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-[var(--muted)]">Your Email</label>
+                  <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
+                    className="w-full rounded-xl border border-[var(--border)] bg-[var(--bg)] px-4 py-3 text-sm text-[var(--fg)] outline-none transition focus:border-[var(--gold)] focus:ring-2 focus:ring-[var(--gold)]/20"
+                    placeholder="you@example.com" />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-[var(--muted)]">Subject</label>
+                  <input type="text" required value={subject} onChange={(e) => setSubject(e.target.value)}
+                    className="w-full rounded-xl border border-[var(--border)] bg-[var(--bg)] px-4 py-3 text-sm text-[var(--fg)] outline-none transition focus:border-[var(--gold)] focus:ring-2 focus:ring-[var(--gold)]/20"
+                    placeholder="How can we help?" />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-[var(--muted)]">Message</label>
+                  <textarea required rows={6} value={message} onChange={(e) => setMessage(e.target.value)}
+                    className="w-full rounded-xl border border-[var(--border)] bg-[var(--bg)] px-4 py-3 text-sm text-[var(--fg)] outline-none transition focus:border-[var(--gold)] focus:ring-2 focus:ring-[var(--gold)]/20"
+                    placeholder="Describe your question or issue in detail..." />
+                </div>
+                {error && <p className="text-sm text-loss">{error}</p>}
+                <button type="submit" disabled={loading} className="btn-gold w-full disabled:opacity-60">
+                  {loading ? "Sending..." : "Send Message"}
+                </button>
+              </form>
+            </GlowCard>
+          )}
         </div>
-        <div className="card p-5">
-          <p className="text-sm font-semibold">Hours</p>
-          <p className="mt-1 text-sm text-[var(--muted)]">Mon to Fri, 9am to 6pm</p>
-        </div>
-        <div className="card p-5">
-          <p className="text-sm font-semibold">Response</p>
-          <p className="mt-1 text-sm text-[var(--muted)]">Within one business day</p>
+
+        {/* Side info */}
+        <div className="space-y-5">
+          <GlowCard className="p-6">
+            <h3 className="font-bold text-[var(--fg)]">📖 Check the FAQ first</h3>
+            <p className="mt-2 text-sm text-[var(--muted)]">Most questions are answered instantly in our Help Center.</p>
+            <Link href="/faq" className="mt-3 inline-block text-sm text-[var(--gold)] hover:underline">Browse FAQs →</Link>
+          </GlowCard>
+
+          <GlowCard className="p-6">
+            <h3 className="font-bold text-[var(--fg)]">⏱ Response time</h3>
+            <p className="mt-2 text-sm text-[var(--muted)]">We aim to respond to all messages within 24 hours. Ambassador members receive priority support.</p>
+          </GlowCard>
+
+          <GlowCard className="p-6">
+            <h3 className="font-bold text-[var(--fg)]">🔒 Security reminder</h3>
+            <p className="mt-2 text-sm text-[var(--muted)]">
+              We will <b className="text-loss">never</b> ask for your password or seed phrase. Only trust this official website.
+            </p>
+          </GlowCard>
         </div>
       </div>
-
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          setSent(true);
-        }}
-        className="card mx-auto mt-10 max-w-3xl flex flex-col gap-4 p-6"
-      >
-        <h2 className="text-lg font-semibold">Send a message</h2>
-        <input required placeholder="Your email" className="rounded-xl border border-[var(--border)] bg-[var(--bg)] px-4 py-3 text-[var(--fg)] outline-none focus:border-[var(--gold)]" />
-        <input required placeholder="Subject" className="rounded-xl border border-[var(--border)] bg-[var(--bg)] px-4 py-3 text-[var(--fg)] outline-none focus:border-[var(--gold)]" />
-        <textarea required rows={5} placeholder="How can we help?" className="rounded-xl border border-[var(--border)] bg-[var(--bg)] px-4 py-3 text-[var(--fg)] outline-none focus:border-[var(--gold)]" />
-        <button className="btn-primary self-start">
-          {sent ? "Thank you, we received it" : "Send message"}
-        </button>
-      </form>
-
-      <p className="mx-auto mt-8 max-w-3xl text-center text-sm text-[var(--muted)]">
-        Looking for the rules? Read our{" "}
-        <a href="/privacy" className="text-[var(--gold)] hover:underline">Privacy Policy</a> and{" "}
-        <a href="/terms" className="text-[var(--gold)] hover:underline">Terms of Service</a>.
-      </p>
-      </Reveal>
+    </main>
   );
 }
