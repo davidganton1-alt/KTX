@@ -101,25 +101,25 @@ export default function ConsolePage() {
     try { await fetch("/api/user/tour", { method: "POST" }); } catch {}
   }
 
-  if (!wallet) return <div className="flex min-h-screen items-center justify-center bg-[#05080F]"><div className="h-10 w-10 animate-spin rounded-full border-2 border-[var(--gold)] border-t-transparent" /></div>;
+  if (!wallet) return <div className="flex min-h-screen items-center justify-center bg-[var(--bg)]"><div className="h-10 w-10 animate-spin rounded-full border-2 border-[var(--gold)] border-t-transparent" /></div>;
 
   const tierLabels: Record<string, string> = { none: "Unranked", faithful: "Faithful", steward: "Steward", ambassador: "Ambassador" };
-  const tierColors: Record<string, string> = { none: "text-slate-400", faithful: "text-amber-400", steward: "text-cyan-400", ambassador: "text-[var(--gold)]" };
+  const tierColors: Record<string, string> = { none: "text-[var(--muted)]", faithful: "text-[var(--gold)]", steward: "text-[var(--cyan)]", ambassador: "text-[var(--gold)]" };
   const nextTier = wallet.tier === "none" ? "faithful" : wallet.tier === "faithful" ? "steward" : wallet.tier === "steward" ? "ambassador" : null;
   const tierThresholds: Record<string, number> = { none: 0, faithful: 100, steward: 650, ambassador: 2000 };
   const progress = nextTier ? Math.min(100, (wallet.deposited / tierThresholds[nextTier]) * 100) : 100;
 
   return (
-    <div className="flex min-h-screen bg-[#05080F] text-slate-300 font-sans">
+    <div className="flex min-h-screen bg-[var(--bg)] text-[var(--fg)] font-sans">
       {/* SIDEBAR */}
-      <aside id="tour-sidebar" className={`fixed inset-y-0 left-0 z-40 w-64 transform border-r border-white/5 bg-[#0B0F19] transition-transform duration-300 lg:static lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
-        <div className="flex h-16 items-center justify-center border-b border-white/5">
-          <span className="text-xl font-bold tracking-tight text-white">KTX <span className="text-[var(--gold)]">Console</span></span>
+      <aside id="tour-sidebar" className={`fixed inset-y-0 left-0 z-40 w-64 transform border-r border-[var(--border)] bg-[var(--bg-soft)] transition-transform duration-300 lg:static lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
+        <div className="flex h-16 items-center justify-center border-b border-[var(--border)]">
+          <span className="text-xl font-bold tracking-tight text-[var(--fg)]">KTX <span className="text-[var(--gold)]">Console</span></span>
         </div>
         <nav className="mt-6 space-y-1 px-3">
           {TABS.map((tab) => (
             <button key={tab.id} onClick={() => { setActiveTab(tab.id); setSidebarOpen(false); }}
-              className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-colors ${activeTab === tab.id ? "bg-[var(--gold)]/10 text-[var(--gold)]" : "text-slate-400 hover:bg-white/5 hover:text-white"}`}>
+              className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-colors ${activeTab === tab.id ? "bg-[var(--gold)]/10 text-[var(--gold)]" : "text-[var(--muted)] hover:bg-[var(--card)] hover:text-[var(--fg)]"}`}>
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d={tab.icon} />
               </svg>
@@ -128,7 +128,7 @@ export default function ConsolePage() {
           ))}
         </nav>
         <div className="absolute bottom-6 left-0 w-full px-3">
-          <button onClick={handleLogout} className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-red-400/80 hover:bg-red-500/10 hover:text-red-400">
+          <button onClick={handleLogout} className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-[var(--loss)]/80 hover:bg-[var(--loss)]/10 hover:text-[var(--loss)]">
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
             </svg>
@@ -139,13 +139,13 @@ export default function ConsolePage() {
 
       {/* MAIN */}
       <main className="flex-1 overflow-y-auto">
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-white/5 bg-[#05080F]/80 px-6 backdrop-blur-md">
-          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-slate-400 lg:hidden">
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-[var(--border)] bg-[var(--bg)]/80 px-6 backdrop-blur-md">
+          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-[var(--muted)] lg:hidden">
             <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
           </button>
-          <h2 className="text-lg font-bold text-white">{TABS.find(t => t.id === activeTab)?.label}</h2>
+          <h2 className="text-lg font-bold text-[var(--fg)]">{TABS.find(t => t.id === activeTab)?.label}</h2>
           <div className="flex items-center gap-4">
-            <span className={`rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-bold uppercase ${tierColors[wallet.tier]}`}>{tierLabels[wallet.tier]}</span>
+            <span className={`rounded-full border border-[var(--border)] bg-[var(--card)] px-3 py-1 text-xs font-bold uppercase ${tierColors[wallet.tier]}`}>{tierLabels[wallet.tier]}</span>
             <div className="h-8 w-8 rounded-full bg-gradient-to-br from-[var(--gold)] to-amber-600" />
           </div>
         </header>
@@ -156,31 +156,31 @@ export default function ConsolePage() {
             <div className="space-y-6">
               {/* Stats */}
               <div className="grid gap-4 md:grid-cols-3">
-                <div id="tour-balance" className="rounded-xl border border-white/5 bg-[#0B0F19] p-6">
-                  <p className="text-sm text-slate-500">Total Balance</p>
-                  <p className="mt-2 text-3xl font-extrabold text-white tabular-nums">$<AnimatedNumber value={wallet.balance} /></p>
-                  {!wallet.freeCreditUnlocked && <p className="mt-2 text-xs text-amber-500">🔒 Deposit to unlock $50 free credit</p>}
+                <div id="tour-balance" className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] p-6">
+                  <p className="text-sm text-[var(--muted)]">Total Balance</p>
+                  <p className="mt-2 text-3xl font-extrabold text-[var(--fg)] tabular-nums">$<AnimatedNumber value={wallet.balance} /></p>
+                  {!wallet.freeCreditUnlocked && <p className="mt-2 text-xs text-[var(--gold)]">🔒 Deposit to unlock $50 free credit</p>}
                 </div>
-                <div className="rounded-xl border border-white/5 bg-[#0B0F19] p-6">
-                  <p className="text-sm text-slate-500">Withdrawable Profit</p>
-                  <p className="mt-2 text-3xl font-extrabold text-emerald-400 tabular-nums">$<AnimatedNumber value={wallet.profit} /></p>
-                  <p className="mt-2 text-xs text-slate-500">Target: {(wallet.dailyRate * 100).toFixed(2)}% / day</p>
+                <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] p-6">
+                  <p className="text-sm text-[var(--muted)]">Withdrawable Profit</p>
+                  <p className="mt-2 text-3xl font-extrabold text-[var(--profit)] tabular-nums">$<AnimatedNumber value={wallet.profit} /></p>
+                  <p className="mt-2 text-xs text-[var(--muted)]">Target: {(wallet.dailyRate * 100).toFixed(2)}% / day</p>
                 </div>
-                <div className="rounded-xl border border-white/5 bg-[#0B0F19] p-6">
-                  <p className="text-sm text-slate-500">Deposited Principal</p>
-                  <p className="mt-2 text-3xl font-extrabold text-white tabular-nums">$<AnimatedNumber value={wallet.deposited} /></p>
-                  <p className="mt-2 text-xs text-slate-500">Hold: {wallet.holdMonths} months</p>
+                <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] p-6">
+                  <p className="text-sm text-[var(--muted)]">Deposited Principal</p>
+                  <p className="mt-2 text-3xl font-extrabold text-[var(--fg)] tabular-nums">$<AnimatedNumber value={wallet.deposited} /></p>
+                  <p className="mt-2 text-xs text-[var(--muted)]">Hold: {wallet.holdMonths} months</p>
                 </div>
               </div>
 
               {/* Tier Progress */}
               {nextTier && (
-                <div className="rounded-xl border border-white/5 bg-[#0B0F19] p-6">
+                <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] p-6">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm font-bold text-white">Progress to <span className={tierColors[nextTier]}>{tierLabels[nextTier]}</span></p>
-                    <span className="text-xs text-slate-500">${fmt(wallet.deposited)} / ${fmt(tierThresholds[nextTier])}</span>
+                    <p className="text-sm font-bold text-[var(--fg)]">Progress to <span className={tierColors[nextTier]}>{tierLabels[nextTier]}</span></p>
+                    <span className="text-xs text-[var(--muted)]">${fmt(wallet.deposited)} / ${fmt(tierThresholds[nextTier])}</span>
                   </div>
-                  <div className="mt-3 h-2 rounded-full bg-white/5">
+                  <div className="mt-3 h-2 rounded-full bg-[var(--card)]">
                     <div className="h-full rounded-full bg-gradient-to-r from-[var(--gold)] to-amber-500" style={{ width: `${progress}%` }} />
                   </div>
                 </div>
@@ -188,20 +188,20 @@ export default function ConsolePage() {
 
               {/* Quick Actions */}
               <div id="tour-actions" className="grid gap-4 md:grid-cols-3">
-                <button onClick={() => setActiveTab("wallet")} className="group rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-5 text-left transition hover:bg-emerald-500/20">
-                  <span className="text-2xl text-emerald-400">💰</span>
-                  <p className="mt-2 font-bold text-emerald-400">Deposit Funds</p>
-                  <p className="mt-1 text-xs text-slate-500">Activate your plan & unlock credit</p>
+                <button onClick={() => setActiveTab("wallet")} className="group rounded-xl border border-emerald-500/20 bg-[var(--profit)]/10 p-5 text-left transition hover:bg-[var(--profit)]/20">
+                  <span className="text-2xl text-[var(--profit)]">💰</span>
+                  <p className="mt-2 font-bold text-[var(--profit)]">Deposit Funds</p>
+                  <p className="mt-1 text-xs text-[var(--muted)]">Activate your plan & unlock credit</p>
                 </button>
-                <button onClick={() => setActiveTab("wallet")} disabled={wallet.profit <= 0} className="group rounded-xl border border-white/10 bg-white/[0.02] p-5 text-left transition hover:bg-white/[0.05] disabled:opacity-40">
-                  <span className="text-2xl text-slate-300">💸</span>
-                  <p className="mt-2 font-bold text-white">Withdraw Profit</p>
-                  <p className="mt-1 text-xs text-slate-500">Instant, zero friction</p>
+                <button onClick={() => setActiveTab("wallet")} disabled={wallet.profit <= 0} className="group rounded-xl border border-[var(--border)] bg-[var(--card)] p-5 text-left transition hover:bg-[var(--card)] disabled:opacity-40">
+                  <span className="text-2xl text-[var(--fg)]">💸</span>
+                  <p className="mt-2 font-bold text-[var(--fg)]">Withdraw Profit</p>
+                  <p className="mt-1 text-xs text-[var(--muted)]">Instant, zero friction</p>
                 </button>
                 <button onClick={() => setActiveTab("ai-engine")} className="group rounded-xl border border-[var(--gold)]/20 bg-[var(--gold)]/10 p-5 text-left transition hover:bg-[var(--gold)]/20">
                   <span className="text-2xl text-[var(--gold)]">🧠</span>
                   <p className="mt-2 font-bold text-[var(--gold)]">AI Engine</p>
-                  <p className="mt-1 text-xs text-slate-500">Watch live execution</p>
+                  <p className="mt-1 text-xs text-[var(--muted)]">Watch live execution</p>
                 </button>
               </div>
 
@@ -216,7 +216,7 @@ export default function ConsolePage() {
                 >
                   <span className="text-2xl">👑</span>
                   <p className="mt-2 font-bold text-[var(--gold)]">Compare Tiers</p>
-                  <p className="mt-1 text-xs text-slate-500">See what each tier unlocks and how to upgrade</p>
+                  <p className="mt-1 text-xs text-[var(--muted)]">See what each tier unlocks and how to upgrade</p>
                 </button>
               </div>
 
@@ -231,28 +231,28 @@ export default function ConsolePage() {
           {activeTab === "wallet" && (
             <div className="space-y-6">
               <div className="grid gap-6 md:grid-cols-2">
-                <div className="rounded-xl border border-white/5 bg-[#0B0F19] p-6">
-                  <h3 className="text-lg font-bold text-white">Deposit Funds</h3>
-                  <p className="mt-2 text-sm text-slate-500">Add funds to activate your plan and unlock the $50 free credit.</p>
+                <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] p-6">
+                  <h3 className="text-lg font-bold text-[var(--fg)]">Deposit Funds</h3>
+                  <p className="mt-2 text-sm text-[var(--muted)]">Add funds to activate your plan and unlock the $50 free credit.</p>
                   <div className="mt-4 flex gap-3">
                     <input type="number" value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)} placeholder="0.00" min="1"
-                      className="flex-1 rounded-lg border border-white/10 bg-[#05080F] px-4 py-3 text-sm text-white outline-none focus:border-[var(--gold)]" />
+                      className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--bg)] px-4 py-3 text-sm text-[var(--fg)] outline-none focus:border-[var(--gold)]" />
                     <button onClick={handleDeposit} disabled={!depositAmount || Number(depositAmount) <= 0}
-                      className="rounded-lg bg-emerald-500 px-6 py-3 text-sm font-bold text-white transition hover:bg-emerald-400 disabled:opacity-50">Deposit</button>
+                      className="rounded-lg bg-[var(--profit)] px-6 py-3 text-sm font-bold text-[var(--fg)] transition hover:bg-[var(--profit)] disabled:opacity-50">Deposit</button>
                   </div>
                   <div className="mt-3 flex gap-2">
                     {[100, 500, 1000, 2500].map(a => (
-                      <button key={a} onClick={() => setDepositAmount(String(a))} className="rounded-lg border border-white/10 px-3 py-1.5 text-xs text-slate-400 hover:border-[var(--gold)] hover:text-[var(--gold)]">${a}</button>
+                      <button key={a} onClick={() => setDepositAmount(String(a))} className="rounded-lg border border-[var(--border)] px-3 py-1.5 text-xs text-[var(--muted)] hover:border-[var(--gold)] hover:text-[var(--gold)]">${a}</button>
                     ))}
                   </div>
                 </div>
 
-                <div className="rounded-xl border border-white/5 bg-[#0B0F19] p-6">
-                  <h3 className="text-lg font-bold text-white">Withdraw Profit</h3>
-                  <p className="mt-2 text-sm text-slate-500">Available: <b className="text-emerald-400">${fmt(wallet.profit)}</b>. Withdraw your daily profit anytime.</p>
+                <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] p-6">
+                  <h3 className="text-lg font-bold text-[var(--fg)]">Withdraw Profit</h3>
+                  <p className="mt-2 text-sm text-[var(--muted)]">Available: <b className="text-[var(--profit)]">${fmt(wallet.profit)}</b>. Withdraw your daily profit anytime.</p>
                   <div className="mt-4 flex gap-3">
                     <input type="number" value={withdrawAmount} onChange={(e) => setWithdrawAmount(e.target.value)} placeholder="0.00" min="1" max={wallet.profit}
-                      className="flex-1 rounded-lg border border-white/10 bg-[#05080F] px-4 py-3 text-sm text-white outline-none focus:border-[var(--gold)]" />
+                      className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--bg)] px-4 py-3 text-sm text-[var(--fg)] outline-none focus:border-[var(--gold)]" />
                     <button onClick={handleWithdraw} disabled={!withdrawAmount || Number(withdrawAmount) <= 0 || wallet.profit <= 0}
                       className="rounded-lg bg-[var(--gold)] px-6 py-3 text-sm font-bold text-black transition hover:brightness-110 disabled:opacity-50">Withdraw</button>
                   </div>
@@ -262,32 +262,32 @@ export default function ConsolePage() {
 
               {actionMsg && <div className="rounded-xl border border-[var(--gold)]/40 bg-[var(--gold)]/10 p-4 text-center text-sm text-[var(--gold)]">{actionMsg}</div>}
 
-              <div className="rounded-xl border border-white/5 bg-[#0B0F19] p-6">
-                <h3 className="mb-4 text-lg font-bold text-white">Transaction History</h3>
+              <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] p-6">
+                <h3 className="mb-4 text-lg font-bold text-[var(--fg)]">Transaction History</h3>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left font-mono text-[11px]">
-                    <thead><tr className="border-b border-white/10 text-[9px] uppercase tracking-widest text-slate-500">
+                    <thead><tr className="border-b border-[var(--border)] text-[9px] uppercase tracking-widest text-[var(--muted)]">
                       <th className="px-2 py-2">Date</th><th className="px-2 py-2">Type</th><th className="px-2 py-2">Amount</th><th className="px-2 py-2">Status</th>
                     </tr></thead>
                     <tbody>
                       {(wallet.deposits ?? []).map((d: any, i: number) => (
-                        <tr key={`d${i}`} className="border-b border-white/5">
-                          <td className="px-2 py-2 text-slate-500">{fmtDate(d.date)}</td>
-                          <td className="px-2 py-2 font-bold text-emerald-400">Deposit</td>
-                          <td className="px-2 py-2 text-white">${fmt(d.amount)}</td>
-                          <td className="px-2 py-2 capitalize text-slate-500">{d.status}</td>
+                        <tr key={`d${i}`} className="border-b border-[var(--border)]">
+                          <td className="px-2 py-2 text-[var(--muted)]">{fmtDate(d.date)}</td>
+                          <td className="px-2 py-2 font-bold text-[var(--profit)]">Deposit</td>
+                          <td className="px-2 py-2 text-[var(--fg)]">${fmt(d.amount)}</td>
+                          <td className="px-2 py-2 capitalize text-[var(--muted)]">{d.status}</td>
                         </tr>
                       ))}
                       {(wallet.withdrawals ?? []).map((w: any, i: number) => (
-                        <tr key={`w${i}`} className="border-b border-white/5">
-                          <td className="px-2 py-2 text-slate-500">{fmtDate(w.date)}</td>
-                          <td className="px-2 py-2 font-bold text-red-400">Withdrawal</td>
-                          <td className="px-2 py-2 text-white">${fmt(w.amount)}</td>
-                          <td className="px-2 py-2 capitalize text-slate-500">{w.status}</td>
+                        <tr key={`w${i}`} className="border-b border-[var(--border)]">
+                          <td className="px-2 py-2 text-[var(--muted)]">{fmtDate(w.date)}</td>
+                          <td className="px-2 py-2 font-bold text-[var(--loss)]">Withdrawal</td>
+                          <td className="px-2 py-2 text-[var(--fg)]">${fmt(w.amount)}</td>
+                          <td className="px-2 py-2 capitalize text-[var(--muted)]">{w.status}</td>
                         </tr>
                       ))}
                       {(wallet.deposits ?? []).length === 0 && (wallet.withdrawals ?? []).length === 0 && (
-                        <tr><td colSpan={4} className="px-2 py-6 text-center text-slate-500">No transactions yet.</td></tr>
+                        <tr><td colSpan={4} className="px-2 py-6 text-center text-[var(--muted)]">No transactions yet.</td></tr>
                       )}
                     </tbody>
                   </table>
@@ -300,8 +300,8 @@ export default function ConsolePage() {
           {activeTab === "ai-engine" && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-bold text-white">AI Trade Engine — Live Terminal</h3>
-                <span className="text-xs text-slate-500">Real-time execution · 500ms refresh · 5s candles</span>
+                <h3 className="text-lg font-bold text-[var(--fg)]">AI Trade Engine — Live Terminal</h3>
+                <span className="text-xs text-[var(--muted)]">Real-time execution · 500ms refresh · 5s candles</span>
               </div>
               <ProEngine initialSymbol="BTC" />
             </div>
@@ -314,16 +314,16 @@ export default function ConsolePage() {
           {activeTab === "referrals" && (
             <div className="space-y-6">
               <div className="grid gap-4 md:grid-cols-3">
-                <div className="rounded-xl border border-white/5 bg-[#0B0F19] p-6"><p className="text-sm text-slate-500">Total Referrals</p><p className="mt-2 text-3xl font-extrabold text-white">{referral?.referrals?.length ?? 0}</p></div>
-                <div className="rounded-xl border border-white/5 bg-[#0B0F19] p-6"><p className="text-sm text-slate-500">Bonus Earned</p><p className="mt-2 text-3xl font-extrabold text-emerald-400">${fmt(referral?.bonusEarned ?? 0)}</p></div>
-                <div className="rounded-xl border border-white/5 bg-[#0B0F19] p-6"><p className="text-sm text-slate-500">Your Code</p><p className="mt-2 text-2xl font-extrabold text-[var(--gold)] font-mono">{referral?.code ?? "—"}</p></div>
+                <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] p-6"><p className="text-sm text-[var(--muted)]">Total Referrals</p><p className="mt-2 text-3xl font-extrabold text-[var(--fg)]">{referral?.referrals?.length ?? 0}</p></div>
+                <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] p-6"><p className="text-sm text-[var(--muted)]">Bonus Earned</p><p className="mt-2 text-3xl font-extrabold text-[var(--profit)]">${fmt(referral?.bonusEarned ?? 0)}</p></div>
+                <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] p-6"><p className="text-sm text-[var(--muted)]">Your Code</p><p className="mt-2 text-2xl font-extrabold text-[var(--gold)] font-mono">{referral?.code ?? "—"}</p></div>
               </div>
-              <div className="rounded-xl border border-white/5 bg-[#0B0F19] p-6">
-                <h3 className="mb-4 text-lg font-bold text-white">Your Referral Link</h3>
+              <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] p-6">
+                <h3 className="mb-4 text-lg font-bold text-[var(--fg)]">Your Referral Link</h3>
                 <div className="flex gap-2">
                   <input readOnly value={`${typeof window !== "undefined" ? window.location.origin : ""}/register?ref=${referral?.code ?? ""}`}
                     onFocus={(e) => e.target.select()}
-                    className="flex-1 rounded-lg border border-white/10 bg-[#05080F] px-4 py-3 font-mono text-xs text-[var(--gold)] outline-none" />
+                    className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--bg)] px-4 py-3 font-mono text-xs text-[var(--gold)] outline-none" />
                   <button onClick={async () => { try { await navigator.clipboard.writeText(`${window.location.origin}/register?ref=${referral?.code}`); setActionMsg("Link copied!"); setTimeout(() => setActionMsg(""), 2000); } catch {} }}
                     className="rounded-lg bg-[var(--gold)] px-6 py-3 text-sm font-bold text-black transition hover:brightness-110">Copy</button>
                 </div>
@@ -335,16 +335,16 @@ export default function ConsolePage() {
           {/* ═══ SECURITY ═══ */}
           {activeTab === "security" && (
             <div className="space-y-6">
-              <div className="rounded-xl border border-white/5 bg-[#0B0F19] p-6">
-                <h3 className="text-lg font-bold text-white">Account Security</h3>
+              <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] p-6">
+                <h3 className="text-lg font-bold text-[var(--fg)]">Account Security</h3>
                 <div className="mt-4 space-y-4">
-                  <div className="flex items-center justify-between rounded-xl border border-white/5 bg-white/[0.02] p-4">
-                    <div><p className="font-bold text-white">Email Verification</p><p className="text-xs text-slate-500">Your email is verified and secure</p></div>
-                    <span className="rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-bold text-emerald-400">✓ Verified</span>
+                  <div className="flex items-center justify-between rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
+                    <div><p className="font-bold text-[var(--fg)]">Email Verification</p><p className="text-xs text-[var(--muted)]">Your email is verified and secure</p></div>
+                    <span className="rounded-full bg-[var(--profit)]/15 px-3 py-1 text-xs font-bold text-[var(--profit)]">✓ Verified</span>
                   </div>
-                  <div className="flex items-center justify-between rounded-xl border border-white/5 bg-white/[0.02] p-4">
-                    <div><p className="font-bold text-white">Two-Factor Authentication</p><p className="text-xs text-slate-500">Add an extra layer of security</p></div>
-                    <button className="rounded-lg border border-white/10 px-4 py-2 text-xs text-slate-300 hover:border-[var(--gold)] hover:text-[var(--gold)]">Enable</button>
+                  <div className="flex items-center justify-between rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
+                    <div><p className="font-bold text-[var(--fg)]">Two-Factor Authentication</p><p className="text-xs text-[var(--muted)]">Add an extra layer of security</p></div>
+                    <button className="rounded-lg border border-[var(--border)] px-4 py-2 text-xs text-[var(--fg)] hover:border-[var(--gold)] hover:text-[var(--gold)]">Enable</button>
                   </div>
                 </div>
               </div>
@@ -353,15 +353,15 @@ export default function ConsolePage() {
 
           {/* ═══ SUPPORT ═══ */}
           {activeTab === "support" && (
-            <div className="rounded-xl border border-white/5 bg-[#0B0F19] p-6">
-              <h3 className="text-lg font-bold text-white">Support Center</h3>
-              <p className="mt-2 text-sm text-slate-500">Need help? Our team is here for you.</p>
+            <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] p-6">
+              <h3 className="text-lg font-bold text-[var(--fg)]">Support Center</h3>
+              <p className="mt-2 text-sm text-[var(--muted)]">Need help? Our team is here for you.</p>
               <div className="mt-4 grid gap-4 md:grid-cols-2">
-                <a href="/faq" className="rounded-xl border border-white/10 p-4 transition hover:border-[var(--gold)]">
-                  <p className="font-bold text-white">FAQ</p><p className="mt-1 text-xs text-slate-500">Answers to common questions</p>
+                <a href="/faq" className="rounded-xl border border-[var(--border)] p-4 transition hover:border-[var(--gold)]">
+                  <p className="font-bold text-[var(--fg)]">FAQ</p><p className="mt-1 text-xs text-[var(--muted)]">Answers to common questions</p>
                 </a>
-                <a href="mailto:support@kingdomtradex.com" className="rounded-xl border border-white/10 p-4 transition hover:border-[var(--gold)]">
-                  <p className="font-bold text-white">Email Support</p><p className="mt-1 text-xs text-slate-500">support@kingdomtradex.com</p>
+                <a href="mailto:support@kingdomtradex.com" className="rounded-xl border border-[var(--border)] p-4 transition hover:border-[var(--gold)]">
+                  <p className="font-bold text-[var(--fg)]">Email Support</p><p className="mt-1 text-xs text-[var(--muted)]">support@kingdomtradex.com</p>
                 </a>
               </div>
             </div>
@@ -369,15 +369,15 @@ export default function ConsolePage() {
 
           {/* ═══ SETTINGS ═══ */}
           {activeTab === "settings" && (
-            <div className="rounded-xl border border-white/5 bg-[#0B0F19] p-6">
-              <h3 className="text-lg font-bold text-white">Account Settings</h3>
+            <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] p-6">
+              <h3 className="text-lg font-bold text-[var(--fg)]">Account Settings</h3>
               <div className="mt-4 space-y-4">
-                <div className="rounded-xl border border-white/5 bg-white/[0.02] p-4">
-                  <p className="text-sm font-bold text-white">Display Name</p>
-                  <p className="mt-1 text-sm text-slate-500">{me?.name ?? "—"}</p>
+                <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
+                  <p className="text-sm font-bold text-[var(--fg)]">Display Name</p>
+                  <p className="mt-1 text-sm text-[var(--muted)]">{me?.name ?? "—"}</p>
                 </div>
-                <div className="rounded-xl border border-white/5 bg-white/[0.02] p-4">
-                  <p className="text-sm font-bold text-white">Current Tier</p>
+                <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
+                  <p className="text-sm font-bold text-[var(--fg)]">Current Tier</p>
                   <p className={`mt-1 text-sm font-bold ${tierColors[wallet.tier]}`}>{tierLabels[wallet.tier]}</p>
                 </div>
               </div>
@@ -421,13 +421,13 @@ function MarketsGrid() {
       {assets.map((a) => {
         const up = a.change24h >= 0;
         return (
-          <div key={a.id} className="rounded-xl border border-white/5 bg-[#0B0F19] p-4">
+          <div key={a.id} className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] p-4">
             <div className="flex items-center justify-between">
-              <p className="font-bold text-white">{a.symbol}</p>
-              <span className={`text-xs font-bold ${up ? "text-emerald-400" : "text-red-400"}`}>{up ? "+" : ""}{a.change24h.toFixed(1)}%</span>
+              <p className="font-bold text-[var(--fg)]">{a.symbol}</p>
+              <span className={`text-xs font-bold ${up ? "text-[var(--profit)]" : "text-[var(--loss)]"}`}>{up ? "+" : ""}{a.change24h.toFixed(1)}%</span>
             </div>
-            <p className="mt-1 text-xs text-slate-500">{a.name}</p>
-            <p className="mt-2 text-lg font-extrabold text-white tabular-nums">${fmt(a.price)}</p>
+            <p className="mt-1 text-xs text-[var(--muted)]">{a.name}</p>
+            <p className="mt-2 text-lg font-extrabold text-[var(--fg)] tabular-nums">${fmt(a.price)}</p>
           </div>
         );
       })}

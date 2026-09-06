@@ -30,8 +30,8 @@ export function FlockAnalytics({ referrals, shareRate }: {
   return (
     <div className="space-y-4">
       {/* Engagement Score */}
-      <div className="rounded-xl border border-white/5 bg-[#0B0F19] p-6">
-        <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400 mb-4">Flock Engagement</h3>
+      <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] p-6">
+        <h3 className="text-sm font-bold uppercase tracking-wider text-[var(--muted)] mb-4">Flock Engagement</h3>
         <div className="flex items-center gap-6">
           <div className="relative h-24 w-24 shrink-0">
             <svg className="h-full w-full -rotate-90" viewBox="0 0 100 100">
@@ -45,59 +45,59 @@ export function FlockAnalytics({ referrals, shareRate }: {
               />
             </svg>
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-xl font-extrabold text-white">{engagementRate.toFixed(0)}%</span>
+              <span className="text-xl font-extrabold text-[var(--fg)]">{engagementRate.toFixed(0)}%</span>
             </div>
           </div>
           <div className="flex-1 grid grid-cols-3 gap-3">
-            <div className="rounded-lg bg-white/[0.02] p-3 text-center">
-              <p className="text-lg font-extrabold text-white">{totalMembers}</p>
-              <p className="text-[10px] text-slate-500">Total</p>
+            <div className="rounded-lg bg-[var(--card)] p-3 text-center">
+              <p className="text-lg font-extrabold text-[var(--fg)]">{totalMembers}</p>
+              <p className="text-[10px] text-[var(--muted)]">Total</p>
             </div>
-            <div className="rounded-lg bg-emerald-500/10 p-3 text-center">
-              <p className="text-lg font-extrabold text-emerald-400">{activeMembers}</p>
-              <p className="text-[10px] text-slate-500">Active</p>
+            <div className="rounded-lg bg-[var(--profit)]/10 p-3 text-center">
+              <p className="text-lg font-extrabold text-[var(--profit)]">{activeMembers}</p>
+              <p className="text-[10px] text-[var(--muted)]">Active</p>
             </div>
-            <div className="rounded-lg bg-red-500/10 p-3 text-center">
-              <p className="text-lg font-extrabold text-red-400">{dormantMembers}</p>
-              <p className="text-[10px] text-slate-500">Dormant</p>
+            <div className="rounded-lg bg-[var(--loss)]/10 p-3 text-center">
+              <p className="text-lg font-extrabold text-[var(--loss)]">{dormantMembers}</p>
+              <p className="text-[10px] text-[var(--muted)]">Dormant</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Tier Distribution */}
-      <div className="rounded-xl border border-white/5 bg-[#0B0F19] p-6">
-        <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400 mb-4">Flock Tier Distribution</h3>
+      <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] p-6">
+        <h3 className="text-sm font-bold uppercase tracking-wider text-[var(--muted)] mb-4">Flock Tier Distribution</h3>
         <div className="space-y-3">
           {Object.entries(tierCounts).filter(([, count]) => count > 0).map(([tier, count]) => (
             <div key={tier} className="flex items-center gap-3">
-              <span className="w-20 text-xs capitalize text-slate-400">{tier}</span>
-              <div className="flex-1 h-2 rounded-full bg-white/5">
+              <span className="w-20 text-xs capitalize text-[var(--muted)]">{tier}</span>
+              <div className="flex-1 h-2 rounded-full bg-[var(--card)]">
                 <div
                   className="h-full rounded-full transition-all duration-500"
                   style={{ width: `${(count / totalMembers) * 100}%`, backgroundColor: tierColors[tier] }}
                 />
               </div>
-              <span className="w-8 text-right text-xs font-bold text-white">{count}</span>
+              <span className="w-8 text-right text-xs font-bold text-[var(--fg)]">{count}</span>
             </div>
           ))}
         </div>
       </div>
 
       {/* Earnings Summary */}
-      <div className="rounded-xl border border-white/5 bg-[#0B0F19] p-6">
-        <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400 mb-4">Flock Financials</h3>
+      <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] p-6">
+        <h3 className="text-sm font-bold uppercase tracking-wider text-[var(--muted)] mb-4">Flock Financials</h3>
         <div className="grid grid-cols-3 gap-4">
           <div>
-            <p className="text-xs text-slate-500">Flock Deposits</p>
-            <p className="mt-1 text-xl font-extrabold text-white">${totalDeposits.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+            <p className="text-xs text-[var(--muted)]">Flock Deposits</p>
+            <p className="mt-1 text-xl font-extrabold text-[var(--fg)]">${totalDeposits.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
           </div>
           <div>
-            <p className="text-xs text-slate-500">Flock Profit</p>
-            <p className="mt-1 text-xl font-extrabold text-emerald-400">${totalProfit.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+            <p className="text-xs text-[var(--muted)]">Flock Profit</p>
+            <p className="mt-1 text-xl font-extrabold text-[var(--profit)]">${totalProfit.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
           </div>
           <div>
-            <p className="text-xs text-slate-500">Your Share ({shareRate}%)</p>
+            <p className="text-xs text-[var(--muted)]">Your Share ({shareRate}%)</p>
             <p className="mt-1 text-xl font-extrabold text-[var(--gold)]">${yourEarnings.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
           </div>
         </div>

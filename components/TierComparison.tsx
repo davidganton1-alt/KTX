@@ -70,16 +70,16 @@ export function TierComparison({ currentTier, deposited, isOpen, onClose }: {
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
-          className="w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl border border-white/10 bg-[#0B0F19] p-8"
+          className="w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl border border-[var(--border)] bg-[var(--bg-soft)] p-8"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-white">Choose Your Path</h2>
-            <button onClick={onClose} className="text-slate-400 hover:text-white text-2xl">×</button>
+            <h2 className="text-2xl font-bold text-[var(--fg)]">Choose Your Path</h2>
+            <button onClick={onClose} className="text-[var(--muted)] hover:text-[var(--fg)] text-2xl">×</button>
           </div>
 
-          <p className="text-sm text-slate-400 mb-8">
-            Your current deposit: <b className="text-white">${deposited.toLocaleString()}</b> ·
+          <p className="text-sm text-[var(--muted)] mb-8">
+            Your current deposit: <b className="text-[var(--fg)]">${deposited.toLocaleString()}</b> ·
             Current tier: <b className="text-[var(--gold)] capitalize">{currentTier}</b>
           </p>
 
@@ -94,8 +94,8 @@ export function TierComparison({ currentTier, deposited, isOpen, onClose }: {
                     isCurrent
                       ? "border-[var(--gold)] bg-[var(--gold)]/5"
                       : isUnlocked
-                      ? "border-white/20 bg-white/[0.02]"
-                      : "border-white/5 bg-white/[0.01] opacity-70"
+                      ? "border-white/20 bg-[var(--card)]"
+                      : "border-[var(--border)] bg-white/[0.01] opacity-70"
                   }`}
                 >
                   {isCurrent && (
@@ -103,29 +103,29 @@ export function TierComparison({ currentTier, deposited, isOpen, onClose }: {
                       CURRENT
                     </span>
                   )}
-                  <div className={`inline-block rounded-lg bg-gradient-to-r ${tier.color} px-3 py-1 text-xs font-bold text-white`}>
+                  <div className={`inline-block rounded-lg bg-gradient-to-r ${tier.color} px-3 py-1 text-xs font-bold text-[var(--fg)]`}>
                     {tier.name}
                   </div>
-                  <p className="mt-3 text-2xl font-extrabold text-white">{tier.rate}<span className="text-sm text-slate-400"> / day</span></p>
-                  <p className="mt-1 text-xs text-slate-500">Min. deposit: ${tier.threshold.toLocaleString()}</p>
+                  <p className="mt-3 text-2xl font-extrabold text-[var(--fg)]">{tier.rate}<span className="text-sm text-[var(--muted)]"> / day</span></p>
+                  <p className="mt-1 text-xs text-[var(--muted)]">Min. deposit: ${tier.threshold.toLocaleString()}</p>
 
                   <div className="mt-4 space-y-2">
                     {tier.features.map((f, i) => (
-                      <div key={i} className="flex items-start gap-2 text-xs text-slate-300">
-                        <span className="text-emerald-400 mt-0.5">✓</span>
+                      <div key={i} className="flex items-start gap-2 text-xs text-[var(--fg)]">
+                        <span className="text-[var(--profit)] mt-0.5">✓</span>
                         <span>{f}</span>
                       </div>
                     ))}
                     {tier.locked.map((f, i) => (
-                      <div key={i} className="flex items-start gap-2 text-xs text-slate-600">
-                        <span className="text-slate-600 mt-0.5">🔒</span>
+                      <div key={i} className="flex items-start gap-2 text-xs text-[var(--muted)]">
+                        <span className="text-[var(--muted)] mt-0.5">🔒</span>
                         <span>{f}</span>
                       </div>
                     ))}
                   </div>
 
                   {!isUnlocked && (
-                    <p className="mt-4 text-[10px] text-amber-400">
+                    <p className="mt-4 text-[10px] text-[var(--gold)]">
                       Deposit ${(tier.threshold - deposited).toLocaleString()} more to unlock
                     </p>
                   )}

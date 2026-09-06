@@ -31,51 +31,51 @@ export function SystemHealth() {
   }, []);
 
   return (
-    <div className="rounded-xl border border-white/5 bg-[#0B0F19] p-6">
-      <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400 mb-4">System Health</h3>
+    <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] p-6">
+      <h3 className="text-sm font-bold uppercase tracking-wider text-[var(--muted)] mb-4">System Health</h3>
       <div className="grid gap-4 md:grid-cols-3">
         {/* Engine Status */}
-        <div className="rounded-lg border border-white/5 bg-white/[0.02] p-4">
+        <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4">
           <div className="flex items-center gap-2 mb-2">
-            <span className={`h-2.5 w-2.5 rounded-full animate-pulse ${engineMode === "live" ? "bg-emerald-500" : "bg-amber-500"}`} />
-            <span className="text-xs font-bold text-white">AI Engine</span>
+            <span className={`h-2.5 w-2.5 rounded-full animate-pulse ${engineMode === "live" ? "bg-emerald-500" : "bg-[var(--gold)]"}`} />
+            <span className="text-xs font-bold text-[var(--fg)]">AI Engine</span>
           </div>
-          <p className={`text-lg font-extrabold ${engineMode === "live" ? "text-emerald-400" : "text-amber-400"}`}>
+          <p className={`text-lg font-extrabold ${engineMode === "live" ? "text-[var(--profit)]" : "text-[var(--gold)]"}`}>
             {engineMode.toUpperCase()}
           </p>
-          <p className="text-[10px] text-slate-500 mt-1">Trading mode active</p>
+          <p className="text-[10px] text-[var(--muted)] mt-1">Trading mode active</p>
         </div>
 
         {/* API Health */}
-        <div className="rounded-lg border border-white/5 bg-white/[0.02] p-4">
+        <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4">
           <div className="flex items-center gap-2 mb-2">
             <span className={`h-2.5 w-2.5 rounded-full ${apiHealth === "healthy" ? "bg-emerald-500" : apiHealth === "degraded" ? "bg-red-500" : "bg-slate-500 animate-pulse"}`} />
-            <span className="text-xs font-bold text-white">API Status</span>
+            <span className="text-xs font-bold text-[var(--fg)]">API Status</span>
           </div>
-          <p className={`text-lg font-extrabold ${apiHealth === "healthy" ? "text-emerald-400" : apiHealth === "degraded" ? "text-red-400" : "text-slate-400"}`}>
+          <p className={`text-lg font-extrabold ${apiHealth === "healthy" ? "text-[var(--profit)]" : apiHealth === "degraded" ? "text-[var(--loss)]" : "text-[var(--muted)]"}`}>
             {apiHealth === "checking" ? "Checking..." : apiHealth === "healthy" ? "HEALTHY" : "DEGRADED"}
           </p>
-          <p className="text-[10px] text-slate-500 mt-1">Response: {uptime}</p>
+          <p className="text-[10px] text-[var(--muted)] mt-1">Response: {uptime}</p>
         </div>
 
         {/* Data Sources */}
-        <div className="rounded-lg border border-white/5 bg-white/[0.02] p-4">
+        <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4">
           <div className="flex items-center gap-2 mb-2">
-            <span className="h-2.5 w-2.5 rounded-full bg-cyan-500" />
-            <span className="text-xs font-bold text-white">Data Feeds</span>
+            <span className="h-2.5 w-2.5 rounded-full bg-[var(--cyan)]" />
+            <span className="text-xs font-bold text-[var(--fg)]">Data Feeds</span>
           </div>
           <div className="space-y-1 mt-2">
             <div className="flex justify-between text-[10px]">
-              <span className="text-slate-400">Yahoo Finance</span>
-              <span className="text-emerald-400">Active</span>
+              <span className="text-[var(--muted)]">Yahoo Finance</span>
+              <span className="text-[var(--profit)]">Active</span>
             </div>
             <div className="flex justify-between text-[10px]">
-              <span className="text-slate-400">CoinGecko</span>
-              <span className="text-emerald-400">Active</span>
+              <span className="text-[var(--muted)]">CoinGecko</span>
+              <span className="text-[var(--profit)]">Active</span>
             </div>
             <div className="flex justify-between text-[10px]">
-              <span className="text-slate-400">Engine State</span>
-              <span className="text-amber-400">In-Memory</span>
+              <span className="text-[var(--muted)]">Engine State</span>
+              <span className="text-[var(--gold)]">In-Memory</span>
             </div>
           </div>
         </div>
