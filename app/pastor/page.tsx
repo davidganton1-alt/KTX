@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatedNumber } from "@/components/AnimatedNumber";
+import { ProEngine } from "@/components/ProEngine";
 
 const fmt = (p: number) => p >= 1000 ? p.toLocaleString(undefined, { maximumFractionDigits: 0 }) : p.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const fmtDate = (ms: number) => new Date(ms).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
@@ -12,6 +13,7 @@ const TABS = [
   { id: "earnings", label: "Earnings & Payout", icon: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" },
   { id: "activity", label: "Activity Feed", icon: "M13 10V3L4 14h7v7l9-11h-7z" },
   { id: "leaderboard", label: "Leaderboard", icon: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" },
+  { id: "engine", label: "AI Engine", icon: "M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" },
 ];
 
 export default function PastorPage() {
@@ -258,6 +260,17 @@ export default function PastorPage() {
                   ))}
                 </div>
               )}
+            </div>
+          )}
+
+          {/* ═══ AI ENGINE ═══ */}
+          {activeTab === "engine" && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-bold text-white">AI Trade Engine — Live Terminal</h3>
+                <span className="text-xs text-slate-500">Watch the engine your flock benefits from</span>
+              </div>
+              <ProEngine initialSymbol="BTC" />
             </div>
           )}
 

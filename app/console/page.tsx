@@ -204,7 +204,7 @@ export default function ConsolePage() {
 
               {/* Engine Preview */}
               <div id="tour-engine">
-                <ProEngine symbol={engineSymbol} />
+                <ProEngine initialSymbol="BTC" />
               </div>
             </div>
           )}
@@ -280,19 +280,12 @@ export default function ConsolePage() {
 
           {/* ═══ AI ENGINE ═══ */}
           {activeTab === "ai-engine" && (
-            <div className="space-y-6">
-              <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
                 <h3 className="text-lg font-bold text-white">AI Trade Engine — Live Terminal</h3>
-                <div className="flex gap-2">
-                  {["BTC", "ETH", "AAPL", "XAU", "WTI"].map(s => (
-                    <button key={s} onClick={() => setEngineSymbol(s)}
-                      className={`rounded-lg px-4 py-2 text-xs font-bold transition ${engineSymbol === s ? "bg-[var(--gold)]/15 text-[var(--gold)] border border-[var(--gold)]/40" : "border border-white/10 text-slate-400 hover:border-[var(--gold)]/50"}`}>
-                      {s}
-                    </button>
-                  ))}
-                </div>
+                <span className="text-xs text-slate-500">Real-time execution · 500ms refresh · 5s candles</span>
               </div>
-              <ProEngine symbol={engineSymbol} />
+              <ProEngine initialSymbol="BTC" />
             </div>
           )}
 
