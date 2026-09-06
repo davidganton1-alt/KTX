@@ -28,6 +28,13 @@ export async function POST(req: NextRequest) {
         { status: 403 }
       );
     }
+    // Block unverified users
+    if (!user.emailVerified) {
+      return NextResponse.json(
+        { error: "Please verify your email before signing in. Check your inbox or the link shown during registration." },
+        { status: 403 }
+      );
+    }
     const token = signSession(user);
     const res = NextResponse.json({
       user: {

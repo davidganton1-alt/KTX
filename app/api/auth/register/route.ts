@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/store";
 import { pastorsDb } from "@/lib/pastorStore";
 import { AUTH_COOKIE, signSession } from "@/lib/auth";
+import { sendVerificationEmail } from "@/lib/email";
+import { randomBytes } from "crypto";
 
 export const dynamic = "force-dynamic";
 
@@ -43,17 +45,23 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const token = signSession(user);
-    const res = NextResponse.json({
-      user: { id: user.id, name: user.name, email: user.email, role: user.role },
+    // Generate verification token
+    const verifyToken = require("crypto").randomBytes(32).toString("hex");
+
+    // Update user with verification token (correct 2-arg signature)
+    db.update(user.id, { 
+      verifyToken,
+      emailVerified: false 
     });
-    res.cookies.set(AUTH_COOKIE, token, {
-      httpOnly: true,
-      sameSite: "lax",
-      path: "/",
-      maxAge: 60 * 60 * 24 * 7,
+
+    // Send verification email (Dev Mode logs to console)
+    const verifyLink = sendVerificationEmail(email, verifyToken);
+
+    return NextResponse.json({ 
+      success: true, 
+      verifyLink, // Return for Dev Mode UI display
+      message: "Account created. Please verify your email to continue." 
     });
-    return res;
   } catch (e: any) {
     return NextResponse.json({ error: e.message || "Registration failed." }, { status: 400 });
   }

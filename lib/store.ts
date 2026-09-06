@@ -50,6 +50,7 @@ export type User = {
   deposits: Deposit[];
   withdrawals: Withdrawal[];
   emailVerified: boolean;
+  verifyToken?: string;
   twoFactorEnabled: boolean;
   twoFactorSecret?: string;
   // Pastor referral (a member brought in by a pastor earns the pastor a share)

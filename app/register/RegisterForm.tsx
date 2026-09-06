@@ -42,6 +42,7 @@ export function RegisterForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [pastorOk, setPastorOk] = useState(false);
+  const [verifyLink, setVerifyLink] = useState("");
   const [applyWarning, setApplyWarning] = useState("");
 
   const leftRef = useRef<HTMLDivElement>(null);
@@ -84,8 +85,8 @@ export function RegisterForm() {
 
       // 2a) Member → straight to console
       if (role === "member") {
-        router.push("/console");
-        router.refresh();
+        setVerifyLink(data.verifyLink || "");
+        setPastorOk(true);
         return;
       }
 
@@ -170,15 +171,22 @@ export function RegisterForm() {
 
           {pastorOk ? (
             <GlowCard className="p-8 text-center">
-              <p className="text-3xl text-[var(--gold)]">✝</p>
-              <h2 className="mt-3 text-xl font-semibold text-[var(--gold)]">Account created · application received</h2>
+              <div className="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-full bg-profit/20 text-3xl text-profit">✓</div>
+              <h2 className="mt-3 text-xl font-semibold text-profit">Account created!</h2>
               <p className="mt-2 text-sm text-[var(--muted)]">
-                The admin will review your pastor application. Once approved, you'll appear on the pastors list and can refer members.
+                We've sent a verification email. Click the link to activate your account.
               </p>
-              {applyWarning && <p className="mt-3 text-xs text-loss">{applyWarning}</p>}
-              <button onClick={() => { router.push("/console"); router.refresh(); }} className="btn-gold mt-5 w-full">
-                Enter the console
-              </button>
+              {verifyLink && (
+                <div className="mt-4 rounded-lg border border-[var(--gold)]/30 bg-[var(--gold)]/10 p-4">
+                  <p className="text-xs font-semibold text-[var(--gold)]">Dev Mode — Verification Link:</p>
+                  <a href={verifyLink} className="mt-2 block text-xs text-[var(--fg)] underline hover:text-[var(--gold)]">
+                    {verifyLink}
+                  </a>
+                </div>
+              )}
+              <a href="/login" className="btn-gold mt-5 inline-flex">
+                Go to sign in
+              </a>
             </GlowCard>
           ) : (
             <GlowCard className="p-6 md:p-8">
