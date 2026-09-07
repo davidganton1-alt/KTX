@@ -111,87 +111,54 @@ export default function PlansPage() {
         </div>
       </section>
 
-      {/* ── COMPARISON TABLE ── */}
-      <section className="container-wide mt-20">
+      {/* ── COMPARISON (grouped, sticky header, desktop) ── */}
+      <section className="container-wide hidden py-12 md:block" id="compare">
         <div className="text-center">
-          <p className="eyebrow">Feature comparison</p>
-          <h2 className="section-title mt-2 text-3xl md:text-5xl">
-            Same AI, <span className="gradient-text">three paths</span>
-          </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-[var(--muted)]">
-            Every plan runs on the same honest engine. Here is exactly what you get at each tier.
-          </p>
+          <p className="eyebrow">Compare</p>
+          <h2 className="section-title mt-2 text-3xl md:text-5xl">Every plan, <span className="gradient-text">side by side</span></h2>
         </div>
 
-        <div className="mt-12 overflow-x-auto">
-          <div className="min-w-[768px]">
-            {/* Sticky Header */}
-            <div className="sticky top-16 z-20 rounded-t-2xl border border-[var(--border)] bg-[var(--bg-soft)]/95 backdrop-blur-md">
-              <div className="grid grid-cols-[1.2fr_1fr_1fr_1fr] gap-0">
-                <div className="border-r border-[var(--border)] px-6 py-4">
-                  <p className="text-xs font-bold uppercase tracking-widest text-[var(--muted)]">Feature</p>
-                </div>
-                <div className="border-r border-[var(--border)] px-6 py-4 text-center">
-                  <p className="text-xs font-bold uppercase tracking-widest text-[var(--muted)]">Faithful</p>
-                </div>
-                <div className="border-r border-[var(--border)] bg-[var(--gold)]/[0.08] px-6 py-4 text-center">
-                  <p className="text-xs font-bold uppercase tracking-widest text-[var(--gold)]">Steward</p>
-                </div>
-                <div className="px-6 py-4 text-center">
-                  <p className="text-xs font-bold uppercase tracking-widest text-[var(--muted)]">Ambassador</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Table Body */}
-            <div className="rounded-b-2xl border border-t-0 border-[var(--border)] bg-[var(--bg-soft)]">
-              {groups.map((group, groupIdx) => (
-                <div key={group.name}>
-                  {/* Group Header */}
-                  <div className="border-b border-[var(--border)] bg-[var(--card)] px-6 py-3">
-                    <p className="text-sm font-bold uppercase tracking-wider text-[var(--gold)]">{group.name}</p>
+        <div className="mt-10">
+          {/* sticky glass bar */}
+          <div className="glass sticky top-0 z-30 border-b border-[var(--border)]">
+            <div className="grid grid-cols-[1.1fr_repeat(3,1fr)] items-center gap-3 px-4 py-3">
+              <p className="text-[11px] uppercase tracking-[0.25em] text-[var(--muted)]">The plans</p>
+              {lineup.map((p) => (
+                <div key={p.name} className={p.hl ? "flex items-center justify-center" : "text-center"}>
+                  <div className="text-center">
+                    <p className="text-sm font-bold">{p.name} <span className="text-[var(--gold)]">· {p.rate}</span></p>
+                    <a href="/register" className={`${p.hl ? "btn-gold" : "btn-ghost"} mt-1.5 inline-flex !px-4 !py-1 text-xs`}>Start</a>
                   </div>
-
-                  {/* Group Rows */}
-                  {group.rows.map((row, rowIdx) => (
-                    <div
-                      key={rowIdx}
-                      className={`grid grid-cols-[1.2fr_1fr_1fr_1fr] gap-0 border-b border-[var(--border)] last:border-b-0 ${
-                        rowIdx % 2 === 0 ? 'bg-[var(--bg-soft)]' : 'bg-[var(--card)]/30'
-                      }`}
-                    >
-                      {/* Label Cell */}
-                      <div className="border-r border-[var(--border)] px-6 py-4">
-                        <p className="text-sm font-medium text-[var(--fg)]">{row.label}</p>
-                      </div>
-
-                      {/* Faithful Cell */}
-                      <div className="border-r border-[var(--border)] px-6 py-4 text-center">
-                        <p className="text-sm text-[var(--muted)]">{row.v[0]}</p>
-                      </div>
-
-                      {/* Steward Cell (highlighted) */}
-                      <div className="border-r border-[var(--border)] bg-[var(--gold)]/[0.05] px-6 py-4 text-center">
-                        <p className="text-sm font-semibold text-[var(--fg)]">{row.v[1]}</p>
-                      </div>
-
-                      {/* Ambassador Cell */}
-                      <div className="px-6 py-4 text-center">
-                        <p className="text-sm text-[var(--muted)]">{row.v[2]}</p>
-                      </div>
-                    </div>
-                  ))}
                 </div>
               ))}
             </div>
           </div>
-        </div>
 
-        {/* Early withdrawal notice */}
-        <div className="mx-auto mt-8 max-w-3xl rounded-2xl border border-[var(--gold)]/30 bg-[var(--gold)]/[0.05] p-6 text-center">
-          <p className="text-sm text-[var(--muted)]">
-            <span className="font-bold text-[var(--gold)]">Full honesty:</span> withdrawing your deposit before the hold ends carries a 25% fee. Early exits force the AI to unwind positions. Your daily profit is <span className="font-bold text-[var(--fg)]">never</span> affected.
-          </p>
+          {groups.map((g, gi) => (
+            <div key={g.name}>
+              <Reveal variant="up">
+                <div className="grid grid-cols-[1.1fr_repeat(3,1fr)] px-4 pb-1 pt-9">
+                  <p className="eyebrow">{gi + 1 === 1 ? "I" : gi + 1 === 2 ? "II" : "III"} · {g.name}</p>
+                </div>
+              </Reveal>
+              {g.rows.map((r, ri) => (
+                <Reveal key={r.label} variant="up" index={ri}>
+                  <div className="grid grid-cols-[1.1fr_repeat(3,1fr)] items-center gap-3 border-b border-[var(--border)] px-4 py-4">
+                    <p className="text-sm text-[var(--muted)]">{r.label}</p>
+                    {r.v.map((val, i) =>
+                      i === 1 ? (
+                        <div key={i} className="flex items-center justify-center rounded-lg bg-[var(--gold)]/[0.05] px-3 py-2">
+                          <p className="text-sm font-medium text-[var(--fg)]">{val}</p>
+                        </div>
+                      ) : (
+                        <p key={i} className="text-sm text-[var(--fg)]">{val}</p>
+                      )
+                    )}
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+          ))}
         </div>
       </section>
 
