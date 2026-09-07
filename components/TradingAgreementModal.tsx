@@ -4,44 +4,44 @@ import { motion } from "framer-motion";
 
 const AGREEMENT_SECTIONS = [
   {
-    title: "1. Nature of the Service",
-    body: "KingdomTradeX provides an AI-powered trading engine that executes trades across cryptocurrencies, U.S. stocks, and commodities on your behalf. You entrust your deposited funds to the engine under the plan and tier you have selected. The engine trades autonomously; you do not direct individual trades.",
+    title: "1. Welcome to KingdomTradeX",
+    body: "KingdomTradeX is a faith-driven investment platform. When you deposit funds, you entrust them to our AI trading engine, which trades across cryptocurrencies, U.S. stocks, and commodities on your behalf. You choose your plan and tier, and the engine handles the trading. You never place individual trades yourself.",
   },
   {
-    title: "2. Substantial Risk of Loss",
-    body: "Trading financial instruments involves substantial risk of loss, including the possible loss of some or all of your deposited principal. Markets are volatile and unpredictable. Even well-designed trading strategies can and do lose money. You must carefully consider whether trading is suitable for you in light of your financial condition.",
+    title: "2. How the AI Engine Works",
+    body: "The engine watches live prices, volume, and order flow, then runs them through forecasting models and a volatility filter before every trade. Each position is sized against strict drawdown limits, so no single move can undo your plan. You can watch every decision live in your dashboard.",
   },
   {
-    title: "3. No Guarantee of Profits",
-    body: "No profits are guaranteed. The daily rates, projected returns, and example calculations shown on the platform are targets and illustrations only — they are not promises, guarantees, or predictions of future performance. Past performance of the engine is not indicative of future results. Your actual returns may be higher, lower, or negative.",
+    title: "3. Your Plan, Holding Period, and Withdrawals",
+    body: "Each tier has a holding period: 6 months for Faithful, 9 months for Steward, and 12 months for Ambassador. During this time your principal stays active in the engine. Your accrued profit is withdrawable at any time. If you withdraw your principal before the holding period ends, a 25% deduction applies to cover engine rebalancing.",
   },
   {
-    title: "4. You Trade at Your Own Risk",
-    body: "By using the platform, you acknowledge and agree that you trade at your own risk. You are solely responsible for the decision to deposit funds and for any losses that occur. KingdomTradeX does not guarantee the safety of your principal and is not liable for trading losses beyond the limitations set out in our Terms of Service.",
+    title: "4. Your Free $50 Welcome Credit",
+    body: "Where offered, the free $50 welcome credit is a gift that trades alongside your deposit under the same engine rules. It is not withdrawable as principal. Any profit it earns becomes withdrawable once you activate your own deposit.",
   },
   {
-    title: "5. Not Investment Advice",
-    body: "Nothing on the platform constitutes financial, investment, legal, or tax advice. KingdomTradeX provides a technology and stewardship framework — not personalized guidance. You are solely responsible for your own investment decisions and should consult independent professional advisors where appropriate.",
+    title: "5. Trading Involves Real Risk",
+    body: "We want to be straight with you: trading financial markets carries a real risk of loss, including the possibility of losing some or all of your deposited principal. Markets are volatile and hard to predict. Even a well-designed strategy can lose money. Please only invest money you can afford to put at risk.",
   },
   {
-    title: "6. AI Engine Behavior",
-    body: "The AI engine makes autonomous decisions about which assets to trade, when to enter and exit positions, and how to size trades. It is designed to manage risk through diversification and drawdown guardrails, but no strategy eliminates risk entirely. The engine's decisions are logged and visible in your dashboard.",
+    title: "6. Profits Are Not Guaranteed",
+    body: "No profit is guaranteed, ever. The daily rates and projected returns you see on the platform are targets and illustrations, not promises. Past performance does not predict future results. Your actual returns may be higher, lower, or negative.",
   },
   {
-    title: "7. Holding Periods and Withdrawals",
-    body: "Each tier has a holding period during which your principal is intended to remain active in the engine (6 months for Faithful, 9 months for Steward, 12 months for Ambassador). Early withdrawal of principal incurs a 25% deduction. Your accrued profit is withdrawable at any time, subject to routine fraud-prevention review.",
+    title: "7. You Trade at Your Own Risk",
+    body: "By using the platform, you confirm that you understand the risks and that you trade at your own risk. You are responsible for your decision to deposit funds and for any losses that may occur. KingdomTradeX does not guarantee the safety of your principal.",
   },
   {
-    title: "8. The Free $50 Welcome Credit",
-    body: "Where offered, the free $50 welcome credit is a promotional gift that trades alongside your deposit under the same engine rules. It is not withdrawable as principal. Profit generated from the credit becomes withdrawable only after you have activated your own deposit.",
+    title: "8. This Is Not Investment Advice",
+    body: "Nothing on this platform counts as financial, investment, legal, or tax advice. We provide a technology and stewardship framework, not personalized guidance. You are responsible for your own investment decisions, and we encourage you to speak with an independent advisor if you need one.",
   },
   {
-    title: "9. Official Website",
-    body: "This is the ONLY official KingdomTradeX website. No other person, website, social media channel, or organization is authorized to act on our behalf or collect funds in our name. Always verify you are on this official site before logging in or depositing.",
+    title: "9. This Is the Only Official Website",
+    body: "This is the only official KingdomTradeX website. No other person, page, channel, or group is allowed to act for us or collect money in our name. Always check that you are on this site before you log in or deposit. If someone else claims to represent us, do not send them money, and report it to us right away.",
   },
   {
     title: "10. Your Acknowledgment",
-    body: "By checking \"I have read and agree\" below and clicking Continue, you confirm that you have read this Trading Agreement in full, that you understand the risks described above, that you accept that profits are not guaranteed, and that you agree to trade at your own risk under the Terms of Service and Privacy Policy of KingdomTradeX.",
+    body: "By checking the box below and clicking Continue, you confirm that you have read this whole agreement. You understand that trading carries real risk, that profits are not guaranteed, and that you trade at your own risk. You accept our Terms of Service and Privacy Policy, and you are ready to begin.",
   },
 ];
 
@@ -129,7 +129,7 @@ export function TradingAgreementModal({ onAgree, userName }: { onAgree: () => vo
               className="mt-1 h-4 w-4 accent-[var(--gold)]"
             />
             <span className="text-sm leading-relaxed text-[var(--fg)]">
-              <b>I have read the entire Trading Agreement above.</b> I understand that trading involves substantial risk of loss, that profits are <b>not guaranteed</b>, and that I am trading at my own risk. I accept the Terms of Service and Privacy Policy of KingdomTradeX.
+              <b>I have read the full Trading Agreement above.</b> I understand that trading carries real risk, that profits are <b>not guaranteed</b>, and that I trade at my own risk. I accept the Terms of Service and Privacy Policy.
             </span>
           </label>
 

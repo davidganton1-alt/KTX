@@ -80,17 +80,21 @@ export default function PlansPage() {
             <Reveal key={p.name} variant="up" index={i}>
               <div className={`relative flex h-full flex-col rounded-3xl border p-7 text-center transition ${p.hl ? "border-[var(--gold)] bg-gradient-to-b from-[var(--gold)]/[0.12] to-transparent shadow-gold md:-translate-y-4" : "border-[var(--border)] bg-[var(--card)] hover:-translate-y-1 hover:border-[var(--gold)]/60"}`}>
                 {p.hl && <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-gold-light to-royal-violet px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-[#0a0e27]">Most chosen</span>}
-                <p className="eyebrow">{p.name}</p>
-                <p className={`mt-5 text-6xl font-extrabold tracking-tight md:text-7xl ${p.hl ? "gradient-text" : ""}`}>{p.rate}</p>
-                <p className="mt-2 text-[11px] uppercase tracking-[0.25em] text-[var(--muted)]">target / day</p>
-                <p className="mt-3 text-sm text-[var(--muted)]">{p.min}</p>
-                <div className="my-6 h-px w-full bg-gradient-to-r from-transparent via-[var(--border)] to-transparent" />
-                <ul className="flex-1 space-y-2.5 text-left text-sm text-[var(--muted)]">
+                <div className="flex min-h-[210px] flex-col items-center justify-start">
+                  <p className="eyebrow">{p.name}</p>
+                  <p className={`mt-5 text-6xl font-extrabold tracking-tight md:text-7xl ${p.hl ? "gradient-text" : ""}`}>{p.rate}</p>
+                  <p className="mt-2 text-[11px] uppercase tracking-[0.25em] text-[var(--muted)]">target / day</p>
+                  <p className="mt-3 text-sm text-[var(--muted)]">{p.min}</p>
+                  <div className="my-6 h-px w-full bg-gradient-to-r from-transparent via-[var(--border)] to-transparent" />
+                </div>
+                <ul className="flex-1 space-y-2 text-left text-sm text-[var(--muted)]">
                   {p.bullets.map((b) => <li key={b} className="flex gap-2.5"><span className="text-[var(--gold)]">✦</span>{b}</li>)}
                 </ul>
-                <p className="mt-5 text-xs italic leading-relaxed text-[var(--gold)]">{p.verse}</p>
-                <p className="mt-1.5 text-xs text-[var(--muted)]">{p.hold} · 25% early fee</p>
-                <a href="/register" className={`${p.hl ? "btn-gold" : "btn-ghost"} mt-6 w-full`}>Start with {p.name}</a>
+                <div className="mt-auto flex flex-col gap-3 pt-5">
+                  <p className="text-xs italic leading-relaxed text-[var(--gold)]">{p.verse}</p>
+                  <p className="text-xs text-[var(--muted)]">{p.hold} · 25% early fee</p>
+                  <a href="/register" className={`${p.hl ? "btn-gold" : "btn-ghost"} w-full`}>Start with {p.name}</a>
+                </div>
               </div>
             </Reveal>
           ))}
