@@ -112,7 +112,7 @@ export default function PlansPage() {
       </section>
 
       {/* ── COMPARISON TABLE ── */}
-      <section className="container-wide mt-20 hidden md:block" id="compare">
+      <section className="container-wide mt-20">
         <div className="text-center">
           <p className="eyebrow">Feature comparison</p>
           <h2 className="section-title mt-2 text-3xl md:text-5xl">
@@ -123,93 +123,67 @@ export default function PlansPage() {
           </p>
         </div>
 
-        <div className="mt-12">
-          {/* ═══ STICKY TIER BAR ═══ */}
-          <div className="sticky top-16 z-30 rounded-t-2xl border border-[var(--border)] bg-[var(--bg-soft)]/90 shadow-lg shadow-black/10 backdrop-blur-xl">
-            <div className="grid grid-cols-[1.2fr_1fr_1fr_1fr] gap-0">
-              {/* Label column */}
-              <div className="flex items-center border-r border-[var(--border)] px-6 py-4">
-                <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[var(--muted)]">The plans</p>
-              </div>
-
-              {/* Faithful */}
-              <div className="flex flex-col items-center justify-center gap-2 border-r border-[var(--border)] px-4 py-4">
-                <p className="text-sm font-bold text-[var(--fg)]">
-                  Faithful <span className="text-[var(--gold)]">· 0.5%</span>
-                </p>
-                <a
-                  href="/register"
-                  className="rounded-full border border-[var(--border)] px-5 py-1.5 text-xs font-semibold text-[var(--fg)] transition-all duration-300 hover:border-[var(--gold)] hover:bg-[var(--gold)]/10 hover:text-[var(--gold)]"
-                >
-                  Start
-                </a>
-              </div>
-
-              {/* Steward (highlighted) */}
-              <div className="flex flex-col items-center justify-center gap-2 border-r border-[var(--border)] bg-[var(--gold)]/[0.08] px-4 py-4">
-                <p className="text-sm font-bold text-[var(--fg)]">
-                  Steward <span className="text-[var(--gold)]">· 0.75%</span>
-                </p>
-                <a
-                  href="/register"
-                  className="rounded-full bg-gradient-to-r from-[var(--gold)] to-amber-500 px-5 py-1.5 text-xs font-bold text-black shadow-md shadow-[var(--gold)]/25 transition-all duration-300 hover:shadow-lg hover:shadow-[var(--gold)]/40 hover:scale-105"
-                >
-                  Start
-                </a>
-              </div>
-
-              {/* Ambassador */}
-              <div className="flex flex-col items-center justify-center gap-2 px-4 py-4">
-                <p className="text-sm font-bold text-[var(--fg)]">
-                  Ambassador <span className="text-[var(--gold)]">· 1.0%</span>
-                </p>
-                <a
-                  href="/register"
-                  className="rounded-full border border-[var(--border)] px-5 py-1.5 text-xs font-semibold text-[var(--fg)] transition-all duration-300 hover:border-[var(--gold)] hover:bg-[var(--gold)]/10 hover:text-[var(--gold)]"
-                >
-                  Start
-                </a>
+        <div className="mt-12 overflow-x-auto">
+          <div className="min-w-[768px]">
+            {/* Sticky Header */}
+            <div className="sticky top-16 z-20 rounded-t-2xl border border-[var(--border)] bg-[var(--bg-soft)]/95 backdrop-blur-md">
+              <div className="grid grid-cols-[1.2fr_1fr_1fr_1fr] gap-0">
+                <div className="border-r border-[var(--border)] px-6 py-4">
+                  <p className="text-xs font-bold uppercase tracking-widest text-[var(--muted)]">Feature</p>
+                </div>
+                <div className="border-r border-[var(--border)] px-6 py-4 text-center">
+                  <p className="text-xs font-bold uppercase tracking-widest text-[var(--muted)]">Faithful</p>
+                </div>
+                <div className="border-r border-[var(--border)] bg-[var(--gold)]/[0.08] px-6 py-4 text-center">
+                  <p className="text-xs font-bold uppercase tracking-widest text-[var(--gold)]">Steward</p>
+                </div>
+                <div className="px-6 py-4 text-center">
+                  <p className="text-xs font-bold uppercase tracking-widest text-[var(--muted)]">Ambassador</p>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* ═══ TABLE BODY ═══ */}
-          <div className="rounded-b-2xl border border-t-0 border-[var(--border)] bg-[var(--bg-soft)]">
-            {groups.map((group) => (
-              <div key={group.name}>
-                {/* Group header */}
-                <div className="border-b border-[var(--border)] bg-[var(--card)] px-6 py-3">
-                  <p className="text-sm font-bold uppercase tracking-wider text-[var(--gold)]">{group.name}</p>
-                </div>
-
-                {/* Group rows */}
-                {group.rows.map((row, rowIdx) => (
-                  <div
-                    key={rowIdx}
-                    className={`grid grid-cols-[1.2fr_1fr_1fr_1fr] gap-0 border-b border-[var(--border)] last:border-b-0 ${
-                      rowIdx % 2 === 0 ? 'bg-[var(--bg-soft)]' : 'bg-[var(--card)]/30'
-                    }`}
-                  >
-                    {/* Label */}
-                    <div className="border-r border-[var(--border)] px-6 py-4">
-                      <p className="text-sm font-medium text-[var(--fg)]">{row.label}</p>
-                    </div>
-                    {/* Faithful */}
-                    <div className="border-r border-[var(--border)] px-6 py-4 text-center">
-                      <p className="text-sm text-[var(--muted)]">{row.v[0]}</p>
-                    </div>
-                    {/* Steward */}
-                    <div className="border-r border-[var(--border)] bg-[var(--gold)]/[0.05] px-6 py-4 text-center">
-                      <p className="text-sm font-semibold text-[var(--fg)]">{row.v[1]}</p>
-                    </div>
-                    {/* Ambassador */}
-                    <div className="px-6 py-4 text-center">
-                      <p className="text-sm text-[var(--muted)]">{row.v[2]}</p>
-                    </div>
+            {/* Table Body */}
+            <div className="rounded-b-2xl border border-t-0 border-[var(--border)] bg-[var(--bg-soft)]">
+              {groups.map((group, groupIdx) => (
+                <div key={group.name}>
+                  {/* Group Header */}
+                  <div className="border-b border-[var(--border)] bg-[var(--card)] px-6 py-3">
+                    <p className="text-sm font-bold uppercase tracking-wider text-[var(--gold)]">{group.name}</p>
                   </div>
-                ))}
-              </div>
-            ))}
+
+                  {/* Group Rows */}
+                  {group.rows.map((row, rowIdx) => (
+                    <div
+                      key={rowIdx}
+                      className={`grid grid-cols-[1.2fr_1fr_1fr_1fr] gap-0 border-b border-[var(--border)] last:border-b-0 ${
+                        rowIdx % 2 === 0 ? 'bg-[var(--bg-soft)]' : 'bg-[var(--card)]/30'
+                      }`}
+                    >
+                      {/* Label Cell */}
+                      <div className="border-r border-[var(--border)] px-6 py-4">
+                        <p className="text-sm font-medium text-[var(--fg)]">{row.label}</p>
+                      </div>
+
+                      {/* Faithful Cell */}
+                      <div className="border-r border-[var(--border)] px-6 py-4 text-center">
+                        <p className="text-sm text-[var(--muted)]">{row.v[0]}</p>
+                      </div>
+
+                      {/* Steward Cell (highlighted) */}
+                      <div className="border-r border-[var(--border)] bg-[var(--gold)]/[0.05] px-6 py-4 text-center">
+                        <p className="text-sm font-semibold text-[var(--fg)]">{row.v[1]}</p>
+                      </div>
+
+                      {/* Ambassador Cell */}
+                      <div className="px-6 py-4 text-center">
+                        <p className="text-sm text-[var(--muted)]">{row.v[2]}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
