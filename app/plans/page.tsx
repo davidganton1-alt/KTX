@@ -1,6 +1,7 @@
 import { SectionIcon } from "@/components/SectionIcon";
 import { Reveal } from "@/components/Reveal";
 import { FAQS } from "@/lib/faqs";
+import Link from "next/link";
 
 export const metadata = { title: "Plans | KingdomTradeX" };
 
@@ -93,7 +94,16 @@ export default function PlansPage() {
                 <div className="mt-auto flex flex-col gap-3 pt-5">
                   <p className="text-xs italic leading-relaxed text-[var(--gold)]">{p.verse}</p>
                   <p className="text-xs text-[var(--muted)]">{p.hold} · 25% early fee</p>
-                  <a href="/register" className={`${p.hl ? "btn-gold" : "btn-ghost"} w-full`}>Start with {p.name}</a>
+                  <Link
+                    href="/register"
+                    className={`mt-auto block w-full rounded-2xl px-6 py-4 text-center text-base font-bold transition-all duration-300 ${
+                      p.hl
+                        ? 'bg-gradient-to-r from-[var(--gold)] to-amber-500 text-black shadow-lg shadow-[var(--gold)]/25 hover:shadow-xl hover:shadow-[var(--gold)]/40 hover:scale-[1.02]'
+                        : 'border-2 border-[var(--border)] bg-[var(--card)] text-[var(--fg)] hover:border-[var(--gold)] hover:text-[var(--gold)] hover:scale-[1.02]'
+                    }`}
+                  >
+                    {p.hl ? 'Start with Steward' : `Start with ${p.name}`}
+                  </Link>
                 </div>
               </div>
             </Reveal>
@@ -114,9 +124,11 @@ export default function PlansPage() {
             <div className="grid grid-cols-[1.1fr_repeat(3,1fr)] items-center gap-3 px-4 py-3">
               <p className="text-[11px] uppercase tracking-[0.25em] text-[var(--muted)]">The plans</p>
               {lineup.map((p) => (
-                <div key={p.name} className="text-center">
-                  <p className="text-sm font-bold">{p.name} <span className="text-[var(--gold)]">· {p.rate}</span></p>
-                  <a href="/register" className={`${p.hl ? "btn-gold" : "btn-ghost"} mt-1.5 inline-flex !px-4 !py-1 text-xs`}>Start</a>
+                <div key={p.name} className={p.hl ? "flex items-center justify-center" : "text-center"}>
+                  <div className="text-center">
+                    <p className="text-sm font-bold">{p.name} <span className="text-[var(--gold)]">· {p.rate}</span></p>
+                    <a href="/register" className={`${p.hl ? "btn-gold" : "btn-ghost"} mt-1.5 inline-flex !px-4 !py-1 text-xs`}>Start</a>
+                  </div>
                 </div>
               ))}
             </div>
@@ -131,11 +143,17 @@ export default function PlansPage() {
               </Reveal>
               {g.rows.map((r, ri) => (
                 <Reveal key={r.label} variant="up" index={ri}>
-                  <div className="grid grid-cols-[1.1fr_repeat(3,1fr)] gap-3 border-b border-[var(--border)] px-4 py-4">
+                  <div className="grid grid-cols-[1.1fr_repeat(3,1fr)] items-center gap-3 border-b border-[var(--border)] px-4 py-4">
                     <p className="text-sm text-[var(--muted)]">{r.label}</p>
-                    {r.v.map((val, i) => (
-                      <p key={i} className={`text-sm ${i === 1 ? "rounded-lg bg-[var(--gold)]/[0.05] px-2 py-1 font-semibold text-[var(--gold)]" : ""}`}>{val}</p>
-                    ))}
+                    {r.v.map((val, i) =>
+                      i === 1 ? (
+                        <div key={i} className="flex items-center justify-center rounded-lg bg-[var(--gold)]/[0.05] px-3 py-2">
+                          <p className="text-sm font-medium text-[var(--fg)]">{val}</p>
+                        </div>
+                      ) : (
+                        <p key={i} className="text-sm text-[var(--fg)]">{val}</p>
+                      )
+                    )}
                   </div>
                 </Reveal>
               ))}
@@ -181,6 +199,72 @@ export default function PlansPage() {
             <span className="text-[var(--gold)]">Full honesty:</span> withdrawing your deposit before the hold ends carries a 25% fee. Early exits force the AI to unwind positions. Your daily profit is <span className="text-[var(--fg)]">never</span> affected.
           </div>
         </Reveal>
+      </section>
+
+      {/* ── CHOOSE YOUR PLAN ── */}
+      <section className="container-wide mt-20">
+        <div className="text-center">
+          <p className="eyebrow">Ready to begin?</p>
+          <h2 className="section-title mt-2 text-3xl md:text-5xl">
+            Choose your <span className="gradient-text">path</span>
+          </h2>
+          <p className="mx-auto mt-4 max-w-2xl text-[var(--muted)]">
+            Same AI. Same honesty. Three sizes of seed. Pick the one that fits your journey and start harvesting today.
+          </p>
+        </div>
+
+        <div className="mx-auto mt-12 grid max-w-4xl gap-4 md:grid-cols-3">
+          {/* Faithful */}
+          <Link
+            href="/register"
+            className="group relative overflow-hidden rounded-2xl border-2 border-[var(--border)] bg-[var(--bg-soft)] p-8 text-center transition-all duration-300 hover:border-[var(--gold)] hover:shadow-xl hover:shadow-[var(--gold)]/10 hover:-translate-y-1"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+            <p className="text-xs font-bold uppercase tracking-widest text-[var(--muted)]">Faithful</p>
+            <p className="mt-3 text-4xl font-extrabold text-[var(--fg)]">0.5%</p>
+            <p className="text-sm text-[var(--muted)]">per day</p>
+            <p className="mt-4 text-sm text-[var(--muted)]">Min. $100</p>
+            <div className="mt-6 rounded-xl bg-[var(--card)] px-4 py-3 text-sm font-bold text-[var(--fg)] transition-colors group-hover:bg-[var(--gold)] group-hover:text-black">
+              Plant My Seed
+            </div>
+          </Link>
+
+          {/* Steward (highlighted) */}
+          <Link
+            href="/register"
+            className="group relative overflow-hidden rounded-2xl border-2 border-[var(--gold)] bg-gradient-to-br from-[var(--gold)]/10 to-transparent p-8 text-center shadow-lg shadow-[var(--gold)]/20 transition-all duration-300 hover:shadow-2xl hover:shadow-[var(--gold)]/30 hover:-translate-y-2 md:scale-105"
+          >
+            <span className="absolute -top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--gold)] px-4 py-1 text-xs font-bold text-black">
+              Most Chosen
+            </span>
+            <p className="text-xs font-bold uppercase tracking-widest text-[var(--gold)]">Steward</p>
+            <p className="mt-3 text-4xl font-extrabold text-[var(--fg)]">0.75%</p>
+            <p className="text-sm text-[var(--muted)]">per day</p>
+            <p className="mt-4 text-sm text-[var(--muted)]">Min. $650</p>
+            <div className="mt-6 rounded-xl bg-[var(--gold)] px-4 py-3 text-sm font-bold text-black transition-transform group-hover:scale-105">
+              Plant My Seed
+            </div>
+          </Link>
+
+          {/* Ambassador */}
+          <Link
+            href="/register"
+            className="group relative overflow-hidden rounded-2xl border-2 border-[var(--border)] bg-[var(--bg-soft)] p-8 text-center transition-all duration-300 hover:border-[var(--gold)] hover:shadow-xl hover:shadow-[var(--gold)]/10 hover:-translate-y-1"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+            <p className="text-xs font-bold uppercase tracking-widest text-[var(--muted)]">Ambassador</p>
+            <p className="mt-3 text-4xl font-extrabold text-[var(--fg)]">1.0%</p>
+            <p className="text-sm text-[var(--muted)]">per day</p>
+            <p className="mt-4 text-sm text-[var(--muted)]">Min. $2,000</p>
+            <div className="mt-6 rounded-xl bg-[var(--card)] px-4 py-3 text-sm font-bold text-[var(--fg)] transition-colors group-hover:bg-[var(--gold)] group-hover:text-black">
+              Plant My Seed
+            </div>
+          </Link>
+        </div>
+
+        <p className="mt-8 text-center text-sm text-[var(--muted)]">
+          All plans include the free $50 welcome credit, daily profit withdrawals, and full transparency.
+        </p>
       </section>
 
       {/* ── FAQ TEASER ── */}
