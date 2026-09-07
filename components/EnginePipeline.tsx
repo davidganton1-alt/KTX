@@ -5,16 +5,16 @@ import { useScroll, useMotionValueEvent } from "framer-motion";
 export const STAGES = [
   { num: "01", color: "#F5C97B", icon: "◈", title: "Signal fusion",
     body: "Every second, price, volume, order-flow and on-chain signals across crypto, US stocks and commodities stream into one place.",
-    verse: "He telleth the number of the stars; he calleth them all by their names. — Psalm 147:4" },
+    verse: "He telleth the number of the stars; he calleth them all by their names. Psalm 147:4" },
   { num: "02", color: "#22D3EE", icon: "◈", title: "Forecasting",
     body: "LSTM and GRU sequence models read the shape of the market, while a Kalman filter keeps volatility estimates honest.",
-    verse: "A prudent man foreseeth the evil, and hideth himself. — Proverbs 22:3" },
+    verse: "A prudent man foreseeth the evil, and hideth himself. Proverbs 22:3" },
   { num: "03", color: "#A855F7", icon: "◈", title: "Sizing & guardrails",
     body: "Position size is set against a drawdown guard before any entry, so no single move can undo your plan.",
-    verse: "Forsake her not, and she shall preserve thee. — Proverbs 4:6" },
+    verse: "Forsake her not, and she shall preserve thee. Proverbs 4:6" },
   { num: "04", color: "#34D399", icon: "◈", title: "Execution & review",
     body: "Reinforcement learning times the entry and exit, then monitors every open trade to close or cut it.",
-    verse: "Commit thy works unto the LORD, and thy thoughts shall be established. — Proverbs 16:3" },
+    verse: "Commit thy works unto the LORD, and thy thoughts shall be established. Proverbs 16:3" },
 ];
 
 export function EngineCore({ color = "#F5C97B", activeIndex = 0, className = "" }: { color?: string; activeIndex?: number; className?: string }) {

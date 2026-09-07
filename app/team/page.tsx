@@ -4,7 +4,7 @@ import { Reveal } from "@/components/Reveal";
 import { SectionIcon } from "@/components/SectionIcon";
 import { Verse } from "@/components/Verse";
 
-export const metadata = { title: "About Us — KingdomTradeX" };
+export const metadata = { title: "About Us | KingdomTradeX" };
 
 // ── EDIT THESE WITH YOUR REAL LICENSE DETAILS ──
 const LICENSES = [
@@ -13,9 +13,9 @@ const LICENSES = [
 ];
 
 const TIMELINE = [
-  { n: "I", t: "The verse", d: "It began with Matthew 6:21 — 'where your treasure is, there your heart will be also.' A question: what if treasure could be grown with wisdom, not worry?" },
-  { n: "II", t: "The build", d: "Engineers and stewards built an engine that trades with discipline — models, guardrails, and a ledger open to every member." },
-  { n: "III", t: "The flock", d: "Pastors joined to pray over the work and shepherd the community. The constellation is still growing — star by star." },
+  { n: "I", t: "The verse", d: "It began with Matthew 6:21: 'where your treasure is, there your heart will be also.' A question: what if treasure could be grown with wisdom, not worry?" },
+  { n: "II", t: "The build", d: "Engineers and stewards built an engine that trades with discipline: models, guardrails, and a ledger open to every member." },
+  { n: "III", t: "The flock", d: "Pastors joined to pray over the work and shepherd the community. The constellation is still growing, star by star." },
 ];
 
 export default function AboutPage() {
@@ -27,7 +27,7 @@ export default function AboutPage() {
         <h1 className="section-title mt-3 text-4xl md:text-6xl">Built on <span className="gradient-text">faith</span>, run with <span className="gradient-text">integrity</span></h1>
         <p className="mx-auto mt-4 max-w-3xl text-[var(--muted)]">
           KingdomTradeX is a licensed, faith-driven investment platform. We combine disciplined AI trading with
-          biblical stewardship — and we hold ourselves to a standard higher than the market&rsquo;s. Transparency
+          biblical stewardship, and we hold ourselves to a standard higher than the market&rsquo;s. Transparency
           isn&rsquo;t a feature here; it&rsquo;s our foundation.
         </p>
       </section>
@@ -153,7 +153,7 @@ export default function AboutPage() {
               {s.verse && (
                 <blockquote className="mt-auto border-l-2 border-[var(--gold)] pl-3 text-sm italic text-[var(--gold)]">
                   &ldquo;{s.verse.text}&rdquo;
-                  <span className="mt-1 block not-italic text-[var(--muted)]">— {s.verse.ref}</span>
+                  <span className="mt-1 block not-italic text-[var(--muted)]">{s.verse.ref}</span>
                 </blockquote>
               )}
             </Reveal>

@@ -19,19 +19,19 @@ const CLASS_STYLE: Record<string, { grad: string; chip: string }> = {
 };
 
 const CLASS_VERSE: Record<string, string> = {
-  Crypto: "A just weight is his delight. — Proverbs 11:1",
-  "US Stocks": "The plans of the diligent lead surely to abundance. — Proverbs 21:5",
-  Commodities: "The earth is the LORD's, and the fulness thereof. — Psalm 24:1",
+  Crypto: "A just weight is his delight. Proverbs 11:1",
+  "US Stocks": "The plans of the diligent lead surely to abundance. Proverbs 21:5",
+  Commodities: "The earth is the LORD's, and the fulness thereof. Psalm 24:1",
 };
 
 const VENUES = ["Coinbase", "Binance", "NYSE", "NASDAQ", "CME", "COMEX", "LME", "ICE"];
 
 const BIBLE_MARKETS = [
-  { sym: "XAU", name: "Gold", verse: "More to be desired than much fine gold. — Psalm 19:10", story: "Solomon overlaid the temple with it. Kings measured wisdom by it. The AI weighs it every second." },
-  { sym: "XAG", name: "Silver", verse: "The silver is mine, and the gold is mine. — Haggai 2:8", story: "Abraham paid 400 shekels of silver for the field of Machpelah — the first recorded purchase." },
-  { sym: "WHEAT", name: "Wheat", verse: "Joseph gathered corn as the sand of the sea. — Genesis 41:49", story: "Seven fat years stored for seven lean — the first great stewardship of grain." },
-  { sym: "WTI", name: "Oil", verse: "The wise took oil in their vessels. — Matthew 25:4", story: "Oil lit the temple lamps and the wise virgins' flames. It still moves the world." },
-  { sym: "COPPER", name: "Copper", verse: "Out of the earth comes its copper. — Job 28:2", story: "The bronze sea and the temple pillars were cast from it — metalwork as worship." },
+  { sym: "XAU", name: "Gold", verse: "More to be desired than much fine gold. Psalm 19:10", story: "Solomon overlaid the temple with it. Kings measured wisdom by it. The AI weighs it every second." },
+  { sym: "XAG", name: "Silver", verse: "The silver is mine, and the gold is mine. Haggai 2:8", story: "Abraham paid 400 shekels of silver for the field of Machpelah, the first recorded purchase." },
+  { sym: "WHEAT", name: "Wheat", verse: "Joseph gathered corn as the sand of the sea. Genesis 41:49", story: "Seven fat years stored for seven lean: the first great stewardship of grain." },
+  { sym: "WTI", name: "Oil", verse: "The wise took oil in their vessels. Matthew 25:4", story: "Oil lit the temple lamps and the wise virgins' flames. It still moves the world." },
+  { sym: "COPPER", name: "Copper", verse: "Out of the earth comes its copper. Job 28:2", story: "The bronze sea and the temple pillars were cast from it: metalwork as worship." },
 ];
 
 /* ── custom SVG commodity logos ── */
@@ -201,7 +201,7 @@ export default function MarketsPage() {
               Every market the AI <span className="gradient-text">watches</span>
             </h1>
             <p className="mt-3 max-w-2xl text-sm text-[var(--muted)]">
-              From the gold of Solomon to the silicon of today — every asset below is weighed with honest scales, watched around the clock, and traded with guardrails on.
+              From the gold of Solomon to the silicon of today, every asset below is weighed with honest scales, watched around the clock, and traded with guardrails on.
             </p>
           </div>
           <div className="glass flex items-center gap-4 rounded-full px-5 py-2.5 text-xs text-[var(--muted)]">
@@ -391,7 +391,7 @@ export default function MarketsPage() {
         <div className="text-center">
           <p className="eyebrow">From scripture to screen</p>
           <h2 className="section-title mt-2 text-3xl md:text-5xl">Markets of the <span className="gradient-text">Bible</span>, trading today</h2>
-          <p className="mx-auto mt-3 max-w-2xl text-sm text-[var(--muted)]">The same metals, grains and oils that moved kingdoms still move markets — and the AI trades them with the same discipline.</p>
+          <p className="mx-auto mt-3 max-w-2xl text-sm text-[var(--muted)]">The same metals, grains and oils that moved kingdoms still move markets, and the AI trades them with the same discipline.</p>
         </div>
         <div className="mt-10 grid gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5">
           {BIBLE_MARKETS.map((m, i) => {
@@ -428,10 +428,10 @@ export default function MarketsPage() {
             <p className="eyebrow">Honest in all sight</p>
             <h2 className="section-title mt-2 text-3xl md:text-5xl">Nothing hidden, <span className="gradient-text">nothing hyped</span></h2>
             <p className="mt-4 text-sm italic leading-relaxed text-[var(--muted)]">
-              "Providing for honest things, not only in the sight of the Lord, but also in the sight of men." — 2 Corinthians 8:21
+              "Providing for honest things, not only in the sight of the Lord, but also in the sight of men." 2 Corinthians 8:21
             </p>
             <ul className="mt-6 space-y-3 text-sm text-[var(--muted)]">
-              <li className="flex gap-3"><span className="text-[var(--gold)]">✦</span> Live prices refreshed every 3 seconds — no stale screens.</li>
+              <li className="flex gap-3"><span className="text-[var(--gold)]">✦</span> Live prices refreshed every 3 seconds. No stale screens.</li>
               <li className="flex gap-3"><span className="text-[var(--gold)]">✦</span> Every AI trade logged with entry, exit and hold time.</li>
               <li className="flex gap-3"><span className="text-[var(--gold)]">✦</span> Your profit shown daily, withdrawable daily.</li>
             </ul>
@@ -455,7 +455,7 @@ export default function MarketsPage() {
             <h2 className="section-title mt-2 text-3xl md:text-4xl">
               Watch the AI trade <span className="gradient-text">these exact markets</span>
             </h2>
-            <p className="mt-2 text-sm text-[var(--muted)]">Every signal, entry and exit — logged and visible, around the clock.</p>
+            <p className="mt-2 text-sm text-[var(--muted)]">Every signal, entry and exit, logged and visible, around the clock.</p>
           </div>
           <a href="/ai-trading" className="btn-primary shrink-0">Watch the engine trade</a>
         </div>

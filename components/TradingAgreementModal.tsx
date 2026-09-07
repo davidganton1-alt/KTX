@@ -110,7 +110,7 @@ export function TradingAgreementModal({ onAgree, userName }: { onAgree: () => vo
               <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">{s.body}</p>
             </div>
           ))}
-          <div className="pt-2 text-center text-xs text-[var(--muted)]">— End of Trading Agreement —</div>
+          <div className="pt-2 text-center text-xs text-[var(--muted)]">End of Trading Agreement</div>
         </div>
 
         <div className="border-t border-[var(--border)] p-6">
@@ -140,7 +140,7 @@ export function TradingAgreementModal({ onAgree, userName }: { onAgree: () => vo
             disabled={!agreed || loading}
             className="btn-gold mt-4 w-full disabled:opacity-50"
           >
-            {loading ? "Saving your agreement..." : "I Agree — Enter Dashboard"}
+            {loading ? "Saving your agreement..." : "I Agree and Enter Dashboard"}
           </button>
 
           <p className="mt-3 text-center text-[11px] text-[var(--muted)]">

@@ -19,9 +19,9 @@ const steps = [
 ];
 
 const tiers = [
-  { name: "Faithful", min: "$100 to $500", rate: "0.5% / day", perk: "Crypto, US stocks and commodities. Starter AI, daily profit, profit-only withdrawals.", verse: "Be faithful with the little things, and you will be trusted with much. — Luke 16:10", hold: "6-month hold, 25% early fee", accent: "from-amber-600 to-gold-light", highlight: false },
-  { name: "Steward", min: "$650 to $1,500", rate: "0.75% / day", perk: "Advanced AI across all markets, priority rebalancing, 0.75% target daily.", verse: "Stewards of the manifold grace of God. — 1 Peter 4:10", hold: "9-month hold, 25% early fee", accent: "from-slate-400 to-cyan-light", highlight: true },
-  { name: "Ambassador", min: "$2,000 and up", rate: "1.0% / day", perk: "Elite AI desk, dedicated risk guardrails across all markets, 1.0% target daily.", verse: "Honour the Lord with your wealth, with the firstfruits of all your crops. — Proverbs 3:9", hold: "12-month hold, 25% early fee", accent: "from-yellow-400 to-gold-light", highlight: false },
+  { name: "Faithful", min: "$100 to $500", rate: "0.5% / day", perk: "Crypto, US stocks and commodities. Starter AI, daily profit, profit-only withdrawals.", verse: "Be faithful with the little things, and you will be trusted with much. Luke 16:10", hold: "6-month hold, 25% early fee", accent: "from-amber-600 to-gold-light", highlight: false },
+  { name: "Steward", min: "$650 to $1,500", rate: "0.75% / day", perk: "Advanced AI across all markets, priority rebalancing, 0.75% target daily.", verse: "Stewards of the manifold grace of God. 1 Peter 4:10", hold: "9-month hold, 25% early fee", accent: "from-slate-400 to-cyan-light", highlight: true },
+  { name: "Ambassador", min: "$2,000 and up", rate: "1.0% / day", perk: "Elite AI desk, dedicated risk guardrails across all markets, 1.0% target daily.", verse: "Honour the Lord with your wealth, with the firstfruits of all your crops. Proverbs 3:9", hold: "12-month hold, 25% early fee", accent: "from-yellow-400 to-gold-light", highlight: false },
 ];
 
 const values = [
@@ -56,10 +56,10 @@ const markets = [
 ];
 
 const oldWay = ["Gambling on hype at 2 a.m.", "Fees quietly eating your gains", "Fear making every decision", "Black-box platforms, no answers"];
-const newWay = ["AI discipline with guardrails on", "Profit-only withdrawals, any day", "A transparent ledger you can read", "Peace of mind — stewardship, not speculation"];
+const newWay = ["AI discipline with guardrails on", "Profit-only withdrawals, any day", "A transparent ledger you can read", "Peace of mind: stewardship, not speculation"];
 
 const voices = [
-  { q: "I withdrew my first profit on day two. It felt like manna — small, daily, and faithful.", n: "Grace M.", c: "Lagos" },
+  { q: "I withdrew my first profit on day two. It felt like manna: small, daily, and faithful.", n: "Grace M.", c: "Lagos" },
   { q: "The transparency changed how our whole fellowship thinks about stewardship.", n: "Pastor Daniel", c: "Nairobi" },
   { q: "No hype. Just daily growth and peace of mind while I run my business.", n: "Sarah K.", c: "Manila" },
 ];
@@ -75,7 +75,7 @@ const shepherds = [
 ];
 
 const withdrawSteps = [
-  { g: "✦", t: "Daily accrual", v: "Profit appears in your wallet every single day — visible in plain sight." },
+  { g: "✦", t: "Daily accrual", v: "Profit appears in your wallet every single day, visible in plain sight." },
   { g: "↗", t: "Withdraw profit anytime", v: "One tap. Your earnings are never locked, never gated." },
   { g: "◈", t: "Principal keeps working", v: "Your seed stays planted, compounding while you live on the harvest." },
 ];
@@ -84,7 +84,7 @@ const trustPoints = [
   "Drawdown guardrails cap the size of every position",
   "Kalman-filtered volatility keeps risk estimates honest",
   "A full ledger of every trade, open for you to read",
-  "Profit-only withdrawals, by design — not by promise",
+  "Profit-only withdrawals, by design, not by promise",
 ];
 
 const WORDS = ["Stewardship", "Integrity", "Clarity", "Discipline", "Transparency", "Faith", "Wisdom", "Peace"];
@@ -243,7 +243,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── SHEPHERDS RAIL (NEW — community) ── */}
+      {/* SHEPHERDS RAIL (NEW: community) */}
       <section className="container-wide py-12">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>

@@ -2,7 +2,7 @@ import { SectionIcon } from "@/components/SectionIcon";
 import { Reveal } from "@/components/Reveal";
 import Link from "next/link";
 
-export const metadata = { title: "Terms of Service — KingdomTradeX" };
+export const metadata = { title: "Terms of Service | KingdomTradeX" };
 
 const sections = [
   {
@@ -29,12 +29,12 @@ const sections = [
   {
     id: "platform",
     h: "4. Description of the Platform",
-    p: "KingdomTradeX is a faith-driven investment platform. When you deposit funds, you entrust them to our AI trading engine, which executes trades across a diversified basket of cryptocurrencies, U.S. stocks, and commodities on your behalf. You are not a trader yourself — the engine trades for you under the plan and tier you have selected.",
+    p: "KingdomTradeX is a faith-driven investment platform. When you deposit funds, you entrust them to our AI trading engine, which executes trades across a diversified basket of cryptocurrencies, U.S. stocks, and commodities on your behalf. You are not a trader yourself. The engine trades for you under the plan and tier you have selected.",
   },
   {
     id: "plans",
     h: "5. Plans and Tiers",
-    p: "We offer three tiers — Faithful, Steward, and Ambassador — each with its own minimum deposit, target daily rate, and holding period. The daily rates displayed on the platform are target rates based on the engine's design, not guaranteed returns. Actual daily returns vary with market conditions.",
+    p: "We offer three tiers: Faithful, Steward, and Ambassador, each with its own minimum deposit, target daily rate, and holding period. The daily rates displayed on the platform are target rates based on the engine's design, not guaranteed returns. Actual daily returns vary with market conditions.",
   },
   {
     id: "deposits",
@@ -64,7 +64,7 @@ const sections = [
   {
     id: "not-advice",
     h: "10. Not Investment Advice",
-    p: "Nothing on this platform constitutes financial, investment, legal, or tax advice. We provide a technology and stewardship framework — not personalized financial guidance. You are solely responsible for your own investment decisions and should consult independent professional advisors where appropriate.",
+    p: "Nothing on this platform constitutes financial, investment, legal, or tax advice. We provide a technology and stewardship framework, not personalized financial guidance. You are solely responsible for your own investment decisions and should consult independent professional advisors where appropriate.",
   },
   {
     id: "fees",
@@ -106,7 +106,7 @@ const sections = [
   {
     id: "ip",
     h: "17. Intellectual Property",
-    p: "All content on the platform — including the AI engine, design, text, graphics, logos, and trademarks — is owned by or licensed to KingdomTradeX and protected by intellectual-property law. You may not copy, modify, or redistribute our content without written permission.",
+    p: "All content on the platform, including the AI engine, design, text, graphics, logos, and trademarks, is owned by or licensed to KingdomTradeX and protected by intellectual-property law. You may not copy, modify, or redistribute our content without written permission.",
   },
   {
     id: "limitation",

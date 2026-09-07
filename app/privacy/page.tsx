@@ -2,7 +2,7 @@ import { SectionIcon } from "@/components/SectionIcon";
 import { Reveal } from "@/components/Reveal";
 import Link from "next/link";
 
-export const metadata = { title: "Privacy Policy — KingdomTradeX" };
+export const metadata = { title: "Privacy Policy | KingdomTradeX" };
 
 const sections = [
   {
@@ -38,16 +38,16 @@ const sections = [
   {
     id: "no-sell",
     h: "4. We Do Not Sell Your Data",
-    p: "We never sell, rent, or trade your personal information to advertisers, data brokers, or third parties. Your data is not our product — you are our steward, and your information is held in trust.",
+    p: "We never sell, rent, or trade your personal information to advertisers, data brokers, or third parties. Your data is not our product. You are our steward, and your information is held in trust.",
   },
   {
     id: "sharing",
     h: "5. Limited Sharing with Trusted Partners",
     p: "We may share minimal information with:",
     list: [
-      "Payment processors — only the transaction details required to process your deposit or withdrawal.",
-      "Regulatory authorities — when required by law, subpoena, or our MSB compliance obligations.",
-      "Cloud infrastructure providers — who are contractually bound to protect data and do not use it for their own purposes.",
+      "Payment processors: only the transaction details required to process your deposit or withdrawal.",
+      "Regulatory authorities: when required by law, subpoena, or our MSB compliance obligations.",
+      "Cloud infrastructure providers: partners who are contractually bound to protect data and do not use it for their own purposes.",
     ],
   },
   {
@@ -58,7 +58,7 @@ const sections = [
   {
     id: "email-verification",
     h: "7. Email Verification",
-    p: "Every new account must be verified by clicking a link sent to the registered email address. This step is not optional — it protects you from unauthorized account creation and ensures only you can access your funds. Unverified accounts cannot log in or transact.",
+    p: "Every new account must be verified by clicking a link sent to the registered email address. This step is required. It protects you from unauthorized account creation and ensures only you can access your funds. Unverified accounts cannot log in or transact.",
   },
   {
     id: "retention",

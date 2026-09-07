@@ -26,7 +26,7 @@ export type Star = {
 
 export const morningStar = {
   title: "The Bright Morning Star",
-  verse: "I am the root and the descendant of David, the bright morning star. — Revelation 22:16",
+  verse: "I am the root and the descendant of David, the bright morning star. Revelation 22:16",
   sub: "Every star in this sky is named, known and held. So are you.",
 };
 
@@ -74,11 +74,11 @@ export const scriptureWall = [
 ];
 
 export const ribbon = [
-  "He determines the number of the stars and calls them each by name. — Psalm 147:4",
-  "Now you are the body of Christ, and each one of you is a part of it. — 1 Corinthians 12:27",
-  "As each has received a gift, use it to serve one another. — 1 Peter 4:10",
-  "Two are better than one, because they have a good reward for their toil. — Ecclesiastes 4:9",
-  "How good and pleasant it is when brothers dwell in unity! — Psalm 133:1",
+  "He determines the number of the stars and calls them each by name. Psalm 147:4",
+  "Now you are the body of Christ, and each one of you is a part of it. 1 Corinthians 12:27",
+  "As each has received a gift, use it to serve one another. 1 Peter 4:10",
+  "Two are better than one, because they have a good reward for their toil. Ecclesiastes 4:9",
+  "How good and pleasant it is when brothers dwell in unity! Psalm 133:1",
 ];
 
 export const orbitGlyphs = ["✦", "❖", "⚙", "⚖", "✚", "◈", "❂", "✠"];

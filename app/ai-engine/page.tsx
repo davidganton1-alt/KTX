@@ -4,7 +4,7 @@ import { GlowCard } from "@/components/GlowCard";
 import { EnginePipeline } from "@/components/EnginePipeline";
 import { AiEngineHero } from "@/components/AiEngineHero";
 
-export const metadata = { title: "The AI Engine — KingdomTradeX" };
+export const metadata = { title: "The AI Engine | KingdomTradeX" };
 
 const stack = [
   { t: "Data spine", pts: ["Live price, volume & order-flow streams", "On-chain and news sentiment feeds", "Crypto, US stocks and commodities in one pipeline"] },
@@ -14,7 +14,7 @@ const stack = [
 ];
 
 const promise = [
-  { t: "Capital is a trust", d: "Your seed is treated as a sacred trust — protected first, grown second, always with care.", Ill: IllShield },
+  { t: "Capital is a trust", d: "Your seed is treated as a sacred trust. It's protected first, grown second, and always handled with care.", Ill: IllShield },
   { t: "Nothing in a black box", d: "Every decision the AI makes is logged and readable. You see what it sees.", Ill: IllEye },
   { t: "Profit, not pressure", d: "Your harvest is withdrawable daily. No locks on your earnings, ever.", Ill: IllIntegrity },
 ];
@@ -32,7 +32,7 @@ export default function AiEnginePage() {
             <p className="eyebrow">What it is</p>
             <h2 className="section-title mt-3 text-4xl md:text-6xl">A trading desk that <span className="gradient-text">never sleeps</span></h2>
             <p className="mx-auto mt-5 max-w-2xl leading-relaxed text-[var(--muted)]">
-              Markets move around the clock, and so does the engine. It watches, forecasts and acts with discipline — without emotion, without fatigue, without cutting corners.
+              Markets move around the clock, and so does the engine. It watches, forecasts and acts with discipline. No emotion, no fatigue, no cutting corners.
             </p>
           </div>
           <blockquote className="card-grad mx-auto mt-12 max-w-2xl p-10 text-center">
@@ -49,7 +49,7 @@ export default function AiEnginePage() {
         <Reveal variant="up">
           <p className="eyebrow">The pipeline</p>
           <h2 className="section-title mt-3 text-4xl md:text-6xl">From raw data to a <span className="gradient-text">disciplined trade</span></h2>
-          <p className="mx-auto mt-4 max-w-xl text-sm text-[var(--muted)]">Scroll — the engine walks you through every stage.</p>
+          <p className="mx-auto mt-4 max-w-xl text-sm text-[var(--muted)]">Scroll, and the engine walks you through every stage.</p>
         </Reveal>
       </section>
       <EnginePipeline />
@@ -104,7 +104,7 @@ export default function AiEnginePage() {
             <div className="w-32 shrink-0"><IllCoins /></div>
             <div className="flex-1">
               <h2 className="section-title text-3xl md:text-5xl">Watch it work <span className="gradient-text">in real time</span></h2>
-              <p className="mt-3 text-sm text-[var(--muted)]">See live signals, open positions and the engine's reasoning — exactly as it happens.</p>
+              <p className="mt-3 text-sm text-[var(--muted)]">See live signals, open positions and the engine's reasoning, exactly as it happens.</p>
             </div>
             <a href="/ai-trading" className="btn-primary shrink-0">Open the live terminal</a>
           </div>

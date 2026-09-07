@@ -2,23 +2,23 @@ import { SectionIcon } from "@/components/SectionIcon";
 import { Reveal } from "@/components/Reveal";
 import { FAQS } from "@/lib/faqs";
 
-export const metadata = { title: "Plans — KingdomTradeX" };
+export const metadata = { title: "Plans | KingdomTradeX" };
 
 const lineup = [
   {
     name: "Faithful", rate: "0.5%", min: "$100 – $500", hold: "6-month hold", hl: false,
     bullets: ["Crypto, US stocks & commodities", "Starter AI desk", "Daily profit, withdraw anytime"],
-    verse: "Be faithful with the little things. — Luke 16:10",
+    verse: "Be faithful with the little things. Luke 16:10",
   },
   {
     name: "Steward", rate: "0.75%", min: "$650 – $1,500", hold: "9-month hold", hl: true,
     bullets: ["All markets unlocked", "Advanced AI + priority rebalancing", "Profit-only withdrawals"],
-    verse: "Stewards of the manifold grace of God. — 1 Peter 4:10",
+    verse: "Stewards of the manifold grace of God. 1 Peter 4:10",
   },
   {
     name: "Ambassador", rate: "1.0%", min: "$2,000 and up", hold: "12-month hold", hl: false,
     bullets: ["Elite AI desk", "Dedicated risk guardrails", "Largest daily target"],
-    verse: "Honour the Lord with your wealth. — Proverbs 3:9",
+    verse: "Honour the Lord with your wealth. Proverbs 3:9",
   },
 ];
 
@@ -51,9 +51,9 @@ const groups = [
 ];
 
 const holdChapters = [
-  { n: "I", t: "Planted", d: "Day zero. Your seed goes into the soil — the AI desk opens and begins trading with guardrails on." },
-  { n: "II", t: "Harvest daily", d: "Every day, profit accrues and is withdrawable. The hold never touches your harvest — only the seed." },
-  { n: "III", t: "Released", d: "When the hold ends, your full deposit unlocks. Withdraw everything — no fee, no friction." },
+  { n: "I", t: "Planted", d: "Day zero. Your seed goes into the soil. The AI desk opens and begins trading with guardrails on." },
+  { n: "II", t: "Harvest daily", d: "Every day, profit accrues and is withdrawable. The hold never touches your harvest, only the seed." },
+  { n: "III", t: "Released", d: "When the hold ends, your full deposit unlocks. Withdraw everything: no fee, no friction." },
 ];
 
 export default function PlansPage() {
@@ -64,7 +64,7 @@ export default function PlansPage() {
         <p className="eyebrow">Plans</p>
         <h1 className="section-title mt-3 text-5xl md:text-7xl">How much will you <span className="gradient-text">plant</span>?</h1>
         <p className="mx-auto mt-5 max-w-2xl text-[var(--muted)]">
-          Same AI. Same honesty. Three sizes of seed — each with its own daily target and harvest rhythm.
+          Same AI. Same honesty. Three sizes of seed, each with its own daily target and harvest rhythm.
         </p>
         <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
           <span className="pill">0.5% – 1.0% daily targets</span>
@@ -178,7 +178,7 @@ export default function PlansPage() {
         </div>
         <Reveal variant="up">
           <div className="card mt-10 p-6 text-center text-sm text-[var(--muted)]">
-            <span className="text-[var(--gold)]">Full honesty:</span> withdrawing your deposit before the hold ends carries a 25% fee — early exits force the AI to unwind positions. Your daily profit is <span className="text-[var(--fg)]">never</span> affected.
+            <span className="text-[var(--gold)]">Full honesty:</span> withdrawing your deposit before the hold ends carries a 25% fee. Early exits force the AI to unwind positions. Your daily profit is <span className="text-[var(--fg)]">never</span> affected.
           </div>
         </Reveal>
       </section>

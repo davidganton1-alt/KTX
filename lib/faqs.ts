@@ -13,7 +13,7 @@ export const FAQS: Faq[] = [
   {
     category: "Getting Started",
     q: "What is KingdomTradeX?",
-    a: "KingdomTradeX is a faith-driven investment platform that pairs time-tested biblical stewardship with disciplined AI trading. Our engine trades crypto, US stocks, and commodities on your behalf, and every position is chosen, sized, and watched by models built for patience and protection — not hype.",
+    a: "KingdomTradeX is a faith-driven investment platform that pairs time-tested biblical stewardship with disciplined AI trading. Our engine trades crypto, US stocks, and commodities on your behalf, and every position is chosen, sized, and watched by models built for patience and protection, not hype.",
   },
   {
     category: "Getting Started",
@@ -28,12 +28,12 @@ export const FAQS: Faq[] = [
   {
     category: "Getting Started",
     q: "How do I create an account?",
-    a: "Click 'Register', choose whether you're joining as a Member or a Pastor, and enter your details. You'll receive a verification email — confirm it to activate your account. This step protects you and keeps the platform secure.",
+    a: "Click 'Register', choose whether you're joining as a Member or a Pastor, and enter your details. You'll receive a verification email. Confirm it to activate your account. This step protects you and keeps the platform secure.",
   },
   {
     category: "Getting Started",
     q: "Why do I need to verify my email?",
-    a: "Email verification confirms you own the address and prevents fraud, fake accounts, and unauthorized access. You cannot log in until your email is confirmed — this is a security measure that protects your funds.",
+    a: "Email verification confirms you own the address and prevents fraud, fake accounts, and unauthorized access. You cannot log in until your email is confirmed. This is a security measure that protects your funds.",
   },
 
   // ── Plans & Trading ──
@@ -72,7 +72,7 @@ export const FAQS: Faq[] = [
   {
     category: "Deposits & Withdrawals",
     q: "How often can I withdraw profit?",
-    a: "You can request a profit withdrawal at any time from your dashboard. There is no minimum waiting period between profit withdrawals — your accrued profit is always yours to claim.",
+    a: "You can request a profit withdrawal at any time from your dashboard. There is no minimum waiting period between profit withdrawals. Your accrued profit is always yours to claim.",
   },
   {
     category: "Deposits & Withdrawals",
@@ -109,7 +109,7 @@ export const FAQS: Faq[] = [
   {
     category: "Security & Trust",
     q: "What should I do if someone claims to represent KingdomTradeX?",
-    a: "Be cautious. Apart from our pastors listed on this site, no individual is authorized to collect funds or represent KingdomTradeX. If someone contacts you claiming to be us through another channel, do not send money — contact us directly through this website's support page.",
+    a: "Be cautious. Apart from our pastors listed on this site, no individual is authorized to collect funds or represent KingdomTradeX. If someone contacts you claiming to be us through another channel, do not send money. Contact us directly through this website's support page.",
   },
 
   // ── Pastors & Referrals ──
