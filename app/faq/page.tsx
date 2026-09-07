@@ -28,7 +28,7 @@ export default function FaqPage() {
         <p className="eyebrow">Help Center</p>
         <h1 className="section-title mt-2 text-4xl md:text-6xl">Answers to <span className="gradient-text">every question</span></h1>
         <p className="mx-auto mt-4 max-w-2xl text-[var(--muted)]">
-          Everything you need to know about KingdomTradeX — plans, trading, withdrawals, security, and more.
+          Everything you need to know about KingdomTradeX: plans, trading, withdrawals, security, and more.
         </p>
       </div>
 
