@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { CandleChart } from "./CandleChart";
 
 const CARDS = [
-  { t: "The Stewardship Engine", d: "Algorithmic riskparity sizing with Kalman volatility filters. No emotion — only discipline.", span: "md:col-span-4 md:row-span-2", chart: true },
+  { t: "The Stewardship Engine", d: "Algorithmic riskparity sizing with Kalman volatility filters. No emotion, only discipline.", span: "md:col-span-4 md:row-span-2", chart: true },
   { t: "Biblical guardrails", d: "No reckless leverage. Drawdown limits protect your principal.", span: "md:col-span-2" },
   { t: "Profit-only harvest", d: "Withdraw your daily yield anytime. Your seed stays planted.", span: "md:col-span-2" },
   { t: "All-seeing market fusion", d: "LSTM sequence models read crypto, US equities and commodities together.", span: "md:col-span-3" },

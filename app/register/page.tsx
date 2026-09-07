@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { RegisterForm } from "./RegisterForm";
 
-export const metadata = { title: "Register — KingdomTradeX" };
+export const metadata = { title: "Register | KingdomTradeX" };
 
 export default function RegisterPage() {
   return (

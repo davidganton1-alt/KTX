@@ -98,10 +98,10 @@ export function RegisterForm() {
           body: JSON.stringify({ name, email, phone, ministry, message }),
         });
         if (!applyRes.ok) {
-          setApplyWarning("Your account was created, but the pastor application didn't go through — you can apply again anytime at /become-pastor.");
+          setApplyWarning("Your account was created, but the pastor application didn't go through. You can apply again anytime at /become-pastor.");
         }
       } catch {
-        setApplyWarning("Your account was created, but the pastor application didn't go through — you can apply again anytime at /become-pastor.");
+        setApplyWarning("Your account was created, but the pastor application didn't go through. You can apply again anytime at /become-pastor.");
       }
       setPastorOk(true);
     } catch (err: any) {
@@ -178,7 +178,7 @@ export function RegisterForm() {
               </p>
               {verifyLink && (
                 <div className="mt-4 rounded-lg border border-[var(--gold)]/30 bg-[var(--gold)]/10 p-4">
-                  <p className="text-xs font-semibold text-[var(--gold)]">Dev Mode — Verification Link:</p>
+                  <p className="text-xs font-semibold text-[var(--gold)]">Dev Mode Verification Link:</p>
                   <a href={verifyLink} className="mt-2 block text-xs text-[var(--fg)] underline hover:text-[var(--gold)]">
                     {verifyLink}
                   </a>

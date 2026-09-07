@@ -42,7 +42,7 @@ export function AiEngineHero() {
             An engine built on <span className="gradient-text">wisdom</span>, not hype.
           </motion.h1>
           <motion.p variants={item} className="mt-6 max-w-xl leading-relaxed text-[var(--muted)]">
-            KingdomTradeX pairs time-tested stewardship with serious engineering. Every position is chosen, sized and watched by models that never sleep — and you can see each decision in full.
+            KingdomTradeX pairs time-tested stewardship with serious engineering. Every position is chosen, sized and watched by models that never sleep, and you can see each decision in full.
           </motion.p>
           <motion.div variants={item} className="mt-9 flex flex-wrap gap-3">
             <a href="/ai-trading" className="btn-primary">Open the live terminal</a>

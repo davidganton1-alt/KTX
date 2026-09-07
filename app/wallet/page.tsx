@@ -149,7 +149,7 @@ export default function WalletPage() {
         </div>
         {error && <p className="mt-3 text-sm text-loss">{error}</p>}
         <p className="mt-3 text-xs text-[var(--muted)]">
-          Simulation only — no real funds move. This demonstrates the deposit and tier flow.
+          Simulation only. No real funds move. This demonstrates the deposit and tier flow.
         </p>
       </div>
 

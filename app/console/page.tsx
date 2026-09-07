@@ -306,7 +306,7 @@ export default function ConsolePage() {
           {activeTab === "ai-engine" && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-bold text-[var(--fg)]">AI Trade Engine — Live Terminal</h3>
+                <h3 className="text-lg font-bold text-[var(--fg)]">AI Trade Engine: Live Terminal</h3>
                 <span className="text-xs text-[var(--muted)]">Real-time execution · 500ms refresh · 5s candles</span>
               </div>
               <ProEngine initialSymbol="BTC" />
