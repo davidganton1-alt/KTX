@@ -8,6 +8,7 @@ import Link from "next/link";
 import { SiteBackground } from "@/components/SiteBackground";
 import { ScrollProgress } from "@/components/ScrollProgress";
 import { ParallaxOrbs } from "@/components/ParallaxOrbs";
+import { JsonLd } from "@/components/JsonLd";
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://kingdomtradex.com'),
@@ -34,6 +35,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="theme-night" suppressHydrationWarning>
       <body>
+        <JsonLd />
         <ThemeProvider>
           <SiteBackground />
           <ScrollProgress />

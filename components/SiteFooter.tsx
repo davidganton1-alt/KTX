@@ -47,8 +47,9 @@ export function SiteFooter() {
       </div>
       <div className="footer-glow opacity-50" />
       <div className="py-6 text-center text-xs text-[var(--muted)]">
-        © {new Date().getFullYear()} KingdomTradeX. Demonstration build, no real
-        funds are traded.
+        © {new Date().getFullYear()} KingdomTradeX. KingdomTradeX is a
+        registered MSB and LLC. Trading involves real risk and profits are not
+        guaranteed.
       </div>
     </footer>
   );
