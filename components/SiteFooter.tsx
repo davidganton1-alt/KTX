@@ -5,7 +5,8 @@ import { usePathname } from "next/navigation";
 
 export function SiteFooter() {
   const pathname = usePathname();
-  if (pathname === "/ai-trading") return null;
+  // Full-screen pages hide the site chrome: the live terminal and the waitlist conversion page.
+  if (pathname === "/ai-trading" || pathname === "/waitlist") return null;
   return (
     <footer className="mt-24 border-t border-[var(--border)]">
       <div className="footer-glow" />
