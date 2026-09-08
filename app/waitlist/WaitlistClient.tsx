@@ -327,7 +327,6 @@ export default function WaitlistClient() {
           <span>MSB Licensed</span>
           <span>LLC Registered</span>
           <span>SOC 2 Infrastructure</span>
-          <span>Non-Custodial</span>
         </motion.div>
       </main>
 
