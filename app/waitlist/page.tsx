@@ -2,11 +2,11 @@ import { Metadata } from 'next';
 import WaitlistClient from './WaitlistClient';
 
 export const metadata: Metadata = {
-  title: 'Join the Waitlist | KingdomTradeX',
-  description: 'Secure your early access to KingdomTradeX. Where disciplined algorithmic trading meets biblical stewardship. Join the faithful.',
+  title: 'Something Big Is Coming | KingdomTradeX',
+  description: 'Faith driven AI trading with Kingdom level precision. Secure your spot on the KingdomTradeX waitlist before doors open.',
   openGraph: {
-    title: 'Join the KingdomTradeX Waitlist',
-    description: 'AI-driven trading paired with biblical stewardship. Secure your spot before public launch.',
+    title: 'Something Big Is Coming | KingdomTradeX',
+    description: 'Faith driven AI trading with Kingdom level precision. Secure your spot before doors open.',
   },
 };
 

@@ -21,7 +21,8 @@ export function Navbar() {
   const [menu, setMenu] = useState(false);
 
   // The AI Trade Engine is a full-screen terminal; hide the site chrome there.
-  if (pathname === "/ai-trading") return null;
+  // The waitlist is a pure conversion page; hide the chrome there too.
+  if (pathname === "/ai-trading" || pathname === "/waitlist") return null;
 
   useEffect(() => {
     fetch("/api/auth/me")
