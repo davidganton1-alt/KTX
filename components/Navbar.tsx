@@ -92,6 +92,12 @@ export function Navbar() {
                 Sign in
               </Link>
               <Link
+                href="/waitlist"
+                className="hidden md:inline-flex items-center px-4 py-1.5 text-sm font-bold rounded-lg border border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-black transition"
+              >
+                Join Waitlist
+              </Link>
+              <Link
                 href="/register"
                 className="btn-primary px-4 py-1.5 text-sm"
               >
@@ -119,9 +125,17 @@ export function Navbar() {
                 {l.label}
               </Link>
             ))}
+            <Link
+              href="/waitlist"
+              onClick={() => setMenu(false)}
+              className="block w-full text-center px-4 py-3 mt-2 rounded-lg bg-[var(--gold)] text-black font-bold hover:brightness-110 transition"
+            >
+              Join Waitlist
+            </Link>
           </div>
         </div>
       )}
     </header>
   );
 }
+
