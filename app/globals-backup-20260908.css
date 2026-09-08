@@ -1,4 +1,4 @@
-﻿@tailwind base;
+@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
@@ -1124,5 +1124,3 @@ a {
   opacity: 0.7;
   pointer-events: none;
 }
-
-

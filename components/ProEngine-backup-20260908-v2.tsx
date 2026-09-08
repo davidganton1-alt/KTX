@@ -30,20 +30,10 @@ function calcMA(candles: LiveCandle[], period: number): number {
 
 export function ProEngine({ initialSymbol = "BTC" }: { initialSymbol?: string }) {
   const [symbol, setSymbol] = useState(initialSymbol);
-
-  const [isDark, setIsDark] = useState(true);
-  useEffect(() => {
-    const isNight = document.documentElement.classList.contains('theme-night');
-    setIsDark(isNight);
-    const observer = new MutationObserver(() => {
-      setIsDark(document.documentElement.classList.contains('theme-night'));
-    });
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-    return () => observer.disconnect();
-  }, []);
   const [activePanel, setActivePanel] = useState<"positions" | "trades" | "analysis">("positions");
 
   const chartContainerRef = useRef<HTMLDivElement>(null);
+  let resizeObserver: ResizeObserver | null = null;
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
   const volumeRef = useRef<ISeriesApi<"Histogram"> | null>(null);
@@ -73,22 +63,36 @@ export function ProEngine({ initialSymbol = "BTC" }: { initialSymbol?: string })
   useEffect(() => {
     if (!chartContainerRef.current) return;
     const chart = createChart(chartContainerRef.current, {
-      layout: { background: { type: ColorType.Solid, color: "transparent" }, textColor: getCSSVar("--muted"), fontSize: 11 },
+      layout: { background: { type: ColorType.Solid, color: "transparent" }, textColor: "#94a3b8", fontSize: 11 },
       grid: { vertLines: { color: "rgba(255,255,255,0.03)" }, horzLines: { color: "rgba(255,255,255,0.03)" } },
       crosshair: { mode: 0, vertLine: { color: "#F5C97B", width: 1, style: 2, labelBackgroundColor: "#F5C97B" }, horzLine: { color: "#F5C97B", width: 1, style: 2, labelBackgroundColor: "#F5C97B" } },
-      rightPriceScale: { borderColor: getCSSVar("--border"), scaleMargins: { top: 0.05, bottom: 0.25 } },
-      timeScale: { borderColor: getCSSVar("--border"), timeVisible: true, secondsVisible: true, rightOffset: 5, barSpacing: 8 },
+      rightPriceScale: { borderColor: "rgba(255,255,255,0.1)", scaleMargins: { top: 0.05, bottom: 0.25 } },
+      timeScale: { borderColor: "rgba(255,255,255,0.1)", timeVisible: true, secondsVisible: true, rightOffset: 5, barSpacing: 8 },
       width: chartContainerRef.current.clientWidth,
       height: 340,
     });
 
+
+        resizeObserver = new ResizeObserver((entries) => {
+      if (entries.length === 0 || !entries[0].target || !chartContainerRef.current) return;
+      const newRect = entries[0].contentRect;
+      chart.applyOptions({ width: newRect.width, height: chartContainerRef.current.clientHeight || 400 });
+    });
+    if (chartContainerRef.current) resizeObserver.observe(chartContainerRef.current);
+
     const candleSeries = chart.addCandlestickSeries({
-      upColor: getCSSVar("--profit"), downColor: getCSSVar("--loss"),
-      borderUpColor: getCSSVar("--profit"), borderDownColor: getCSSVar("--loss"),
-      wickUpColor: getCSSVar("--profit"), wickDownColor: getCSSVar("--loss"),
+      upColor: "#10b981", downColor: "#ef4444",
+      borderUpColor: "#10b981", borderDownColor: "#ef4444",
+      wickUpColor: "#10b981", wickDownColor: "#ef4444",
     });
 
 
+        resizeObserver = new ResizeObserver((entries) => {
+      if (entries.length === 0 || !entries[0].target || !chartContainerRef.current) return;
+      const newRect = entries[0].contentRect;
+      chart.applyOptions({ width: newRect.width, height: chartContainerRef.current.clientHeight || 400 });
+    });
+    if (chartContainerRef.current) resizeObserver.observe(chartContainerRef.current);
 
     const volSeries = chart.addHistogramSeries({
       priceFormat: { type: "volume" },
@@ -102,8 +106,9 @@ export function ProEngine({ initialSymbol = "BTC" }: { initialSymbol?: string })
 
     const resize = () => chartContainerRef.current && chart.applyOptions({ width: chartContainerRef.current.clientWidth });
     window.addEventListener("resize", resize);
-    return () => { window.removeEventListener("resize", resize); chart.remove(); chartRef.current = null; seriesRef.current = null; volumeRef.current = null; initRef.current = false; lastTimeRef.current = 0; };
-  }, [isDark]);
+    return () => { window.removeEventListener("resize", resize); resizeObserver?.disconnect();
+      chart.remove(); chartRef.current = null; seriesRef.current = null; volumeRef.current = null; initRef.current = false; lastTimeRef.current = 0; };
+  }, []);
 
   useEffect(() => {
     if (prevSymRef.current !== symbol) { initRef.current = false; lastTimeRef.current = 0; prevSymRef.current = symbol; }
@@ -321,8 +326,4 @@ export function ProEngine({ initialSymbol = "BTC" }: { initialSymbol?: string })
     </div>
   );
 }
-
-
-
-
 

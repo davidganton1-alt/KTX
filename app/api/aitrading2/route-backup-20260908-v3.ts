@@ -41,12 +41,12 @@ export async function GET(req: NextRequest) {
       basePrice = c;
     }
     const mockPositions = [
-      { id: 'pos-1', symbol: sym, side: 'BUY' as const, entry: basePrice * 0.998, qty: 0.1, notional: 2500, openedAt: Date.now() - 3600000, type: 'MARKET', technique: 'AI-Scalp' },
-      { id: 'pos-2', symbol: sym, side: 'SELL' as const, entry: basePrice * 1.002, qty: 0.05, notional: 2500, openedAt: Date.now() - 7200000, type: 'LIMIT', technique: 'MeanRev' }
+      { id: 'pos-1', symbol: sym, side: 'long', entryPrice: basePrice * 0.998, currentPrice: basePrice, size: 0.1, pnl: (basePrice - basePrice * 0.998) * 0.1, openedAt: Date.now() - 3600000 },
+      { id: 'pos-2', symbol: sym, side: 'short', entryPrice: basePrice * 1.002, currentPrice: basePrice, size: 0.05, pnl: (basePrice * 1.002 - basePrice) * 0.05, openedAt: Date.now() - 7200000 }
     ];
     const mockClosedTrades = [
-      { id: 'trade-1', symbol: sym, side: 'BUY' as const, entry: basePrice * 0.995, exit: basePrice * 1.005, qty: 0.1, closedAt: Date.now() - 1800000 },
-      { id: 'trade-2', symbol: sym, side: 'SELL' as const, entry: basePrice * 1.008, exit: basePrice * 0.992, qty: 0.05, closedAt: Date.now() - 900000 }
+      { id: 'trade-1', symbol: sym, side: 'long', entryPrice: basePrice * 0.995, exitPrice: basePrice * 1.005, size: 0.1, pnl: (basePrice * 1.005 - basePrice * 0.995) * 0.1, closedAt: Date.now() - 1800000 },
+      { id: 'trade-2', symbol: sym, side: 'short', entryPrice: basePrice * 1.008, exitPrice: basePrice * 0.992, size: 0.05, pnl: (basePrice * 1.008 - basePrice * 0.992) * 0.05, closedAt: Date.now() - 900000 }
     ];
     return NextResponse.json(
       { symbol: sym, range, assetClass: ASSET_CLASS[sym] || "Crypto", price: +basePrice.toFixed(2), change24h: 1.25, notional: 2500, candles: simulatedCandles, bids: [], asks: [], openPositions: mockPositions, closedTrades: mockClosedTrades, symbols: SYMBOLS, totalAssetClasses: 3, source: "simulated" },
@@ -93,6 +93,5 @@ export async function GET(req: NextRequest) {
     { headers: { "Cache-Control": "no-store" } }
   );
 }
-
 
 
