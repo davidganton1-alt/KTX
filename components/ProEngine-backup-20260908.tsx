@@ -1,12 +1,7 @@
-﻿"use client";
+"use client";
 import { useEffect, useRef, useState, useMemo } from "react";
 import { createChart, ColorType, IChartApi, ISeriesApi, Time, CandlestickData } from "lightweight-charts";
 import { useLiveCandles, LiveCandle } from "@/hooks/useLiveCandles";
-
-function getCSSVar(name: string): string {
-  if (typeof window === 'undefined') return '#eef2ff';
-  return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || '#eef2ff';
-}
 
 const SYMBOLS = ["BTC", "ETH", "SOL", "AAPL", "NVDA", "XAU", "WTI"];
 
@@ -33,7 +28,6 @@ export function ProEngine({ initialSymbol = "BTC" }: { initialSymbol?: string })
   const [activePanel, setActivePanel] = useState<"positions" | "trades" | "analysis">("positions");
 
   const chartContainerRef = useRef<HTMLDivElement>(null);
-  let resizeObserver: ResizeObserver | null = null;
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
   const volumeRef = useRef<ISeriesApi<"Histogram"> | null>(null);
@@ -72,27 +66,11 @@ export function ProEngine({ initialSymbol = "BTC" }: { initialSymbol?: string })
       height: 340,
     });
 
-
-        resizeObserver = new ResizeObserver((entries) => {
-      if (entries.length === 0 || !entries[0].target || !chartContainerRef.current) return;
-      const newRect = entries[0].contentRect;
-      chart.applyOptions({ width: newRect.width, height: chartContainerRef.current.clientHeight || 400 });
-    });
-    if (chartContainerRef.current) resizeObserver.observe(chartContainerRef.current);
-
     const candleSeries = chart.addCandlestickSeries({
       upColor: "#10b981", downColor: "#ef4444",
       borderUpColor: "#10b981", borderDownColor: "#ef4444",
       wickUpColor: "#10b981", wickDownColor: "#ef4444",
     });
-
-
-        resizeObserver = new ResizeObserver((entries) => {
-      if (entries.length === 0 || !entries[0].target || !chartContainerRef.current) return;
-      const newRect = entries[0].contentRect;
-      chart.applyOptions({ width: newRect.width, height: chartContainerRef.current.clientHeight || 400 });
-    });
-    if (chartContainerRef.current) resizeObserver.observe(chartContainerRef.current);
 
     const volSeries = chart.addHistogramSeries({
       priceFormat: { type: "volume" },
@@ -106,8 +84,7 @@ export function ProEngine({ initialSymbol = "BTC" }: { initialSymbol?: string })
 
     const resize = () => chartContainerRef.current && chart.applyOptions({ width: chartContainerRef.current.clientWidth });
     window.addEventListener("resize", resize);
-    return () => { window.removeEventListener("resize", resize); resizeObserver?.disconnect();
-      chart.remove(); chartRef.current = null; seriesRef.current = null; volumeRef.current = null; initRef.current = false; lastTimeRef.current = 0; };
+    return () => { window.removeEventListener("resize", resize); chart.remove(); chartRef.current = null; seriesRef.current = null; volumeRef.current = null; initRef.current = false; lastTimeRef.current = 0; };
   }, []);
 
   useEffect(() => {
@@ -326,4 +303,3 @@ export function ProEngine({ initialSymbol = "BTC" }: { initialSymbol?: string })
     </div>
   );
 }
-
