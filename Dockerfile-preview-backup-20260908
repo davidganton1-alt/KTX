@@ -1,10 +1,10 @@
-﻿# KTX Preview — Self-contained Docker container
+# KTX Preview — Self-contained Docker container
 # Linux image with its own node_modules (never touched by host).
 # Source code lives in a persistent named Docker volume (/app).
 # On start: git pull (or clone on first run), then npm run dev.
 #
 
-FROM node:20-bookworm
+FROM node:20-bullseye
 
 RUN apt-get update && apt-get install -y --no-install-recommends git curl ca-certificates && rm -rf /var/lib/apt/lists/*
 
@@ -22,4 +22,3 @@ RUN chmod +x /app/start-preview.sh
 EXPOSE 3001
 
 CMD ["/app/start-preview.sh"]
-

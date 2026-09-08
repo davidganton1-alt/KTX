@@ -63,11 +63,11 @@ export function ProEngine({ initialSymbol = "BTC" }: { initialSymbol?: string })
   useEffect(() => {
     if (!chartContainerRef.current) return;
     const chart = createChart(chartContainerRef.current, {
-      layout: { background: { type: ColorType.Solid, color: "transparent" }, textColor: getCSSVar("--muted"), fontSize: 11 },
+      layout: { background: { type: ColorType.Solid, color: "transparent" }, textColor: "#94a3b8", fontSize: 11 },
       grid: { vertLines: { color: "rgba(255,255,255,0.03)" }, horzLines: { color: "rgba(255,255,255,0.03)" } },
       crosshair: { mode: 0, vertLine: { color: "#F5C97B", width: 1, style: 2, labelBackgroundColor: "#F5C97B" }, horzLine: { color: "#F5C97B", width: 1, style: 2, labelBackgroundColor: "#F5C97B" } },
-      rightPriceScale: { borderColor: getCSSVar("--border"), scaleMargins: { top: 0.05, bottom: 0.25 } },
-      timeScale: { borderColor: getCSSVar("--border"), timeVisible: true, secondsVisible: true, rightOffset: 5, barSpacing: 8 },
+      rightPriceScale: { borderColor: "rgba(255,255,255,0.1)", scaleMargins: { top: 0.05, bottom: 0.25 } },
+      timeScale: { borderColor: "rgba(255,255,255,0.1)", timeVisible: true, secondsVisible: true, rightOffset: 5, barSpacing: 8 },
       width: chartContainerRef.current.clientWidth,
       height: 340,
     });
@@ -81,12 +81,18 @@ export function ProEngine({ initialSymbol = "BTC" }: { initialSymbol?: string })
     if (chartContainerRef.current) resizeObserver.observe(chartContainerRef.current);
 
     const candleSeries = chart.addCandlestickSeries({
-      upColor: getCSSVar("--profit"), downColor: getCSSVar("--loss"),
-      borderUpColor: getCSSVar("--profit"), borderDownColor: getCSSVar("--loss"),
-      wickUpColor: getCSSVar("--profit"), wickDownColor: getCSSVar("--loss"),
+      upColor: "#10b981", downColor: "#ef4444",
+      borderUpColor: "#10b981", borderDownColor: "#ef4444",
+      wickUpColor: "#10b981", wickDownColor: "#ef4444",
     });
 
 
+        resizeObserver = new ResizeObserver((entries) => {
+      if (entries.length === 0 || !entries[0].target || !chartContainerRef.current) return;
+      const newRect = entries[0].contentRect;
+      chart.applyOptions({ width: newRect.width, height: chartContainerRef.current.clientHeight || 400 });
+    });
+    if (chartContainerRef.current) resizeObserver.observe(chartContainerRef.current);
 
     const volSeries = chart.addHistogramSeries({
       priceFormat: { type: "volume" },
@@ -320,5 +326,4 @@ export function ProEngine({ initialSymbol = "BTC" }: { initialSymbol?: string })
     </div>
   );
 }
-
 

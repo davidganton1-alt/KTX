@@ -1,4 +1,4 @@
-﻿FROM node:20-bookworm
+FROM node:20-bullseye
 
 RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates && rm -rf /var/lib/apt/lists/*
 
@@ -15,4 +15,3 @@ VOLUME ["/app/data"]
 
 # Avoid Windows .bin/next wrapper; invoke Next directly on Linux.
 CMD ["node", "node_modules/next/dist/bin/next", "start"]
-
