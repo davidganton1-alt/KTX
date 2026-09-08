@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -14,8 +14,7 @@ export default function WaitlistClient() {
   useEffect(() => {
     fetch('/api/waitlist').then(r => r.json()).then(d => setCount(d.count)).catch(() => {});
     
-    const targetDate = new Date();
-    targetDate.setDate(targetDate.getDate() + 34);
+    const targetDate = new Date('2026-10-08T00:00:00Z');
 
     const timer = setInterval(() => {
       const now = new Date().getTime();
@@ -58,7 +57,7 @@ export default function WaitlistClient() {
   };
 
   const faqs = [
-    { q: 'When does the platform officially launch?', a: 'We are opening the doors to our first cohort of stewards in exactly 30 days. Waitlist members receive 48 hours of exclusive early access before the public launch.' },
+    { q: 'When does the platform officially launch?', a: 'We are opening the doors to our first cohort of stewards on October 8th. Waitlist members receive 48 hours of exclusive early access before the public launch.' },
     { q: 'Is my capital protected?', a: 'All trading involves risk. Our AI engine employs strict risk filtering and stop-loss guardrails, but profits are never guaranteed. You trade at your own risk.' },
     { q: 'How does the Pastor program work?', a: 'Approved pastors can invite their community and earn a configurable share of the trading profits their flock generates, creating a sustainable income stream for their ministry.' },
   ];
@@ -68,14 +67,6 @@ export default function WaitlistClient() {
 
   return (
     <div className="min-h-screen bg-[var(--bg)] text-[var(--fg)] font-sans">
-      <nav className="flex items-center justify-between px-6 py-4 border-b border-[var(--border)]">
-        <Link href="/" className="text-xl font-bold tracking-tight">KTX <span className="text-[var(--gold)]">KingdomTradeX</span></Link>
-        <div className="flex gap-4">
-          <Link href="/login" className="text-sm text-[var(--muted)] hover:text-[var(--fg)]">Login</Link>
-          <Link href="/plans" className="text-sm text-[var(--gold)] hover:brightness-110">View Plans</Link>
-        </div>
-      </nav>
-
       <section className="relative px-6 py-24 text-center max-w-4xl mx-auto">
         <div className="inline-block px-4 py-1.5 mb-6 rounded-full border border-[var(--border)] bg-[var(--card)] text-xs font-bold uppercase tracking-widest text-[var(--gold)]">
           Early Access Open
@@ -155,16 +146,7 @@ export default function WaitlistClient() {
             </div>
           ))}
         </div>
-      </section>
-
-      <footer className="border-t border-[var(--border)] px-6 py-8 text-center text-sm text-[var(--muted)]">
-        <div className="flex justify-center gap-6 mb-4">
-          <Link href="/privacy" className="hover:text-[var(--fg)]">Privacy Policy</Link>
-          <Link href="/terms" className="hover:text-[var(--fg)]">Terms of Service</Link>
-          <Link href="/team" className="hover:text-[var(--fg)]">About Us</Link>
-        </div>
-        <p>&copy; {new Date().getFullYear()} KingdomTradeX. All rights reserved.</p>
-      </footer>
-    </div>
+      </section></div>
   );
 }
+
