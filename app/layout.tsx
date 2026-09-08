@@ -10,6 +10,7 @@ import { ScrollProgress } from "@/components/ScrollProgress";
 import { ParallaxOrbs } from "@/components/ParallaxOrbs";
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://kingdomtradex.com'),
   title: "KingdomTradeX: Faith-aligned AI Trade Engine",
   description:
     "KingdomTradeX puts AI to work on your crypto, US stocks and commodities. Fund a plan, watch profit grow daily, and withdraw your earnings with wisdom.",
