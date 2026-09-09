@@ -285,147 +285,319 @@ export function IllEvaluate() {
   );
 }
 
-/* ---- 9-12. Scrollytelling step illustrations (biblical + tech orbit sets) ---- */
+/* ---- 9-12. Scrollytelling step illustrations (premium: orbital layers, gradients, particles) ---- */
 export function IllGiftHalo({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg className={className} viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <radialGradient id="giftGlow" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#F5C97B" stopOpacity="0.8" />
-          <stop offset="100%" stopColor="#F5C97B" stopOpacity="0" />
+        <radialGradient id="giftCore" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#FFE5A8" stopOpacity="1" />
+          <stop offset="50%" stopColor="#F5C97B" stopOpacity="0.8" />
+          <stop offset="100%" stopColor="#B8860B" stopOpacity="0" />
         </radialGradient>
         <linearGradient id="giftMetal" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#F5C97B" />
+          <stop offset="0%" stopColor="#FFE5A8" />
+          <stop offset="50%" stopColor="#F5C97B" />
           <stop offset="100%" stopColor="#B8860B" />
         </linearGradient>
+        <filter id="giftGlow">
+          <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
       </defs>
-      <circle cx="100" cy="100" r="90" fill="url(#giftGlow)" />
-      <g className="origin-center" style={{ animation: 'spin 20s linear infinite' }}>
-        <circle cx="100" cy="100" r="60" stroke="#F5C97B" strokeWidth="2" fill="none" opacity="0.3" />
-        <circle cx="100" cy="40" r="4" fill="#F5C97B" />
-        <circle cx="160" cy="100" r="4" fill="#F5C97B" />
-        <circle cx="100" cy="160" r="4" fill="#F5C97B" />
-        <circle cx="40" cy="100" r="4" fill="#F5C97B" />
+
+      <circle cx="120" cy="120" r="110" fill="url(#giftCore)" opacity="0.4" />
+
+      <g className="origin-center" style={{ animation: 'spin 40s linear infinite', transformOrigin: '120px 120px' }}>
+        <circle cx="120" cy="120" r="95" stroke="#F5C97B" strokeWidth="0.5" fill="none" opacity="0.3" />
+        {[0, 45, 90, 135, 180, 225, 270, 315].map((angle) => (
+          <circle key={angle} cx={120 + 95 * Math.cos(angle * Math.PI / 180)} cy={120 + 95 * Math.sin(angle * Math.PI / 180)} r="2" fill="#F5C97B" style={{ animation: `pulse 3s ease-in-out infinite ${angle}ms` }} />
+        ))}
       </g>
-      <g className="origin-center" style={{ animation: 'spin 15s linear infinite reverse' }}>
-        <circle cx="100" cy="100" r="45" stroke="#F5C97B" strokeWidth="1.5" fill="none" opacity="0.5" />
-        <rect x="85" y="55" width="30" height="30" rx="2" fill="url(#giftMetal)" />
-        <path d="M95 55 L100 45 L105 55" stroke="#F5C97B" strokeWidth="2" fill="none" />
-        <line x1="85" y1="70" x2="115" y2="70" stroke="#B8860B" strokeWidth="2" />
+
+      <g className="origin-center" style={{ animation: 'spin 25s linear infinite reverse', transformOrigin: '120px 120px' }}>
+        <circle cx="120" cy="120" r="75" stroke="#F5C97B" strokeWidth="1" fill="none" opacity="0.5" strokeDasharray="8 4" />
+        <path d="M120 45 L120 195 M45 120 L195 120" stroke="#F5C97B" strokeWidth="0.5" opacity="0.4" />
       </g>
-      <g opacity="0.6">
-        <circle cx="70" cy="70" r="2" fill="#F5C97B" style={{ animation: 'pulse 2s ease-in-out infinite' }} />
-        <circle cx="130" cy="130" r="2" fill="#F5C97B" style={{ animation: 'pulse 2s ease-in-out infinite 0.5s' }} />
-        <circle cx="130" cy="70" r="2" fill="#F5C97B" style={{ animation: 'pulse 2s ease-in-out infinite 1s' }} />
-        <circle cx="70" cy="130" r="2" fill="#F5C97B" style={{ animation: 'pulse 2s ease-in-out infinite 1.5s' }} />
+
+      <g className="origin-center" style={{ animation: 'spin 18s linear infinite', transformOrigin: '120px 120px' }}>
+        <circle cx="120" cy="120" r="60" stroke="#F5C97B" strokeWidth="1.5" fill="none" opacity="0.6" />
+        {[0, 60, 120, 180, 240, 300].map((angle) => (
+          <circle key={angle} cx={120 + 60 * Math.cos(angle * Math.PI / 180)} cy={120 + 60 * Math.sin(angle * Math.PI / 180)} r="3" fill="#FFE5A8" filter="url(#giftGlow)" />
+        ))}
       </g>
+
+      <g filter="url(#giftGlow)">
+        <path d="M90 90 L150 90 L150 150 L90 150 Z" fill="url(#giftMetal)" opacity="0.9" />
+        <path d="M85 95 L155 95 L155 100 L85 100 Z" fill="#B8860B" />
+        <path d="M85 145 L155 145 L155 150 L85 150 Z" fill="#B8860B" />
+        <path d="M120 90 L120 70 M110 70 L130 70 M105 65 L115 75 M125 75 L135 65" stroke="#FFE5A8" strokeWidth="3" fill="none" />
+        <circle cx="120" cy="120" r="8" fill="#FFE5A8" />
+        <path d="M116 120 L124 120 M120 116 L120 124" stroke="#B8860B" strokeWidth="2" />
+      </g>
+
+      {[
+        { x: 80, y: 80, delay: 0 },
+        { x: 160, y: 80, delay: 500 },
+        { x: 160, y: 160, delay: 1000 },
+        { x: 80, y: 160, delay: 1500 },
+        { x: 120, y: 60, delay: 200 },
+        { x: 180, y: 120, delay: 700 },
+        { x: 120, y: 180, delay: 1200 },
+        { x: 60, y: 120, delay: 1700 }
+      ].map((p, i) => (
+        <circle key={i} cx={p.x} cy={p.y} r="1.5" fill="#FFE5A8" style={{ animation: `pulse 2.5s ease-in-out infinite ${p.delay}ms` }} />
+      ))}
     </svg>
   );
 }
 
 export function IllPillars({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg className={className} viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="pillarGlow" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#A855F7" stopOpacity="0.8" />
-          <stop offset="100%" stopColor="#A855F7" stopOpacity="0.2" />
+        <linearGradient id="pillar1" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#C084FC" />
+          <stop offset="50%" stopColor="#A855F7" />
+          <stop offset="100%" stopColor="#6D28D9" />
         </linearGradient>
+        <linearGradient id="pillar2" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#D8B4FE" />
+          <stop offset="50%" stopColor="#C084FC" />
+          <stop offset="100%" stopColor="#7C3AED" />
+        </linearGradient>
+        <linearGradient id="pillar3" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#E9D5FF" />
+          <stop offset="50%" stopColor="#D8B4FE" />
+          <stop offset="100%" stopColor="#8B5CF6" />
+        </linearGradient>
+        <filter id="pillarGlow">
+          <feGaussianBlur stdDeviation="6" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
       </defs>
-      <g className="origin-center" style={{ animation: 'spin 25s linear infinite' }}>
-        <circle cx="100" cy="100" r="70" stroke="#A855F7" strokeWidth="1" fill="none" opacity="0.3" />
-        <circle cx="100" cy="30" r="3" fill="#A855F7" />
-        <circle cx="170" cy="100" r="3" fill="#A855F7" />
-        <circle cx="100" cy="170" r="3" fill="#A855F7" />
-        <circle cx="30" cy="100" r="3" fill="#A855F7" />
+
+      <g className="origin-center" style={{ animation: 'spin 45s linear infinite', transformOrigin: '120px 120px' }}>
+        <circle cx="120" cy="120" r="100" stroke="#A855F7" strokeWidth="0.5" fill="none" opacity="0.2" />
+        <path d="M120 20 L120 220 M20 120 L220 120 M50 50 L190 190 M190 50 L50 190" stroke="#A855F7" strokeWidth="0.3" opacity="0.3" />
       </g>
-      <g>
-        <rect x="60" y="80" width="16" height="60" rx="2" fill="url(#pillarGlow)" />
-        <rect x="92" y="70" width="16" height="70" rx="2" fill="url(#pillarGlow)" />
-        <rect x="124" y="75" width="16" height="65" rx="2" fill="url(#pillarGlow)" />
-        <line x1="60" y1="80" x2="76" y2="80" stroke="#A855F7" strokeWidth="3" />
-        <line x1="92" y1="70" x2="108" y2="70" stroke="#A855F7" strokeWidth="3" />
-        <line x1="124" y1="75" x2="140" y2="75" stroke="#A855F7" strokeWidth="3" />
+
+      <g className="origin-center" style={{ animation: 'spin 30s linear infinite reverse', transformOrigin: '120px 120px' }}>
+        <circle cx="120" cy="120" r="80" stroke="#A855F7" strokeWidth="1" fill="none" opacity="0.4" strokeDasharray="12 6" />
+        {[0, 72, 144, 216, 288].map((angle) => (
+          <g key={angle}>
+            <circle cx={120 + 80 * Math.cos(angle * Math.PI / 180)} cy={120 + 80 * Math.sin(angle * Math.PI / 180)} r="4" fill="#C084FC" filter="url(#pillarGlow)" />
+            <line x1="120" y1="120" x2={120 + 80 * Math.cos(angle * Math.PI / 180)} y2={120 + 80 * Math.sin(angle * Math.PI / 180)} stroke="#A855F7" strokeWidth="0.5" opacity="0.3" />
+          </g>
+        ))}
       </g>
-      <g opacity="0.5">
-        <line x1="68" y1="90" x2="68" y2="130" stroke="#A855F7" strokeWidth="1" strokeDasharray="2 2" />
-        <line x1="100" y1="80" x2="100" y2="130" stroke="#A855F7" strokeWidth="1" strokeDasharray="2 2" />
-        <line x1="132" y1="85" x2="132" y2="130" stroke="#A855F7" strokeWidth="1" strokeDasharray="2 2" />
+
+      <g className="origin-center" style={{ animation: 'spin 20s linear infinite', transformOrigin: '120px 120px' }}>
+        <circle cx="120" cy="120" r="65" stroke="#A855F7" strokeWidth="1.5" fill="none" opacity="0.5" />
       </g>
-      <g className="origin-center" style={{ animation: 'spin 18s linear infinite reverse' }}>
-        <circle cx="100" cy="100" r="50" stroke="#A855F7" strokeWidth="1.5" fill="none" opacity="0.4" />
+
+      <g filter="url(#pillarGlow)">
+        <rect x="75" y="90" width="18" height="80" rx="2" fill="url(#pillar1)" />
+        <rect x="72" y="95" width="24" height="8" rx="1" fill="#6D28D9" />
+        <rect x="72" y="162" width="24" height="8" rx="1" fill="#6D28D9" />
+        <line x1="84" y1="103" x2="84" y2="162" stroke="#C084FC" strokeWidth="0.5" strokeDasharray="3 3" opacity="0.6" />
+
+        <rect x="111" y="75" width="18" height="95" rx="2" fill="url(#pillar2)" />
+        <rect x="108" y="80" width="24" height="8" rx="1" fill="#7C3AED" />
+        <rect x="108" y="162" width="24" height="8" rx="1" fill="#7C3AED" />
+        <line x1="120" y1="88" x2="120" y2="162" stroke="#D8B4FE" strokeWidth="0.5" strokeDasharray="3 3" opacity="0.6" />
+
+        <rect x="147" y="85" width="18" height="85" rx="2" fill="url(#pillar3)" />
+        <rect x="144" y="90" width="24" height="8" rx="1" fill="#8B5CF6" />
+        <rect x="144" y="162" width="24" height="8" rx="1" fill="#8B5CF6" />
+        <line x1="156" y1="98" x2="156" y2="162" stroke="#E9D5FF" strokeWidth="0.5" strokeDasharray="3 3" opacity="0.6" />
       </g>
+
+      <g opacity="0.7">
+        <path d="M84 110 Q120 90 156 110" stroke="#C084FC" strokeWidth="1" fill="none" strokeDasharray="2 2" />
+        <path d="M84 130 Q120 110 156 130" stroke="#C084FC" strokeWidth="1" fill="none" strokeDasharray="2 2" />
+        <path d="M84 150 Q120 130 156 150" stroke="#C084FC" strokeWidth="1" fill="none" strokeDasharray="2 2" />
+      </g>
+
+      {[
+        { x: 84, y: 110 },
+        { x: 120, y: 95 },
+        { x: 156, y: 110 },
+        { x: 84, y: 150 },
+        { x: 120, y: 135 },
+        { x: 156, y: 150 }
+      ].map((p, i) => (
+        <circle key={i} cx={p.x} cy={p.y} r="2" fill="#E9D5FF" style={{ animation: `pulse 2s ease-in-out infinite ${i * 200}ms` }} />
+      ))}
     </svg>
   );
 }
 
 export function IllEyeScan({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg className={className} viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <radialGradient id="eyeGlow" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#22D3EE" stopOpacity="0.6" />
-          <stop offset="100%" stopColor="#22D3EE" stopOpacity="0" />
+        <radialGradient id="eyeCore" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#67E8F9" stopOpacity="1" />
+          <stop offset="50%" stopColor="#22D3EE" stopOpacity="0.8" />
+          <stop offset="100%" stopColor="#0891B2" stopOpacity="0" />
         </radialGradient>
+        <linearGradient id="eyeRing" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#A5F3FC" />
+          <stop offset="100%" stopColor="#06B6D4" />
+        </linearGradient>
+        <filter id="eyeGlow">
+          <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
       </defs>
-      <circle cx="100" cy="100" r="80" fill="url(#eyeGlow)" />
-      <g className="origin-center" style={{ animation: 'spin 30s linear infinite' }}>
-        <circle cx="100" cy="100" r="65" stroke="#22D3EE" strokeWidth="1" fill="none" opacity="0.3" />
-        <circle cx="100" cy="35" r="3" fill="#22D3EE" />
-        <circle cx="165" cy="100" r="3" fill="#22D3EE" />
-        <circle cx="100" cy="165" r="3" fill="#22D3EE" />
-        <circle cx="35" cy="100" r="3" fill="#22D3EE" />
+
+      <circle cx="120" cy="120" r="110" fill="url(#eyeCore)" opacity="0.3" />
+
+      <g className="origin-center" style={{ animation: 'spin 50s linear infinite', transformOrigin: '120px 120px' }}>
+        <circle cx="120" cy="120" r="100" stroke="#22D3EE" strokeWidth="0.5" fill="none" opacity="0.2" />
+        {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map((angle) => (
+          <line key={angle} x1="120" y1="120" x2={120 + 100 * Math.cos(angle * Math.PI / 180)} y2={120 + 100 * Math.sin(angle * Math.PI / 180)} stroke="#22D3EE" strokeWidth="0.3" opacity="0.2" />
+        ))}
       </g>
-      <g className="origin-center" style={{ animation: 'spin 20s linear infinite reverse' }}>
-        <circle cx="100" cy="100" r="45" stroke="#22D3EE" strokeWidth="2" fill="none" opacity="0.5" />
-        <ellipse cx="100" cy="100" rx="30" ry="20" stroke="#22D3EE" strokeWidth="2" fill="none" />
-        <circle cx="100" cy="100" r="12" fill="#22D3EE" opacity="0.8" />
-        <circle cx="100" cy="100" r="6" fill="#0891B2" />
+
+      <g className="origin-center" style={{ animation: 'spin 35s linear infinite reverse', transformOrigin: '120px 120px' }}>
+        <circle cx="120" cy="120" r="85" stroke="#22D3EE" strokeWidth="1" fill="none" opacity="0.4" strokeDasharray="15 5" />
+        {[0, 45, 90, 135, 180, 225, 270, 315].map((angle) => (
+          <circle key={angle} cx={120 + 85 * Math.cos(angle * Math.PI / 180)} cy={120 + 85 * Math.sin(angle * Math.PI / 180)} r="2.5" fill="#67E8F9" style={{ animation: `pulse 3s ease-in-out infinite ${angle}ms` }} />
+        ))}
       </g>
-      <g opacity="0.6">
-        <path d="M60 100 Q100 60 140 100 Q100 140 60 100" stroke="#22D3EE" strokeWidth="1" fill="none" opacity="0.4" />
-        <circle cx="80" cy="90" r="1.5" fill="#22D3EE" style={{ animation: 'pulse 1.5s ease-in-out infinite' }} />
-        <circle cx="120" cy="110" r="1.5" fill="#22D3EE" style={{ animation: 'pulse 1.5s ease-in-out infinite 0.3s' }} />
+
+      <g className="origin-center" style={{ animation: 'spin 22s linear infinite', transformOrigin: '120px 120px' }}>
+        <circle cx="120" cy="120" r="70" stroke="url(#eyeRing)" strokeWidth="2" fill="none" opacity="0.6" />
       </g>
+
+      <g filter="url(#eyeGlow)">
+        <ellipse cx="120" cy="120" rx="50" ry="30" stroke="#22D3EE" strokeWidth="2.5" fill="none" />
+        <path d="M70 120 Q120 80 170 120 Q120 160 70 120" stroke="#67E8F9" strokeWidth="1" fill="none" opacity="0.6" />
+        <circle cx="120" cy="120" r="18" fill="url(#eyeCore)" />
+        <circle cx="120" cy="120" r="12" fill="#0891B2" />
+        <circle cx="120" cy="120" r="6" fill="#0E7490" />
+        <circle cx="115" cy="115" r="2" fill="#A5F3FC" opacity="0.8" />
+      </g>
+
+      <g className="origin-center" style={{ animation: 'spin 15s linear infinite reverse', transformOrigin: '120px 120px' }}>
+        <circle cx="120" cy="120" r="55" stroke="#22D3EE" strokeWidth="1.5" fill="none" opacity="0.5" strokeDasharray="4 4" />
+        <path d="M120 65 L120 175 M65 120 L175 120" stroke="#22D3EE" strokeWidth="1" opacity="0.4" />
+      </g>
+
+      <g opacity="0.5">
+        <path d="M90 100 L95 105 M150 100 L145 105 M90 140 L95 135 M150 140 L145 135" stroke="#67E8F9" strokeWidth="1.5" />
+        <circle cx="92" cy="102" r="1" fill="#A5F3FC" />
+        <circle cx="148" cy="102" r="1" fill="#A5F3FC" />
+        <circle cx="92" cy="138" r="1" fill="#A5F3FC" />
+        <circle cx="148" cy="138" r="1" fill="#A5F3FC" />
+      </g>
+
+      {[
+        { x: 120, y: 70, delay: 0 },
+        { x: 170, y: 120, delay: 400 },
+        { x: 120, y: 170, delay: 800 },
+        { x: 70, y: 120, delay: 1200 },
+        { x: 150, y: 90, delay: 200 },
+        { x: 150, y: 150, delay: 600 },
+        { x: 90, y: 150, delay: 1000 },
+        { x: 90, y: 90, delay: 1400 }
+      ].map((p, i) => (
+        <circle key={i} cx={p.x} cy={p.y} r="1.5" fill="#A5F3FC" style={{ animation: `pulse 2.5s ease-in-out infinite ${p.delay}ms` }} />
+      ))}
     </svg>
   );
 }
 
 export function IllTree({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg className={className} viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="treeGlow" x1="0%" y1="100%" x2="0%" y2="0%">
-          <stop offset="0%" stopColor="#34D399" stopOpacity="0.3" />
-          <stop offset="100%" stopColor="#34D399" stopOpacity="0.8" />
+        <linearGradient id="trunkGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#6EE7B7" />
+          <stop offset="50%" stopColor="#34D399" />
+          <stop offset="100%" stopColor="#059669" />
         </linearGradient>
+        <radialGradient id="leafGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#A7F3D0" stopOpacity="1" />
+          <stop offset="100%" stopColor="#34D399" stopOpacity="0" />
+        </radialGradient>
+        <filter id="treeGlow">
+          <feGaussianBlur stdDeviation="6" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
       </defs>
-      <g className="origin-center" style={{ animation: 'spin 35s linear infinite' }}>
-        <circle cx="100" cy="100" r="75" stroke="#34D399" strokeWidth="1" fill="none" opacity="0.25" />
-        <circle cx="100" cy="25" r="3" fill="#34D399" />
-        <circle cx="175" cy="100" r="3" fill="#34D399" />
-        <circle cx="100" cy="175" r="3" fill="#34D399" />
-        <circle cx="25" cy="100" r="3" fill="#34D399" />
+
+      <circle cx="120" cy="120" r="110" fill="url(#leafGlow)" opacity="0.3" />
+
+      <g className="origin-center" style={{ animation: 'spin 55s linear infinite', transformOrigin: '120px 120px' }}>
+        <circle cx="120" cy="120" r="100" stroke="#34D399" strokeWidth="0.5" fill="none" opacity="0.2" />
+        <path d="M120 20 L120 220 M20 120 L220 120" stroke="#34D399" strokeWidth="0.3" opacity="0.2" />
       </g>
-      <g>
-        <line x1="100" y1="150" x2="100" y2="70" stroke="url(#treeGlow)" strokeWidth="3" />
-        <circle cx="100" cy="70" r="8" fill="#34D399" opacity="0.9" />
-        <circle cx="100" cy="70" r="15" fill="#34D399" opacity="0.3" />
-        <line x1="100" y1="100" x2="80" y2="85" stroke="#34D399" strokeWidth="2" />
-        <line x1="100" y1="100" x2="120" y2="85" stroke="#34D399" strokeWidth="2" />
-        <circle cx="80" cy="85" r="5" fill="#34D399" opacity="0.8" />
-        <circle cx="120" cy="85" r="5" fill="#34D399" opacity="0.8" />
-        <line x1="100" y1="120" x2="70" y2="110" stroke="#34D399" strokeWidth="1.5" opacity="0.6" />
-        <line x1="100" y1="120" x2="130" y2="110" stroke="#34D399" strokeWidth="1.5" opacity="0.6" />
+
+      <g className="origin-center" style={{ animation: 'spin 40s linear infinite reverse', transformOrigin: '120px 120px' }}>
+        <circle cx="120" cy="120" r="85" stroke="#34D399" strokeWidth="1" fill="none" opacity="0.3" strokeDasharray="10 8" />
+        {[0, 60, 120, 180, 240, 300].map((angle) => (
+          <circle key={angle} cx={120 + 85 * Math.cos(angle * Math.PI / 180)} cy={120 + 85 * Math.sin(angle * Math.PI / 180)} r="3" fill="#6EE7B7" style={{ animation: `pulse 3.5s ease-in-out infinite ${angle}ms` }} />
+        ))}
       </g>
-      <g className="origin-center" style={{ animation: 'spin 22s linear infinite reverse' }}>
-        <circle cx="100" cy="100" r="55" stroke="#34D399" strokeWidth="1.5" fill="none" opacity="0.35" />
+
+      <g className="origin-center" style={{ animation: 'spin 25s linear infinite', transformOrigin: '120px 120px' }}>
+        <circle cx="120" cy="120" r="70" stroke="#34D399" strokeWidth="1.5" fill="none" opacity="0.4" />
       </g>
-      <g opacity="0.5">
-        <circle cx="70" cy="60" r="2" fill="#34D399" style={{ animation: 'pulse 2s ease-in-out infinite' }} />
-        <circle cx="130" cy="60" r="2" fill="#34D399" style={{ animation: 'pulse 2s ease-in-out infinite 0.5s' }} />
-        <circle cx="100" cy="40" r="2" fill="#34D399" style={{ animation: 'pulse 2s ease-in-out infinite 1s' }} />
+
+      <g filter="url(#treeGlow)">
+        <path d="M120 180 L120 90" stroke="url(#trunkGrad)" strokeWidth="4" fill="none" />
+
+        <path d="M120 90 L95 70 M120 90 L145 70 M120 110 L85 90 M120 110 L155 90 M120 130 L90 110 M120 130 L150 110" stroke="url(#trunkGrad)" strokeWidth="2" fill="none" />
+
+        <circle cx="95" cy="70" r="6" fill="url(#leafGlow)" />
+        <circle cx="145" cy="70" r="6" fill="url(#leafGlow)" />
+        <circle cx="85" cy="90" r="5" fill="url(#leafGlow)" />
+        <circle cx="155" cy="90" r="5" fill="url(#leafGlow)" />
+        <circle cx="90" cy="110" r="4" fill="url(#leafGlow)" />
+        <circle cx="150" cy="110" r="4" fill="url(#leafGlow)" />
+        <circle cx="120" cy="90" r="8" fill="url(#leafGlow)" />
+
+        <circle cx="95" cy="70" r="3" fill="#059669" />
+        <circle cx="145" cy="70" r="3" fill="#059669" />
+        <circle cx="85" cy="90" r="2.5" fill="#059669" />
+        <circle cx="155" cy="90" r="2.5" fill="#059669" />
+        <circle cx="90" cy="110" r="2" fill="#059669" />
+        <circle cx="150" cy="110" r="2" fill="#059669" />
+        <circle cx="120" cy="90" r="4" fill="#059669" />
       </g>
+
+      <g opacity="0.6">
+        <path d="M120 180 L110 190 M120 180 L130 190 M120 180 L115 195 M120 180 L125 195" stroke="#34D399" strokeWidth="1.5" fill="none" />
+        <path d="M120 90 L120 75 M120 75 L115 70 M120 75 L125 70" stroke="#6EE7B7" strokeWidth="1" fill="none" opacity="0.5" />
+      </g>
+
+      {[
+        { x: 120, y: 75, delay: 0 },
+        { x: 100, y: 85, delay: 300 },
+        { x: 140, y: 85, delay: 600 },
+        { x: 80, y: 100, delay: 900 },
+        { x: 160, y: 100, delay: 1200 },
+        { x: 120, y: 60, delay: 1500 },
+        { x: 110, y: 70, delay: 1800 },
+        { x: 130, y: 70, delay: 2100 }
+      ].map((p, i) => (
+        <circle key={i} cx={p.x} cy={p.y} r="1.5" fill="#A7F3D0" style={{ animation: `pulse 3s ease-in-out infinite ${p.delay}ms` }} />
+      ))}
     </svg>
   );
 }
