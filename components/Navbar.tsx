@@ -9,7 +9,7 @@ const publicLinks = [
   { href: "/#how", label: "How it works" },
   { href: "/markets", label: "Markets" },
   { href: "/plans", label: "Plans" },
-  { href: "/ai-engine", label: "AI Trade Engine" },
+  { href: "/research", label: "Research" },
   { href: "/team", label: "Team" },
   { href: "/faq", label: "FAQ" },
   { href: "/support", label: "Support" },

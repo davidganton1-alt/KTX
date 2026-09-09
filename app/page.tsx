@@ -373,7 +373,7 @@ export default function Home() {
             <ul className="mt-6 space-y-3 text-sm text-[var(--muted)]">
               {trustPoints.map((t) => <li key={t} className="flex gap-3"><span className="text-profit">✦</span>{t}</li>)}
             </ul>
-            <a href="/ai-engine" className="btn-ghost mt-6 inline-flex">See the engine</a>
+            <a href="/research" className="btn-ghost mt-6 inline-flex">See the engine</a>
           </Reveal>
         </div>
       </section>
