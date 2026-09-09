@@ -1,8 +1,25 @@
+import type { Metadata } from 'next';
 import { SectionIcon } from "@/components/SectionIcon";
 import { Reveal } from "@/components/Reveal";
 import Link from "next/link";
 
-export const metadata = { title: "Terms of Service | KingdomTradeX" };
+export const metadata: Metadata = {
+  title: 'Terms of Service | KingdomTradeX',
+  description: 'Clear, honest terms for using KingdomTradeX. Understand holding periods, withdrawal rules, and risk disclosures before you trade.',
+  openGraph: {
+    title: 'Terms of Service | KingdomTradeX',
+    description: 'Clear, honest terms for using KingdomTradeX.',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Terms of Service | KingdomTradeX',
+    description: 'Clear, honest terms for using KingdomTradeX.',
+  },
+  alternates: {
+    canonical: '/terms',
+  },
+};
 
 const sections = [
   {

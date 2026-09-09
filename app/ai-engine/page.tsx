@@ -1,10 +1,27 @@
+import type { Metadata } from 'next';
 import { IllShield, IllEye, IllIntegrity, IllCoins } from "@/components/Illustrations";
 import { Reveal } from "@/components/Reveal";
 import { GlowCard } from "@/components/GlowCard";
 import { EnginePipeline } from "@/components/EnginePipeline";
 import { AiEngineHero } from "@/components/AiEngineHero";
 
-export const metadata = { title: "The AI Engine | KingdomTradeX" };
+export const metadata: Metadata = {
+  title: 'The AI Engine | KingdomTradeX',
+  description: 'Explore the 5-stage pipeline behind KingdomTradeX. From data ingestion to risk-filtered execution, see how disciplined AI trading works.',
+  openGraph: {
+    title: 'The AI Engine | KingdomTradeX',
+    description: 'Explore the 5-stage pipeline behind KingdomTradeX.',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'The AI Engine | KingdomTradeX',
+    description: 'Explore the 5-stage pipeline behind KingdomTradeX.',
+  },
+  alternates: {
+    canonical: '/ai-engine',
+  },
+};
 
 const stack = [
   { t: "Data spine", pts: ["Live price, volume & order-flow streams", "On-chain and news sentiment feeds", "Crypto, US stocks and commodities in one pipeline"] },

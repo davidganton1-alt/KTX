@@ -1,8 +1,25 @@
+import type { Metadata } from 'next';
 import { SectionIcon } from "@/components/SectionIcon";
 import { Reveal } from "@/components/Reveal";
 import Link from "next/link";
 
-export const metadata = { title: "Privacy Policy | KingdomTradeX" };
+export const metadata: Metadata = {
+  title: 'Privacy Policy | KingdomTradeX',
+  description: 'Read how KingdomTradeX protects your data. No selling, no third-party tracking, just biblical stewardship applied to digital privacy.',
+  openGraph: {
+    title: 'Privacy Policy | KingdomTradeX',
+    description: 'Read how KingdomTradeX protects your data.',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Privacy Policy | KingdomTradeX',
+    description: 'Read how KingdomTradeX protects your data.',
+  },
+  alternates: {
+    canonical: '/privacy',
+  },
+};
 
 const sections = [
   {

@@ -1,10 +1,27 @@
+import type { Metadata } from 'next';
 import Link from "next/link";
 import { stars, pastors } from "@/lib/team";
 import { Reveal } from "@/components/Reveal";
 import { SectionIcon } from "@/components/SectionIcon";
 import { Verse } from "@/components/Verse";
 
-export const metadata = { title: "About Us | KingdomTradeX" };
+export const metadata: Metadata = {
+  title: 'About Us | KingdomTradeX',
+  description: 'Meet the team building KingdomTradeX. Licensed MSB, registered LLC, committed to transparency and biblical stewardship in every line of code.',
+  openGraph: {
+    title: 'About Us | KingdomTradeX',
+    description: 'Meet the team building KingdomTradeX.',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'About Us | KingdomTradeX',
+    description: 'Meet the team building KingdomTradeX.',
+  },
+  alternates: {
+    canonical: '/team',
+  },
+};
 
 // ── EDIT THESE WITH YOUR REAL LICENSE DETAILS ──
 const LICENSES = [
