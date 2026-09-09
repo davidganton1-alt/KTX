@@ -35,7 +35,8 @@ const steps = [
     num: "01", 
     title: "Claim your $50 gift", 
     subtitle: "Begin with grace",
-    body: "Every new account starts with a free $50 trading credit. No deposit is needed to begin. Watch the AI work before you commit a single dollar of your own capital.", 
+    body: "Every new account starts with a free $50 trading credit. No deposit is needed to begin. Watch the AI work before you commit a single dollar of your own capital.",
+    bullets: ["Free $50 trading credit", "No deposit required", "Full platform access", "Real-time AI demonstration"],
     icon: "IllGiftHalo", 
     color: "#F5C97B" 
   },
@@ -43,7 +44,8 @@ const steps = [
     num: "02", 
     title: "Choose a plan", 
     subtitle: "Select your path",
-    body: "Pick Faithful, Steward or Ambassador. Your deposit opens the AI desk and sets your daily profit rate. Each tier unlocks different holding periods and withdrawal flexibility.", 
+    body: "Pick Faithful, Steward or Ambassador. Your deposit opens the AI desk and sets your daily profit rate. Each tier unlocks different holding periods and withdrawal flexibility.",
+    bullets: ["Three flexible tiers", "Daily profit targets", "Clear holding periods", "Upgrade anytime"],
     icon: "IllPillars", 
     color: "#A855F7" 
   },
@@ -51,7 +53,8 @@ const steps = [
     num: "03", 
     title: "The AI trades for you", 
     subtitle: "Disciplined execution",
-    body: "Our models work around the clock across crypto, US stocks and commodities, with strict risk guardrails. Every trade follows predefined entry and exit rules, removing emotional decision-making.", 
+    body: "Our models work around the clock across crypto, US stocks and commodities, with strict risk guardrails. Every trade follows predefined entry and exit rules, removing emotional decision-making.",
+    bullets: ["24/7 automated trading", "Multi-asset coverage", "Risk-first approach", "Transparent position tracking"],
     icon: "IllEyeScan", 
     color: "#22D3EE" 
   },
@@ -59,7 +62,8 @@ const steps = [
     num: "04", 
     title: "Watch profit grow", 
     subtitle: "Transparent results",
-    body: "Profit accrues daily and is shown in plain sight. Withdraw your profit, never your principal, whenever you like. Full visibility into every position the AI opens and closes.", 
+    body: "Profit accrues daily and is shown in plain sight. Withdraw your profit, never your principal, whenever you like. Full visibility into every position the AI opens and closes.",
+    bullets: ["Daily profit accrual", "Instant profit withdrawal", "Complete trade history", "Real-time P&L dashboard"],
     icon: "IllTree", 
     color: "#34D399" 
   },
@@ -167,7 +171,20 @@ export default function Home() {
       </Reveal>
 
       {/* ── STICKY SCROLLYTELLING ── */}
-      <div id="how"><StickySteps steps={steps} /></div>
+      <div id="how" className="py-24">
+        <div className="container-wide text-center mb-16">
+          <span className="inline-block px-4 py-1.5 mb-4 rounded-full border text-xs font-bold uppercase tracking-widest" style={{ borderColor: 'var(--border)', color: 'var(--gold)', backgroundColor: 'var(--card)' }}>
+            How It Works
+          </span>
+          <h2 className="text-3xl md:text-5xl font-bold mb-4">
+            Your Journey to <span style={{ color: 'var(--gold)' }}>Faithful Stewardship</span>
+          </h2>
+          <p className="max-w-2xl mx-auto text-lg text-[var(--muted)]">
+            Four simple steps from first gift to daily profit. Built on transparency, powered by discipline.
+          </p>
+        </div>
+        <StickySteps steps={steps} />
+      </div>
 
       {/* ── STATS BAND ── */}
       <Reveal as="section" variant="up" className="container-wide py-8">
