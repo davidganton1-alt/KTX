@@ -1,9 +1,26 @@
+import type { Metadata } from 'next';
 import { SectionIcon } from "@/components/SectionIcon";
 import { Reveal } from "@/components/Reveal";
 import { FAQS } from "@/lib/faqs";
 import Link from "next/link";
 
-export const metadata = { title: "Plans | KingdomTradeX" };
+export const metadata: Metadata = {
+  title: 'Plans & Tiers | KingdomTradeX',
+  description: 'Choose your path of faithful stewardship. Faithful, Steward, and Ambassador tiers with clear daily profit targets and transparent holding periods.',
+  openGraph: {
+    title: 'Plans & Tiers | KingdomTradeX',
+    description: 'Choose your path of faithful stewardship. Faithful, Steward, and Ambassador tiers.',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Plans & Tiers | KingdomTradeX',
+    description: 'Choose your path of faithful stewardship.',
+  },
+  alternates: {
+    canonical: '/plans',
+  },
+};
 
 const lineup = [
   {
