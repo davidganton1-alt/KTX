@@ -36,7 +36,7 @@ export function AiEngineHero() {
       <div className="container-wide relative z-10 grid items-center gap-14 py-24 lg:grid-cols-2">
         <motion.div variants={container} initial="hidden" animate="show">
           <motion.span variants={item} className="pill inline-flex">
-            <span className="h-2 w-2 animate-pulse rounded-full bg-profit" /> The AI Trade Engine
+            <span className="h-2 w-2 animate-pulse rounded-full bg-profit" /> Research & Technology
           </motion.span>
           <motion.h1 variants={item} className="section-title mt-5 text-5xl leading-[1.05] md:text-6xl xl:text-7xl">
             An engine built on <span className="gradient-text">wisdom</span>, not hype.
