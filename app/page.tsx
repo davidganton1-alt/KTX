@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { Verse } from "@/components/Verse";
 import { SectionIcon } from "@/components/SectionIcon";
 import { Reveal } from "@/components/Reveal";
@@ -10,6 +11,24 @@ import { Typewriter } from "@/components/Typewriter";
 import { Sparkline } from "@/components/Sparkline";
 import { IllGift, IllShield, IllEye, IllIntegrity, IllEngine } from "@/components/Illustrations";
 import { FAQS } from "@/lib/faqs";
+
+export const metadata: Metadata = {
+  title: 'KingdomTradeX: Faith-Driven AI Trading',
+  description: 'KingdomTradeX pairs disciplined algorithmic trading with biblical stewardship. Trade crypto, US stocks, and commodities with AI precision. Join the faithful.',
+  openGraph: {
+    title: 'KingdomTradeX: Faith-Driven AI Trading',
+    description: 'KingdomTradeX pairs disciplined algorithmic trading with biblical stewardship. Trade crypto, US stocks, and commodities with AI precision.',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'KingdomTradeX: Faith-Driven AI Trading',
+    description: 'KingdomTradeX pairs disciplined algorithmic trading with biblical stewardship.',
+  },
+  alternates: {
+    canonical: '/',
+  },
+};
 
 const steps = [
   { num: "01", title: "Claim your $50 gift", body: "Every new account starts with a free $50 trading credit. No deposit is needed to begin.", glyph: "✦", color: "#F5C97B" },
