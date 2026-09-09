@@ -31,10 +31,38 @@ export const metadata: Metadata = {
 };
 
 const steps = [
-  { num: "01", title: "Claim your $50 gift", body: "Every new account starts with a free $50 trading credit. No deposit is needed to begin.", glyph: "✦", color: "#F5C97B" },
-  { num: "02", title: "Choose a plan", body: "Pick Faithful, Steward or Ambassador. Your deposit opens the AI desk and sets your daily profit rate.", glyph: "◈", color: "#A855F7" },
-  { num: "03", title: "The AI trades for you", body: "Our models work around the clock across crypto, US stocks and commodities, with discipline and guardrails.", glyph: "⇄", color: "#22D3EE" },
-  { num: "04", title: "Watch profit grow", body: "Profit accrues daily and is shown in plain sight. Withdraw your profit, never your principal, whenever you like.", glyph: "↗", color: "#34D399" },
+  { 
+    num: "01", 
+    title: "Claim your $50 gift", 
+    subtitle: "Begin with grace",
+    body: "Every new account starts with a free $50 trading credit. No deposit is needed to begin. Watch the AI work before you commit a single dollar of your own capital.", 
+    icon: "IllGiftHalo", 
+    color: "#F5C97B" 
+  },
+  { 
+    num: "02", 
+    title: "Choose a plan", 
+    subtitle: "Select your path",
+    body: "Pick Faithful, Steward or Ambassador. Your deposit opens the AI desk and sets your daily profit rate. Each tier unlocks different holding periods and withdrawal flexibility.", 
+    icon: "IllPillars", 
+    color: "#A855F7" 
+  },
+  { 
+    num: "03", 
+    title: "The AI trades for you", 
+    subtitle: "Disciplined execution",
+    body: "Our models work around the clock across crypto, US stocks and commodities, with strict risk guardrails. Every trade follows predefined entry and exit rules, removing emotional decision-making.", 
+    icon: "IllEyeScan", 
+    color: "#22D3EE" 
+  },
+  { 
+    num: "04", 
+    title: "Watch profit grow", 
+    subtitle: "Transparent results",
+    body: "Profit accrues daily and is shown in plain sight. Withdraw your profit, never your principal, whenever you like. Full visibility into every position the AI opens and closes.", 
+    icon: "IllTree", 
+    color: "#34D399" 
+  },
 ];
 
 const tiers = [

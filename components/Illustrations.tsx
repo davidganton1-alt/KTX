@@ -284,3 +284,148 @@ export function IllEvaluate() {
     </svg>
   );
 }
+
+/* ---- 9-12. Scrollytelling step illustrations (biblical + tech orbit sets) ---- */
+export function IllGiftHalo({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="giftGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#F5C97B" stopOpacity="0.8" />
+          <stop offset="100%" stopColor="#F5C97B" stopOpacity="0" />
+        </radialGradient>
+        <linearGradient id="giftMetal" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#F5C97B" />
+          <stop offset="100%" stopColor="#B8860B" />
+        </linearGradient>
+      </defs>
+      <circle cx="100" cy="100" r="90" fill="url(#giftGlow)" />
+      <g className="origin-center" style={{ animation: 'spin 20s linear infinite' }}>
+        <circle cx="100" cy="100" r="60" stroke="#F5C97B" strokeWidth="2" fill="none" opacity="0.3" />
+        <circle cx="100" cy="40" r="4" fill="#F5C97B" />
+        <circle cx="160" cy="100" r="4" fill="#F5C97B" />
+        <circle cx="100" cy="160" r="4" fill="#F5C97B" />
+        <circle cx="40" cy="100" r="4" fill="#F5C97B" />
+      </g>
+      <g className="origin-center" style={{ animation: 'spin 15s linear infinite reverse' }}>
+        <circle cx="100" cy="100" r="45" stroke="#F5C97B" strokeWidth="1.5" fill="none" opacity="0.5" />
+        <rect x="85" y="55" width="30" height="30" rx="2" fill="url(#giftMetal)" />
+        <path d="M95 55 L100 45 L105 55" stroke="#F5C97B" strokeWidth="2" fill="none" />
+        <line x1="85" y1="70" x2="115" y2="70" stroke="#B8860B" strokeWidth="2" />
+      </g>
+      <g opacity="0.6">
+        <circle cx="70" cy="70" r="2" fill="#F5C97B" style={{ animation: 'pulse 2s ease-in-out infinite' }} />
+        <circle cx="130" cy="130" r="2" fill="#F5C97B" style={{ animation: 'pulse 2s ease-in-out infinite 0.5s' }} />
+        <circle cx="130" cy="70" r="2" fill="#F5C97B" style={{ animation: 'pulse 2s ease-in-out infinite 1s' }} />
+        <circle cx="70" cy="130" r="2" fill="#F5C97B" style={{ animation: 'pulse 2s ease-in-out infinite 1.5s' }} />
+      </g>
+    </svg>
+  );
+}
+
+export function IllPillars({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="pillarGlow" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#A855F7" stopOpacity="0.8" />
+          <stop offset="100%" stopColor="#A855F7" stopOpacity="0.2" />
+        </linearGradient>
+      </defs>
+      <g className="origin-center" style={{ animation: 'spin 25s linear infinite' }}>
+        <circle cx="100" cy="100" r="70" stroke="#A855F7" strokeWidth="1" fill="none" opacity="0.3" />
+        <circle cx="100" cy="30" r="3" fill="#A855F7" />
+        <circle cx="170" cy="100" r="3" fill="#A855F7" />
+        <circle cx="100" cy="170" r="3" fill="#A855F7" />
+        <circle cx="30" cy="100" r="3" fill="#A855F7" />
+      </g>
+      <g>
+        <rect x="60" y="80" width="16" height="60" rx="2" fill="url(#pillarGlow)" />
+        <rect x="92" y="70" width="16" height="70" rx="2" fill="url(#pillarGlow)" />
+        <rect x="124" y="75" width="16" height="65" rx="2" fill="url(#pillarGlow)" />
+        <line x1="60" y1="80" x2="76" y2="80" stroke="#A855F7" strokeWidth="3" />
+        <line x1="92" y1="70" x2="108" y2="70" stroke="#A855F7" strokeWidth="3" />
+        <line x1="124" y1="75" x2="140" y2="75" stroke="#A855F7" strokeWidth="3" />
+      </g>
+      <g opacity="0.5">
+        <line x1="68" y1="90" x2="68" y2="130" stroke="#A855F7" strokeWidth="1" strokeDasharray="2 2" />
+        <line x1="100" y1="80" x2="100" y2="130" stroke="#A855F7" strokeWidth="1" strokeDasharray="2 2" />
+        <line x1="132" y1="85" x2="132" y2="130" stroke="#A855F7" strokeWidth="1" strokeDasharray="2 2" />
+      </g>
+      <g className="origin-center" style={{ animation: 'spin 18s linear infinite reverse' }}>
+        <circle cx="100" cy="100" r="50" stroke="#A855F7" strokeWidth="1.5" fill="none" opacity="0.4" />
+      </g>
+    </svg>
+  );
+}
+
+export function IllEyeScan({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="eyeGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#22D3EE" stopOpacity="0.6" />
+          <stop offset="100%" stopColor="#22D3EE" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      <circle cx="100" cy="100" r="80" fill="url(#eyeGlow)" />
+      <g className="origin-center" style={{ animation: 'spin 30s linear infinite' }}>
+        <circle cx="100" cy="100" r="65" stroke="#22D3EE" strokeWidth="1" fill="none" opacity="0.3" />
+        <circle cx="100" cy="35" r="3" fill="#22D3EE" />
+        <circle cx="165" cy="100" r="3" fill="#22D3EE" />
+        <circle cx="100" cy="165" r="3" fill="#22D3EE" />
+        <circle cx="35" cy="100" r="3" fill="#22D3EE" />
+      </g>
+      <g className="origin-center" style={{ animation: 'spin 20s linear infinite reverse' }}>
+        <circle cx="100" cy="100" r="45" stroke="#22D3EE" strokeWidth="2" fill="none" opacity="0.5" />
+        <ellipse cx="100" cy="100" rx="30" ry="20" stroke="#22D3EE" strokeWidth="2" fill="none" />
+        <circle cx="100" cy="100" r="12" fill="#22D3EE" opacity="0.8" />
+        <circle cx="100" cy="100" r="6" fill="#0891B2" />
+      </g>
+      <g opacity="0.6">
+        <path d="M60 100 Q100 60 140 100 Q100 140 60 100" stroke="#22D3EE" strokeWidth="1" fill="none" opacity="0.4" />
+        <circle cx="80" cy="90" r="1.5" fill="#22D3EE" style={{ animation: 'pulse 1.5s ease-in-out infinite' }} />
+        <circle cx="120" cy="110" r="1.5" fill="#22D3EE" style={{ animation: 'pulse 1.5s ease-in-out infinite 0.3s' }} />
+      </g>
+    </svg>
+  );
+}
+
+export function IllTree({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="treeGlow" x1="0%" y1="100%" x2="0%" y2="0%">
+          <stop offset="0%" stopColor="#34D399" stopOpacity="0.3" />
+          <stop offset="100%" stopColor="#34D399" stopOpacity="0.8" />
+        </linearGradient>
+      </defs>
+      <g className="origin-center" style={{ animation: 'spin 35s linear infinite' }}>
+        <circle cx="100" cy="100" r="75" stroke="#34D399" strokeWidth="1" fill="none" opacity="0.25" />
+        <circle cx="100" cy="25" r="3" fill="#34D399" />
+        <circle cx="175" cy="100" r="3" fill="#34D399" />
+        <circle cx="100" cy="175" r="3" fill="#34D399" />
+        <circle cx="25" cy="100" r="3" fill="#34D399" />
+      </g>
+      <g>
+        <line x1="100" y1="150" x2="100" y2="70" stroke="url(#treeGlow)" strokeWidth="3" />
+        <circle cx="100" cy="70" r="8" fill="#34D399" opacity="0.9" />
+        <circle cx="100" cy="70" r="15" fill="#34D399" opacity="0.3" />
+        <line x1="100" y1="100" x2="80" y2="85" stroke="#34D399" strokeWidth="2" />
+        <line x1="100" y1="100" x2="120" y2="85" stroke="#34D399" strokeWidth="2" />
+        <circle cx="80" cy="85" r="5" fill="#34D399" opacity="0.8" />
+        <circle cx="120" cy="85" r="5" fill="#34D399" opacity="0.8" />
+        <line x1="100" y1="120" x2="70" y2="110" stroke="#34D399" strokeWidth="1.5" opacity="0.6" />
+        <line x1="100" y1="120" x2="130" y2="110" stroke="#34D399" strokeWidth="1.5" opacity="0.6" />
+      </g>
+      <g className="origin-center" style={{ animation: 'spin 22s linear infinite reverse' }}>
+        <circle cx="100" cy="100" r="55" stroke="#34D399" strokeWidth="1.5" fill="none" opacity="0.35" />
+      </g>
+      <g opacity="0.5">
+        <circle cx="70" cy="60" r="2" fill="#34D399" style={{ animation: 'pulse 2s ease-in-out infinite' }} />
+        <circle cx="130" cy="60" r="2" fill="#34D399" style={{ animation: 'pulse 2s ease-in-out infinite 0.5s' }} />
+        <circle cx="100" cy="40" r="2" fill="#34D399" style={{ animation: 'pulse 2s ease-in-out infinite 1s' }} />
+      </g>
+    </svg>
+  );
+}
