@@ -7,22 +7,6 @@ import { Reveal } from "@/components/Reveal";
 // ── SWAP THIS WITH THE REAL PUBLIC RESEARCH REPO IN THE FINAL PASS ──
 const RESEARCH_REPO_URL = 'https://github.com/KingdomTradeX/Research';
 
-const techStack = [
-  { name: "Next.js 14", desc: "App Router framework for server-side rendering and fast page loads." },
-  { name: "TypeScript", desc: "Strict mode language preventing runtime errors in financial calculations." },
-  { name: "Docker", desc: "Containerized deployment ensuring identical environments from dev to VPS." },
-  { name: "Supabase", desc: "SOC 2 certified PostgreSQL database with row-level security for user data." },
-  { name: "lightweight-charts", desc: "Institutional-grade TradingView library for real-time candlestick rendering." },
-  { name: "Tailwind CSS", desc: "Utility-first styling with CSS variables ensuring perfect day/night theming." },
-];
-
-const securityFrameworks = [
-  { title: "Non-Custodial Architecture", desc: "We do not hold your long-term funds. Deposits route through NOWPayments, with the majority moving to cold storage." },
-  { title: "Row-Level Security", desc: "Database queries are cryptographically scoped. A user can only ever read or write their own wallet and trade history." },
-  { title: "MSB Compliance", desc: "KingdomTradeX operates as a registered Money Services Business, adhering to strict federal reporting and AML frameworks." },
-  { title: "Zero Third-Party Tracking", desc: "We do not sell data. We do not use invasive ad trackers. Your financial footprint remains private." },
-];
-
 export default function ResearchClient() {
   return (
     <main className="min-h-screen bg-[var(--bg)] text-[var(--fg)]">
@@ -40,7 +24,7 @@ export default function ResearchClient() {
             </span>
             <h2 className="text-3xl md:text-5xl font-bold mb-4">Audit Our Research</h2>
             <p className="text-lg text-[var(--muted)]">
-              Trust requires transparency. We publish our non-sensitive architectural research, risk frameworks, and market analysis openly so you can evaluate our methodology before committing capital.
+              Trust requires transparency. We publish our non-sensitive research and market analysis openly so you can evaluate our methodology before committing capital.
             </p>
             <a
               href={RESEARCH_REPO_URL}
@@ -54,44 +38,6 @@ export default function ResearchClient() {
               </svg>
               View Research Paper on GitHub
             </a>
-          </div>
-        </Reveal>
-      </section>
-
-      <section className="container-wide py-24 border-t" style={{ borderColor: 'var(--border)' }}>
-        <Reveal variant="up">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">The Technology Stack</h2>
-            <p className="text-lg text-[var(--muted)] max-w-2xl mx-auto">
-              Built on modern, battle-tested infrastructure designed for speed, security, and absolute reliability.
-            </p>
-          </div>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {techStack.map((tech) => (
-              <div key={tech.name} className="rounded-2xl border p-6 transition hover:border-[var(--gold)]" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--card)' }}>
-                <h3 className="text-xl font-bold mb-2" style={{ color: 'var(--fg)' }}>{tech.name}</h3>
-                <p className="text-sm text-[var(--muted)]">{tech.desc}</p>
-              </div>
-            ))}
-          </div>
-        </Reveal>
-      </section>
-
-      <section className="container-wide py-24 border-t" style={{ borderColor: 'var(--border)' }}>
-        <Reveal variant="up">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Security & Risk Frameworks</h2>
-            <p className="text-lg text-[var(--muted)] max-w-2xl mx-auto">
-              Protecting capital and data is not an afterthought. It is the foundation of every architectural decision.
-            </p>
-          </div>
-          <div className="grid gap-6 md:grid-cols-2">
-            {securityFrameworks.map((item) => (
-              <div key={item.title} className="rounded-2xl border p-8" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--card)' }}>
-                <h3 className="text-xl font-bold mb-3" style={{ color: 'var(--gold)' }}>{item.title}</h3>
-                <p className="text-base leading-relaxed text-[var(--muted)]">{item.desc}</p>
-              </div>
-            ))}
           </div>
         </Reveal>
       </section>
