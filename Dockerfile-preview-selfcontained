@@ -15,12 +15,17 @@ COPY components/ ./components/
 COPY lib/ ./lib/
 COPY hooks/ ./hooks/
 COPY public/ ./public/
+COPY server/ ./server/
+COPY dist-server/ ./dist-server/
+COPY scripts/ ./scripts/
 COPY next.config.mjs ./
 COPY tailwind.config.ts ./
 COPY tsconfig.json ./
+COPY tsconfig.server.json ./
 COPY postcss.config.mjs ./
 
 EXPOSE 3001
+EXPOSE 3002
 
-CMD ["node", "node_modules/.bin/next", "dev", "--port", "3001", "--hostname", "0.0.0.0"]
+CMD ["sh", "scripts/start-prod.sh"]
 

@@ -34,3 +34,5 @@ kill-port3000.ps1
 
 # Backup files
 *-backup*
+
+dist-server/
