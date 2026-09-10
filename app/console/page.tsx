@@ -7,6 +7,7 @@ import { TierComparison } from "@/components/TierComparison";
 import { PortfolioChart } from "@/components/PortfolioChart";
 import { TradingAgreementModal } from "@/components/TradingAgreementModal";
 import { ShareGate } from "@/components/ShareGate";
+import { ReviewInvitationModal } from "@/components/ReviewInvitationModal";
 import { SOCIAL_URLS } from "@/lib/social";
 import { SpotlightTour } from "@/components/SpotlightTour";
 
@@ -41,6 +42,9 @@ export default function ConsolePage() {
   const [showTierModal, setShowTierModal] = useState(false);
   const [showAgreement, setShowAgreement] = useState(false);
   const [showWithdrawShare, setShowWithdrawShare] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [reviewTrigger, setReviewTrigger] = useState<'firstWithdrawal' | 'activeUser30Days' | 'thirdWithdrawal'>('firstWithdrawal');
+  const [pendingReviewAfterShare, setPendingReviewAfterShare] = useState(false);
   const [depositAmount, setDepositAmount] = useState("");
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const [actionMsg, setActionMsg] = useState("");
@@ -100,6 +104,8 @@ export default function ConsolePage() {
         setWithdrawAmount("");
         if (data.firstWithdrawal) {
           setShowWithdrawShare(true);
+          const alreadyInvited = (wallet?.trustpilotInvitations ?? []).some((i: any) => i.triggerType === 'firstWithdrawal');
+          setPendingReviewAfterShare(!alreadyInvited);
         }
         loadWallet();
       }
@@ -431,8 +437,22 @@ export default function ConsolePage() {
         shareUrl={typeof window !== 'undefined' ? window.location.href : 'https://kingdomtradex.com'}
         shareText="I just withdrew profit from KingdomTradeX. Faith-driven AI trading works."
         mandatory={true}
-        onShared={() => setShowWithdrawShare(false)}
+        onShared={() => {
+          setShowWithdrawShare(false);
+          if (pendingReviewAfterShare) {
+            setPendingReviewAfterShare(false);
+            setReviewTrigger('firstWithdrawal');
+            setShowReviewModal(true);
+          }
+        }}
         secondaryAction={{ label: 'Leave a Trustpilot review', url: SOCIAL_URLS.trustpilot }}
+      />
+
+      <ReviewInvitationModal
+        open={showReviewModal}
+        triggerType={reviewTrigger}
+        onClose={() => setShowReviewModal(false)}
+        onInvited={() => setShowReviewModal(false)}
       />
     </div>
   );

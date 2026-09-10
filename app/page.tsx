@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Verse } from "@/components/Verse";
+import { TrustBox } from "@/components/TrustBox";
 import { SectionIcon } from "@/components/SectionIcon";
 import { Reveal } from "@/components/Reveal";
 import { CinematicHero } from "@/components/CinematicHero";
@@ -190,6 +191,10 @@ export default function Home() {
       <Reveal as="section" variant="up" className="container-wide py-8">
         <StatsBand />
       </Reveal>
+
+      <div className="container-wide">
+        <TrustBox template="carousel" className="my-12" />
+      </div>
 
       {/* ── VERSE INTERLUDE ── */}
       <section className="py-16">

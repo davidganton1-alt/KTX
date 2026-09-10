@@ -3,6 +3,7 @@ import { SectionIcon } from "@/components/SectionIcon";
 import { Reveal } from "@/components/Reveal";
 import { FAQS } from "@/lib/faqs";
 import Link from "next/link";
+import { TrustBox } from "@/components/TrustBox";
 
 export const metadata: Metadata = {
   title: 'Plans & Tiers | KingdomTradeX',
@@ -90,6 +91,10 @@ export default function PlansPage() {
           <span className="pill">Transparent ledger</span>
         </div>
       </section>
+
+      <div className="container-wide">
+        <TrustBox template="carousel" className="my-12" />
+      </div>
 
       {/* ── LINEUP PILLARS (giant rates) ── */}
       <section className="container-wide py-14">

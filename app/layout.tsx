@@ -10,6 +10,7 @@ import { ScrollProgress } from "@/components/ScrollProgress";
 import { ParallaxOrbs } from "@/components/ParallaxOrbs";
 import { JsonLd } from "@/components/JsonLd";
 import { ScrollToBottom } from "@/components/ScrollToBottom";
+import Script from "next/script";
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://kingdomtradex.com'),
@@ -47,6 +48,10 @@ export default function RootLayout({
           {children}
           <SiteFooter />
         </ThemeProvider>
+        <Script
+          src="https://widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js"
+          strategy="lazyOnload"
+        />
       </body>
     </html>
   );

@@ -3,6 +3,7 @@
 import { AiEngineHero } from "@/components/AiEngineHero";
 import { EnginePipeline } from "@/components/EnginePipeline";
 import { Reveal } from "@/components/Reveal";
+import { TrustBox } from "@/components/TrustBox";
 
 // ── SWAP THIS WITH THE REAL PUBLIC RESEARCH REPO IN THE FINAL PASS ──
 const RESEARCH_REPO_URL = 'https://github.com/KingdomTradeX/Research';
@@ -15,6 +16,10 @@ export default function ResearchClient() {
       <section className="relative z-10">
         <EnginePipeline />
       </section>
+
+      <div className="container-wide">
+        <TrustBox template="carousel" className="my-12" />
+      </div>
 
       <section className="container-wide py-24">
         <Reveal variant="up">

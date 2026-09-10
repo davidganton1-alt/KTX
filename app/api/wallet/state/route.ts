@@ -29,6 +29,7 @@ export async function GET() {
     emailVerified: u.emailVerified,
     twoFactorEnabled: u.twoFactorEnabled,
     hasSharedFirstWithdrawal: u.hasSharedFirstWithdrawal ?? false,
+    trustpilotInvitations: u.trustpilotInvitations ?? [],
     pastorName: u.pastorName,
     pastorShareRate: u.pastorShareRate,
     referralBonusEarned: u.referralBonusEarned,

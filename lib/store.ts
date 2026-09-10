@@ -68,6 +68,7 @@ export type User = {
   hasSeenTour?: boolean;
   hasSignedAgreement?: boolean;
   agreementSignedAt?: number;
+  trustpilotInvitations?: Array<{ triggerType: string; sentAt: number; status: string }>;
   hasSharedFirstWithdrawal: boolean;
   // Notifications feed (merged with platform announcements client-side)
   notifications: UserNotification[];
@@ -224,6 +225,7 @@ export const db = {
       memberReferrals: [],
       referralBonusEarned: 0,
       hasSharedFirstWithdrawal: false,
+      trustpilotInvitations: [],
       notifications: [],
       lastSeenNotifs: Date.now(),
     };
@@ -261,6 +263,7 @@ export const db = {
       memberReferrals: [],
       referralBonusEarned: 0,
       hasSharedFirstWithdrawal: false,
+      trustpilotInvitations: [],
       notifications: [],
       lastSeenNotifs: Date.now(),
     };
@@ -439,6 +442,7 @@ export const db = {
         memberReferrals: [],
         referralBonusEarned: 0,
         hasSharedFirstWithdrawal: false,
+        trustpilotInvitations: [],
         notifications: [],
         lastSeenNotifs: Date.now(),
       });
@@ -488,6 +492,7 @@ export const db = {
         memberReferrals: [],
         referralBonusEarned: 0,
         hasSharedFirstWithdrawal: false,
+        trustpilotInvitations: [],
         notifications: [],
         lastSeenNotifs: Date.now(),
       };
