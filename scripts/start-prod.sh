@@ -10,7 +10,7 @@ npx next dev --port 3001 --hostname 0.0.0.0 &
 NEXT_PID=$!
 
 # Trap SIGTERM and forward to both
-trap "kill $WS_PID $NEXT_PID 2>/dev/null; exit 0" SIGTERM SIGINT
+trap "kill $WS_PID $NEXT_PID 2>/dev/null; exit 0" TERM INT
 
 # Wait for either process to exit
 wait
