@@ -39,6 +39,10 @@ export default function AdminPage() {
   // Pastor approval modal
   const [newCreds, setNewCreds] = useState<{ email: string; password: string; name: string } | null>(null);
 
+  // Bulk selection (pastor applications)
+  const [selectedApps, setSelectedApps] = useState<string[]>([]);
+  const [bulkCreds, setBulkCreds] = useState<{ email: string; password: string; name: string }[] | null>(null);
+
   // Announcements form
   const [annTitle, setAnnTitle] = useState("");
   const [annBody, setAnnBody] = useState("");
@@ -83,6 +87,28 @@ export default function AdminPage() {
   }
 
   // ── Pastor actions ──
+  async function bulkDecidePastors(status: "approved" | "rejected") {
+    if (selectedApps.length === 0) return;
+    setActionBusy(`bulk-${status}`);
+    try {
+      const res = await fetch("/api/admin/pastor", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "bulk-review", ids: selectedApps, status }),
+      });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) { flash(d.error || "Bulk action failed."); setActionBusy(null); return; }
+      setSelectedApps([]);
+      if (status === "approved" && Array.isArray(d.credentials) && d.credentials.length > 0) {
+        setBulkCreds(d.credentials);
+      } else {
+        flash(`${d.processed ?? selectedApps.length} application${(d.processed ?? 0) === 1 ? "" : "s"} ${status}.`);
+      }
+      loadAll();
+    } catch { flash("Network error."); }
+    setActionBusy(null);
+  }
+
   async function decidePastor(id: string, status: "approved" | "rejected", app?: any) {
     const key = `pastor-${id}-${status}`;
     setActionBusy(key);
@@ -360,13 +386,58 @@ export default function AdminPage() {
             <div className="space-y-6">
               {/* Applications */}
               <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] p-6">
-                <h3 className="mb-4 text-lg font-bold text-[var(--fg)]">Pending Applications ({apps.length})</h3>
+                <div className="mb-4 flex items-center justify-between">
+                  <h3 className="text-lg font-bold text-[var(--fg)]">Pending Applications ({apps.length})</h3>
+                  {apps.length > 0 && (
+                    <label className="flex cursor-pointer items-center gap-2 text-xs text-[var(--muted)]">
+                      <input
+                        type="checkbox"
+                        className="h-4 w-4 accent-[var(--gold)]"
+                        checked={selectedApps.length === apps.length && apps.length > 0}
+                        onChange={(e) => setSelectedApps(e.target.checked ? apps.map((p: any) => p.id) : [])}
+                      />
+                      Select all pending
+                    </label>
+                  )}
+                </div>
+                {selectedApps.length > 0 && (
+                  <div className="mb-3 flex flex-wrap items-center gap-3 rounded-xl border border-[var(--gold)]/40 bg-[var(--gold)]/10 px-4 py-2.5">
+                    <span className="text-xs font-bold text-[var(--fg)]">{selectedApps.length} selected</span>
+                    <button
+                      onClick={() => bulkDecidePastors("approved")}
+                      disabled={actionBusy?.startsWith("bulk-")}
+                      className="rounded-lg bg-[var(--profit)] px-4 py-1.5 text-xs font-bold text-[var(--fg)] hover:bg-[var(--profit)] disabled:opacity-50">
+                      {actionBusy === "bulk-approved" ? "..." : "Approve Selected"}
+                    </button>
+                    <button
+                      onClick={() => bulkDecidePastors("rejected")}
+                      disabled={actionBusy?.startsWith("bulk-")}
+                      className="rounded-lg bg-red-500/20 px-4 py-1.5 text-xs font-bold text-red-400 hover:bg-red-500/30 disabled:opacity-50">
+                      {actionBusy === "bulk-rejected" ? "..." : "Reject Selected"}
+                    </button>
+                    <button
+                      onClick={() => setSelectedApps([])}
+                      className="ml-auto text-xs text-[var(--muted)] hover:text-[var(--fg)]">
+                      Clear
+                    </button>
+                  </div>
+                )}
                 {apps.length === 0 ? (
                   <p className="py-8 text-center text-sm text-[var(--muted)]">No pending applications.</p>
                 ) : (
                   <div className="space-y-3">
                     {apps.map((p: any) => (
                       <div key={p.id} className="flex items-start justify-between gap-4 rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
+                        <input
+                          type="checkbox"
+                          className="mt-1 h-4 w-4 shrink-0 accent-[var(--gold)]"
+                          checked={selectedApps.includes(p.id)}
+                          onChange={(e) =>
+                            setSelectedApps((prev) =>
+                              e.target.checked ? [...prev, p.id] : prev.filter((x) => x !== p.id)
+                            )
+                          }
+                        />
                         <div className="flex-1 min-w-0">
                           <p className="font-bold text-[var(--fg)]">{p.name}</p>
                           <p className="text-xs text-[var(--muted)]">{p.email} · {p.ministry || "—"}</p>
@@ -607,6 +678,30 @@ export default function AdminPage() {
             <p className="mt-4 text-xs text-[var(--gold)]">⚠ Advise them to change this password immediately after first login.</p>
             <button
               onClick={() => setNewCreds(null)}
+              className="mt-6 w-full rounded-lg bg-[var(--gold)] py-3 text-sm font-bold text-black transition hover:brightness-110">
+              Done
+            </button>
+          </div>
+        </div>
+      )}
+
+      {bulkCreds && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/70 p-4">
+          <div className="w-full max-w-md rounded-2xl border border-[var(--border)] bg-[var(--bg-soft)] p-6">
+            <h3 className="text-lg font-bold text-[var(--fg)]">{bulkCreds.length} Pastor Accounts Approved</h3>
+            <p className="mt-1 text-sm text-[var(--muted)]">Share these credentials securely with each pastor:</p>
+            <div className="mt-4 max-h-72 space-y-3 overflow-y-auto pr-1">
+              {bulkCreds.map((c) => (
+                <div key={c.email} className="rounded-lg border border-[var(--border)] bg-[var(--bg)] p-3">
+                  <p className="text-xs font-bold text-[var(--fg)]">{c.name}</p>
+                  <p className="mt-1 font-mono text-xs text-[var(--muted)]">{c.email}</p>
+                  <p className="mt-1 font-mono text-sm font-bold text-[var(--fg)]">{c.password}</p>
+                </div>
+              ))}
+            </div>
+            <p className="mt-4 text-xs text-[var(--gold)]">⚠ Advise them to change this password immediately after first login.</p>
+            <button
+              onClick={() => setBulkCreds(null)}
               className="mt-6 w-full rounded-lg bg-[var(--gold)] py-3 text-sm font-bold text-black transition hover:brightness-110">
               Done
             </button>
