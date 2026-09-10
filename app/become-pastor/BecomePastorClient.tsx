@@ -33,7 +33,17 @@ export default function BecomePastorPage() {
         body: JSON.stringify({ name, email, phone, ministry, message }),
       });
       const data = await res.json().catch(() => null);
-      if (!res.ok) { setError(data?.error || "Submission failed. Please try again."); setLoading(false); return; }
+      if (!res.ok) {
+        const friendly =
+          res.status === 409
+            ? "An application with this email already exists. Please check your application status."
+            : res.status === 429
+            ? "Too many application attempts. Please try again in an hour."
+            : data?.error || "Submission failed. Please try again.";
+        setError(friendly);
+        setLoading(false);
+        return;
+      }
       setOk(true);
     } catch (err: any) {
       setError(err.message || "Network error.");

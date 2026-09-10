@@ -14,6 +14,7 @@ const publicLinks = [
   { href: "/team", label: "Team" },
   { href: "/help-center", label: "Help Center" },
   { href: "/support", label: "Support" },
+  { href: "/become-pastor", label: "Become a Pastor" },
 ];
 
 export function Navbar() {
