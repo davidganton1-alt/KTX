@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "./ThemeToggle";
+import { SocialIcons } from "@/components/SocialIcons";
 import { useEffect, useState } from "react";
 
 const publicLinks = [
@@ -44,6 +45,10 @@ export function Navbar() {
             Kingdom<span className="gradient-text">TradeX</span>
           </span>
         </Link>
+
+        <div className="hidden md:flex ml-6">
+          <SocialIcons />
+        </div>
 
         <div className="hidden items-center gap-7 md:flex">
           {publicLinks.map((l) => {
