@@ -38,6 +38,7 @@ export function SiteFooter() {
           <div className="mt-3 flex flex-col gap-2 text-sm text-[var(--muted)]">
             <Link href="/team" className="hover:text-[var(--fg)]">Team</Link>
             <Link href="/become-pastor" className="hover:text-[var(--fg)]">Serve as a Pastor</Link>
+            <Link href="/pastor-application-status" className="hover:text-[var(--fg)]">Check Application Status</Link>
             <Link href="/support" className="hover:text-[var(--fg)]">Support</Link>
           </div>
         </div>

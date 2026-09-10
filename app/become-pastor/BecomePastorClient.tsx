@@ -91,6 +91,18 @@ export default function BecomePastorPage() {
                 Thank you. The admin will review your application and approve it if you are a fit to shepherd this community. You will then appear on the pastors list and can refer members.
               </p>
               <Link href="/team" className="btn-primary mt-5 inline-flex">Back to the team</Link>
+              <div className="mt-6 text-center">
+                <Link
+                  href="/pastor-application-status"
+                  className="inline-flex items-center gap-2 text-sm font-medium transition hover:text-[var(--gold)]"
+                  style={{ color: 'var(--muted)' }}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                  Check your application status
+                </Link>
+              </div>
             </GlowCard>
           ) : (
             <GlowCard className="p-6 md:p-8">
