@@ -28,6 +28,7 @@ export async function GET() {
     freeCreditUnlocked: u.deposited > 0,
     emailVerified: u.emailVerified,
     twoFactorEnabled: u.twoFactorEnabled,
+    hasSharedFirstWithdrawal: u.hasSharedFirstWithdrawal ?? false,
     pastorName: u.pastorName,
     pastorShareRate: u.pastorShareRate,
     referralBonusEarned: u.referralBonusEarned,

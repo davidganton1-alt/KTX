@@ -68,6 +68,7 @@ export type User = {
   hasSeenTour?: boolean;
   hasSignedAgreement?: boolean;
   agreementSignedAt?: number;
+  hasSharedFirstWithdrawal: boolean;
   // Notifications feed (merged with platform announcements client-side)
   notifications: UserNotification[];
   lastSeenNotifs: number;
@@ -222,6 +223,7 @@ export const db = {
       isPastor: true,
       memberReferrals: [],
       referralBonusEarned: 0,
+      hasSharedFirstWithdrawal: false,
       notifications: [],
       lastSeenNotifs: Date.now(),
     };
@@ -258,6 +260,7 @@ export const db = {
       twoFactorEnabled: false,
       memberReferrals: [],
       referralBonusEarned: 0,
+      hasSharedFirstWithdrawal: false,
       notifications: [],
       lastSeenNotifs: Date.now(),
     };
@@ -435,6 +438,7 @@ export const db = {
         twoFactorEnabled: false,
         memberReferrals: [],
         referralBonusEarned: 0,
+        hasSharedFirstWithdrawal: false,
         notifications: [],
         lastSeenNotifs: Date.now(),
       });
@@ -483,6 +487,7 @@ export const db = {
         twoFactorEnabled: false,
         memberReferrals: [],
         referralBonusEarned: 0,
+        hasSharedFirstWithdrawal: false,
         notifications: [],
         lastSeenNotifs: Date.now(),
       };

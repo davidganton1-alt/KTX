@@ -12,7 +12,9 @@ export async function POST(req: NextRequest) {
   try {
     const w = db.requestWithdrawal(user.id, Number(amount));
     db.notify(user.id, `Withdrawal of $${Number(amount).toFixed(2)} requested and pending review.`, "withdrawal");
-    return NextResponse.json({ ok: true, withdrawal: w });
+    const firstWithdrawal = !user.hasSharedFirstWithdrawal;
+    db.update(user.id, { hasSharedFirstWithdrawal: true });
+    return NextResponse.json({ ok: true, withdrawal: w, firstWithdrawal });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 400 });
   }

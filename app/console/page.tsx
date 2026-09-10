@@ -6,6 +6,8 @@ import { ProEngine } from "@/components/ProEngine";
 import { TierComparison } from "@/components/TierComparison";
 import { PortfolioChart } from "@/components/PortfolioChart";
 import { TradingAgreementModal } from "@/components/TradingAgreementModal";
+import { ShareGate } from "@/components/ShareGate";
+import { SOCIAL_URLS } from "@/lib/social";
 import { SpotlightTour } from "@/components/SpotlightTour";
 
 const fmt = (p: number) => p >= 1000 ? p.toLocaleString(undefined, { maximumFractionDigits: 0 }) : p.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -38,6 +40,7 @@ export default function ConsolePage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showTierModal, setShowTierModal] = useState(false);
   const [showAgreement, setShowAgreement] = useState(false);
+  const [showWithdrawShare, setShowWithdrawShare] = useState(false);
   const [depositAmount, setDepositAmount] = useState("");
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const [actionMsg, setActionMsg] = useState("");
@@ -92,7 +95,14 @@ export default function ConsolePage() {
     try {
       const res = await fetch("/api/wallet/withdraw", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ amount: Number(withdrawAmount) }) });
       const data = await res.json();
-      if (res.ok) { setActionMsg(`Withdrawal of $${Number(withdrawAmount).toFixed(2)} successful!`); setWithdrawAmount(""); loadWallet(); }
+      if (res.ok) {
+        setActionMsg(`Withdrawal of $${Number(withdrawAmount).toFixed(2)} successful!`);
+        setWithdrawAmount("");
+        if (data.firstWithdrawal) {
+          setShowWithdrawShare(true);
+        }
+        loadWallet();
+      }
       else setActionMsg(data.error || "Withdrawal failed.");
     } catch { setActionMsg("Network error."); }
   }
@@ -412,6 +422,18 @@ export default function ConsolePage() {
           }}
         />
       )}
+
+      <ShareGate
+        open={showWithdrawShare}
+        title="You Made a Withdrawal"
+        subtitle="Share your first profit withdrawal with the world. Choose one platform below."
+        platforms={['instagram', 'facebook', 'whatsapp', 'x']}
+        shareUrl={typeof window !== 'undefined' ? window.location.href : 'https://kingdomtradex.com'}
+        shareText="I just withdrew profit from KingdomTradeX. Faith-driven AI trading works."
+        mandatory={true}
+        onShared={() => setShowWithdrawShare(false)}
+        secondaryAction={{ label: 'Leave a Trustpilot review', url: SOCIAL_URLS.trustpilot }}
+      />
     </div>
   );
 }

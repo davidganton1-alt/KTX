@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { ShareGate } from "@/components/ShareGate";
+import { SOCIAL_URLS } from "@/lib/social";
 
 const RESEARCH_URL = 'https://github.com/davidganton1-alt/KTX';
 const LAUNCH_DATE = new Date('2026-10-08T00:00:00Z');
@@ -13,6 +15,7 @@ export default function WaitlistClient() {
   const [count, setCount] = useState(0);
   const [displayCount, setDisplayCount] = useState(0);
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [showShareGate, setShowShareGate] = useState(false);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -81,6 +84,7 @@ export default function WaitlistClient() {
         setStatus('success');
         setMessage(data.message);
         setEmail('');
+        setShowShareGate(true);
         setCount((c) => c + 1);
       } else {
         setStatus('error');
@@ -235,26 +239,6 @@ export default function WaitlistClient() {
               <p className="mt-1 text-sm" style={{ color: 'var(--muted)' }}>
                 {message}
               </p>
-              <div className="mt-4 flex flex-wrap justify-center gap-3">
-                <a
-                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="rounded-lg border px-4 py-2 text-xs font-bold transition hover:border-[var(--gold)]"
-                  style={{ borderColor: 'var(--border)', color: 'var(--fg)' }}
-                >
-                  Share on X
-                </a>
-                <a
-                  href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="rounded-lg border px-4 py-2 text-xs font-bold transition hover:border-[var(--gold)]"
-                  style={{ borderColor: 'var(--border)', color: 'var(--fg)' }}
-                >
-                  Share on Facebook
-                </a>
-              </div>
             </div>
           )}
           {status === 'error' && (
@@ -338,6 +322,17 @@ export default function WaitlistClient() {
           © {new Date().getFullYear()} KingdomTradeX. All rights reserved.
         </p>
       </footer>
+
+      <ShareGate
+        open={showShareGate}
+        title="Spread the Word"
+        subtitle="Share KingdomTradeX with your network to help us grow. Choose one platform below."
+        platforms={['tiktok', 'facebook', 'instagram', 'whatsapp', 'x']}
+        shareUrl={typeof window !== 'undefined' ? window.location.href : 'https://kingdomtradex.com/waitlist'}
+        shareText="Something big is coming. I just secured my spot on the KingdomTradeX waitlist."
+        mandatory={true}
+        onShared={() => setShowShareGate(false)}
+      />
     </div>
   );
 }
