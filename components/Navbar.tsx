@@ -11,7 +11,7 @@ const publicLinks = [
   { href: "/plans", label: "Plans" },
   { href: "/research", label: "Research" },
   { href: "/team", label: "Team" },
-  { href: "/faq", label: "FAQ" },
+  { href: "/help-center", label: "Help Center" },
   { href: "/support", label: "Support" },
 ];
 

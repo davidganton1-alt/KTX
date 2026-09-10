@@ -363,7 +363,7 @@ export default function ConsolePage() {
               <h3 className="text-lg font-bold text-[var(--fg)]">Support Center</h3>
               <p className="mt-2 text-sm text-[var(--muted)]">Need help? Our team is here for you.</p>
               <div className="mt-4 grid gap-4 md:grid-cols-2">
-                <a href="/faq" className="rounded-xl border border-[var(--border)] p-4 transition hover:border-[var(--gold)]">
+                <a href="/help-center" className="rounded-xl border border-[var(--border)] p-4 transition hover:border-[var(--gold)]">
                   <p className="font-bold text-[var(--fg)]">FAQ</p><p className="mt-1 text-xs text-[var(--muted)]">Answers to common questions</p>
                 </a>
                 <a href="mailto:support@kingdomtradex.com" className="rounded-xl border border-[var(--border)] p-4 transition hover:border-[var(--gold)]">

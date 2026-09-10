@@ -358,7 +358,7 @@ export default function PlansPage() {
             </details>
           ))}
         </div>
-        <div className="mt-6 text-center"><a href="/faq" className="text-sm text-[var(--gold)] hover:underline">See all questions</a></div>
+        <div className="mt-6 text-center"><a href="/help-center" className="text-sm text-[var(--gold)] hover:underline">See all questions</a></div>
       </Reveal>
 
       {/* ── CTA ── */}

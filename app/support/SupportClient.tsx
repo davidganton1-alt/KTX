@@ -98,7 +98,7 @@ export default function SupportPage() {
           <GlowCard className="p-6">
             <h3 className="font-bold text-[var(--fg)]">📖 Check the FAQ first</h3>
             <p className="mt-2 text-sm text-[var(--muted)]">Most questions are answered instantly in our Help Center.</p>
-            <Link href="/faq" className="mt-3 inline-block text-sm text-[var(--gold)] hover:underline">Browse FAQs →</Link>
+            <Link href="/help-center" className="mt-3 inline-block text-sm text-[var(--gold)] hover:underline">Browse FAQs →</Link>
           </GlowCard>
 
           <GlowCard className="p-6">
