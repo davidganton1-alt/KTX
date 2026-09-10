@@ -11,6 +11,7 @@ import { ParallaxOrbs } from "@/components/ParallaxOrbs";
 import { JsonLd } from "@/components/JsonLd";
 import { ScrollToBottom } from "@/components/ScrollToBottom";
 import Script from "next/script";
+import { ChatWidgetConditional } from "@/components/ChatWidget";
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://kingdomtradex.com'),
@@ -40,6 +41,7 @@ export default function RootLayout({
         <JsonLd />
         <ScrollToBottom />
         <ThemeProvider>
+          <ChatWidgetConditional />
           <SiteBackground />
           <ScrollProgress />
           <ParallaxOrbs />
