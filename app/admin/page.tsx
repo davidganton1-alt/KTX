@@ -28,6 +28,7 @@ export default function AdminPage() {
   const [pastors, setPastors] = useState<any[]>([]);
   const [apps, setApps] = useState<any[]>([]);
   const [withdrawals, setWithdrawals] = useState<any[]>([]);
+  const [emailLog, setEmailLog] = useState<any[]>([]);
   const [announcements, setAnnouncements] = useState<any[]>([]);
 
   const [engineMode, setEngineMode] = useState<"demo" | "live">("demo");
@@ -70,6 +71,7 @@ export default function AdminPage() {
         setPastors(d.pastors ?? []);
         setApps(d.pastorApplications ?? []);
         setWithdrawals(d.withdrawals ?? []);
+        setEmailLog(d.emailLog ?? []);
         setAnnouncements(d.announcements ?? []);
       }
       if (engRes.ok) {
@@ -525,6 +527,28 @@ export default function AdminPage() {
                             </div>
                           </div>
                         )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Recent Emails — placeholder provider only; remove once a real provider is wired */}
+              <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] p-6">
+                <h3 className="mb-4 text-lg font-bold text-[var(--fg)]">Recent Emails</h3>
+                {emailLog.length === 0 ? (
+                  <p className="py-6 text-center text-sm text-[var(--muted)]">No emails logged yet. Approve or reject a pastor application to trigger one (placeholder provider).</p>
+                ) : (
+                  <div className="space-y-2">
+                    {emailLog.map((e: any) => (
+                      <div key={e.id} className="flex items-center justify-between gap-4 rounded-lg border border-[var(--border)] bg-[var(--card)] p-3">
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-bold text-[var(--fg)]">{e.subject}</p>
+                          <p className="truncate text-xs text-[var(--muted)]">{e.to} · {fmtDateTime(e.at)}</p>
+                        </div>
+                        <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${e.provider === "placeholder" ? "bg-[var(--gold)]/15 text-[var(--gold)]" : "bg-[var(--cyan)]/15 text-[var(--cyan)]"}`}>
+                          {e.provider}
+                        </span>
                       </div>
                     ))}
                   </div>

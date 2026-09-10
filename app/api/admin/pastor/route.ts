@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { pastorsDb } from "@/lib/pastorStore";
 import { getSession } from "@/lib/auth";
+import { sendEmail, pastorApprovalEmail, pastorRejectionEmail } from '@/lib/email';
 
 export const dynamic = "force-dynamic";
 
@@ -27,8 +28,24 @@ export async function POST(req: NextRequest) {
         const p = pastorsDb.setStatus(appId, status);
         if (!p) continue; // application vanished mid-loop; skip rather than fail the batch
         processed += 1;
-        if (status === "approved" && p.credentials) {
+        if (status === 'approved' && p.credentials) {
           credentials.push({ name: p.name, email: p.credentials.email, password: p.credentials.password });
+          // Send approval email (non-blocking; don't fail the batch on email error)
+          try {
+            const msg = pastorApprovalEmail({ name: p.name, email: p.credentials.email, password: p.credentials.password });
+            await sendEmail(msg);
+          } catch (emailErr) {
+            console.error(`[EMAIL] Failed to send to ${p.email}:`, emailErr);
+          }
+        } else if (status === 'rejected') {
+          // Send rejection email (non-blocking)
+          try {
+            const msg = pastorRejectionEmail({ name: p.name });
+            msg.to = p.email;
+            await sendEmail(msg);
+          } catch (emailErr) {
+            console.error(`[EMAIL] Failed to send rejection to ${p.email}:`, emailErr);
+          }
         }
       }
       return NextResponse.json({ ok: true, processed, credentials });
@@ -59,6 +76,18 @@ export async function POST(req: NextRequest) {
     }
     const p = pastorsDb.setStatus(id, status, shareRate, name, email);
     if (!p) return NextResponse.json({ error: "Pastor not found." }, { status: 404 });
+    // Single-review email (non-blocking; don't fail the action on email error)
+    try {
+      if (status === "approved" && p.credentials) {
+        await sendEmail(pastorApprovalEmail({ name: p.name, email: p.credentials.email, password: p.credentials.password }));
+      } else if (status === "rejected") {
+        const msg = pastorRejectionEmail({ name: p.name });
+        msg.to = p.email;
+        await sendEmail(msg);
+      }
+    } catch (emailErr) {
+      console.error(`[EMAIL] Failed to send to ${p.email}:`, emailErr);
+    }
     return NextResponse.json({ ok: true, pastor: p });
   } catch (e: any) {
     return NextResponse.json({ error: e.message || "Failed." }, { status: 400 });

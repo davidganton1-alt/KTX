@@ -43,6 +43,29 @@ export type Pastor = {
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const FILE = path.join(DATA_DIR, "pastors.json");
+const EMAILS_FILE = path.join(DATA_DIR, "emails.json");
+
+export type EmailLogEntry = {
+  id: string;
+  to: string;
+  subject: string;
+  provider: string;
+  messageId: string;
+  at: number;
+};
+
+function readEmails(): EmailLogEntry[] {
+  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+  try {
+    return JSON.parse(fs.readFileSync(EMAILS_FILE, "utf8"));
+  } catch {
+    return [];
+  }
+}
+function writeEmails(list: EmailLogEntry[]) {
+  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+  fs.writeFileSync(EMAILS_FILE, JSON.stringify(list, null, 2));
+}
 
 function ensure() {
   if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -239,4 +262,11 @@ export const pastorsDb = {
     write(list);
     return list[i];
   },
+  // ── Email log (placeholder provider audit trail) ──
+  recordEmail: (to: string, subject: string, provider: string, messageId: string): void => {
+    const list = readEmails();
+    list.unshift({ id: crypto.randomUUID(), to, subject, provider, messageId, at: Date.now() });
+    writeEmails(list.slice(0, 200)); // cap so the file never grows unbounded
+  },
+  recentEmails: (n = 10): EmailLogEntry[] => readEmails().slice(0, n),
 };

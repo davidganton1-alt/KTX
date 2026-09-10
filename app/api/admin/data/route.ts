@@ -71,6 +71,7 @@ export async function GET() {
     withdrawals,
     pastors,
     pastorApplications,
+    emailLog: pastorsDb.recentEmails(10),
     announcements: announcementsDb.all(),
   });
 }
