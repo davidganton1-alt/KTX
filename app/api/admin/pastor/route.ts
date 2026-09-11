@@ -18,7 +18,14 @@ async function finalizeApproval(appId: string) {
   if (!p) return null;
   let credentials: { email: string; password: string } | undefined;
   try {
-    const acct = await ensureSupabasePastorAccount(p.id, p.email, p.name);
+    // the JSON login account created by ensurePastorAccount has its own id
+    // (not the pastor-record id) — map THAT to the Supabase profile id
+    const jsonUser = db.findByEmail(p.email);
+    const acct = await ensureSupabasePastorAccount(
+      jsonUser?.id || p.id,
+      p.email,
+      p.name
+    );
     if (acct.created && acct.password) credentials = { email: p.email, password: acct.password };
     else if (acct.created) credentials = undefined; // pre-existing account: no recoverable pw
   } catch (e: any) {
