@@ -29,7 +29,14 @@ export async function POST(req: NextRequest) {
     tick = Math.min(tickSize, remaining);
     // small live randomness so the ticker feels alive
     tick = +(tick * (0.6 + Math.random() * 0.8)).toFixed(4);
-    db.accrueAmount(u.id, tick);
+    const after = db.accrueAmount(u.id, tick);
+    // keep the Supabase funds ledger in step with the live ticker
+    if (after) {
+      const { supabaseIdFor } = await import("@/lib/auth");
+      const { syncWalletFromJson } = await import("@/lib/wallet");
+      const sid = supabaseIdFor(u.id);
+      if (sid) await syncWalletFromJson(sid, after);
+    }
   }
 
   // synthetic trade

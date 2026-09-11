@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/store";
 import { pastorsDb } from "@/lib/pastorStore";
 import { announcementsDb } from "@/lib/announcements";
-import { getSession } from "@/lib/auth";
+import { getSession, supabaseIdFor } from "@/lib/auth";
+import { supabaseAdmin } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
 
@@ -25,6 +26,26 @@ export async function GET() {
     pastorShareRate: u.pastorShareRate,
     suspended: u.suspended || false,
   }));
+
+  // Overlay funds from the Supabase wallets ledger where mapped (authoritative)
+  try {
+    const { data: sbWallets } = await supabaseAdmin.from("wallets").select("user_id, principal, profit, free_credit, tier");
+    if (sbWallets) {
+      const bySupa = new Map(sbWallets.map((w: any) => [w.user_id, w]));
+      for (const row of users) {
+        const sid = supabaseIdFor(row.id);
+        const w = sid ? bySupa.get(sid) : undefined;
+        if (w) {
+          row.deposited = Number(w.principal);
+          row.profit = Number(w.profit);
+          row.balance = Number(w.principal) + Number(w.free_credit) + Number(w.profit);
+          if (w.tier && w.tier !== "none") row.tier = w.tier;
+        }
+      }
+    }
+  } catch (e: any) {
+    console.error("[admin/data] wallet overlay failed:", e.message);
+  }
 
   const withdrawals = db
     .findAll()

@@ -1,5 +1,34 @@
 import { supabaseAdmin } from '@/lib/supabase';
 import { cookies } from 'next/headers';
+import fs from 'fs';
+import path from 'path';
+
+// ── ID bridging (Phase 2 migration window) ──
+// Supabase auth returns Supabase uuids; the JSON stores (users.json, pastors,
+// chat) are keyed by the legacy ids. data/sb-id-mapping.json links them.
+let _supaToJson: Record<string, string> | null = null;
+let _jsonToSupa: Record<string, string> | null = null;
+function loadMapping() {
+  if (_supaToJson) return;
+  try {
+    const m = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'sb-id-mapping.json'), 'utf8'));
+    _supaToJson = Object.fromEntries(Object.entries(m).map(([j, s]) => [s as string, j as string]));
+    _jsonToSupa = m as Record<string, string>;
+  } catch {
+    _supaToJson = {};
+    _jsonToSupa = {};
+  }
+}
+/** Supabase uuid -> legacy JSON user id (falls through to itself if unmapped). */
+export function legacyIdFor(supabaseId: string): string {
+  loadMapping();
+  return _supaToJson![supabaseId] || supabaseId;
+}
+/** Legacy JSON user id -> Supabase uuid (null if unmapped). */
+export function supabaseIdFor(jsonId: string): string | null {
+  loadMapping();
+  return _jsonToSupa![jsonId] || null;
+}
 
 export interface SessionUser {
   id: string;
@@ -97,7 +126,7 @@ export async function requireActiveSession() {
   
   // For routes still using JSON storage, check suspension
   const { db } = await import('@/lib/store');
-  const user = db.findById(session.id);
+  const user = db.findById(legacyIdFor(session.id));
   if (!user || user.suspended) return null;
   
   return user; // full User record — callers use .notifications, .wallet fields, etc.

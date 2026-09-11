@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/store";
-import { getSession } from "@/lib/auth";
+import { getSession, legacyIdFor } from "@/lib/auth";
 import { INVITATION_RULES } from "@/lib/trustpilot";
 
 export const dynamic = 'force-dynamic';
@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    const user = db.findById(session.id);
+    const user = db.findById(legacyIdFor(session.id));
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
       status: 'sent',
     };
 
-    db.update(session.id, {
+    db.update(legacyIdFor(session.id), {
       trustpilotInvitations: [...(user.trustpilotInvitations || []), invitation],
     });
 

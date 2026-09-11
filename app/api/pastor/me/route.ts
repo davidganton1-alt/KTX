@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/store";
 import { pastorsDb } from "@/lib/pastorStore";
-import { getSession } from "@/lib/auth";
+import { getSession, legacyIdFor } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   const s = await getSession();
   if (!s) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-  const me = db.findById(s.id);
+  const me = db.findById(legacyIdFor(s.id));
   if (!me || !me.isPastor) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
