@@ -22,10 +22,18 @@ function loadMapping() {
 /** Supabase uuid -> legacy JSON user id (falls through to itself if unmapped). */
 export function legacyIdFor(supabaseId: string): string {
   loadMapping();
+  if (_supaToJson![supabaseId]) return _supaToJson![supabaseId];
+  // mapping file may have grown at runtime (new pastor approvals) — reload once
+  _supaToJson = null;
+  loadMapping();
   return _supaToJson![supabaseId] || supabaseId;
 }
 /** Legacy JSON user id -> Supabase uuid (null if unmapped). */
 export function supabaseIdFor(jsonId: string): string | null {
+  loadMapping();
+  if (_jsonToSupa![jsonId]) return _jsonToSupa![jsonId];
+  _jsonToSupa = null;
+  _supaToJson = null;
   loadMapping();
   return _jsonToSupa![jsonId] || null;
 }

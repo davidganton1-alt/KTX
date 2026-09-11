@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { pastorsDb } from "@/lib/pastorStore";
+import { supabaseAdmin } from "@/lib/supabase";
+import { mirrorApplication } from "@/lib/pastorMirror";
 
 export const dynamic = "force-dynamic";
 
@@ -12,7 +14,8 @@ declare global {
 
 // Public: anyone can apply to be listed as a pastor. The application lands as
 // "pending" and must be approved by an admin before the pastor is active and
-// can refer members.
+// can refer members. Supabase pastor_applications is the record of truth;
+// the JSON roster is mirrored during the migration window.
 export async function POST(req: NextRequest) {
   try {
     const { name, email, phone, ministry, message } = await req.json();
@@ -20,12 +23,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Name and email are required." }, { status: 400 });
     }
 
-    // Rate limiting: check for duplicate applications by email
-    const existingApplication = pastorsDb.all().find(
+    // Rate limiting: check for duplicate applications by email (Supabase first)
+    const { data: dupApp } = await supabaseAdmin
+      .from("pastor_applications")
+      .select("id")
+      .ilike("email", String(email))
+      .maybeSingle();
+    const jsonDup = pastorsDb.all().find(
       (app: any) => app.email.toLowerCase() === String(email).toLowerCase()
     );
 
-    if (existingApplication) {
+    if (dupApp || jsonDup) {
       return NextResponse.json(
         { error: 'An application with this email already exists. Please check your application status.' },
         { status: 409 }
@@ -59,7 +67,8 @@ export async function POST(req: NextRequest) {
     rateLimitStore.set(ip, recentAttempts);
 
     const p = pastorsDb.createApplication({ name, email, phone, ministry, message });
-    return NextResponse.json({ ok: true, id: p.id, status: p.status });
+    const sbId = await mirrorApplication(p);
+    return NextResponse.json({ ok: true, id: p.id, supabaseId: sbId, status: p.status });
   } catch (e: any) {
     return NextResponse.json({ error: e.message || "Application failed." }, { status: 400 });
   }

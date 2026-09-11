@@ -87,6 +87,56 @@ export async function GET() {
       createdAt: p.createdAt,
     }));
 
+  // Overlay pastor roster + applications from Supabase (record of truth)
+  try {
+    const [{ data: sbRoster }, { data: sbApps }] = await Promise.all([
+      supabaseAdmin.from("pastors").select("user_id, name, email, ministry, share_rate, earned_total, referrals, events, payouts, profit_history, created_at"),
+      supabaseAdmin.from("pastor_applications").select("id, name, email, ministry, message, share_rate, created_at, status").eq("status", "pending"),
+    ]);
+    if (sbRoster && sbRoster.length) {
+      pastors.length = 0;
+      for (const r of sbRoster as any[]) {
+        const earned = Number(r.earned_total || 0);
+        const pays = (r.payouts || []) as any[];
+        const committed = pays
+          .filter((x) => x.status === "approved" || x.status === "pending")
+          .reduce((s, x) => s + Number(x.amount), 0);
+        // actions (set-rate/payout) still run against the JSON store: expose
+        // its id when we can resolve it, else fall back for display-only rows
+        const jsonMatch = pastorsDb.all().find((x) => x.email.toLowerCase() === String(r.email || "").toLowerCase());
+        pastors.push({
+          id: jsonMatch?.id || r.user_id || r.email,
+          name: r.name,
+          email: r.email,
+          ministry: r.ministry,
+          shareRate: Number(r.share_rate),
+          earnedTotal: earned,
+          available: +(earned - committed).toFixed(4),
+          referrals: r.referrals,
+          payouts: pays,
+          profitHistory: r.profit_history || [],
+        });
+      }
+    }
+    if (sbApps) {
+      pastorApplications.length = 0;
+      for (const arow of sbApps as any[]) {
+        const jsonMatch = pastorsDb.all().find((x) => x.email.toLowerCase() === String(arow.email || "").toLowerCase());
+        pastorApplications.push({
+          id: jsonMatch?.id || arow.id, // actions run on the JSON store; Supabase id only if unmapped
+          name: arow.name,
+          email: arow.email,
+          ministry: arow.ministry,
+          message: arow.message,
+          shareRate: Number(arow.share_rate),
+          createdAt: arow.created_at ? new Date(arow.created_at).getTime() : Date.now(),
+        });
+      }
+    }
+  } catch (e: any) {
+    console.error("[admin/data] pastor overlay failed:", e.message);
+  }
+
   return NextResponse.json({
     users,
     withdrawals,
