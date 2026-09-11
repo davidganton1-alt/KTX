@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 // Accrue today's profit for the calling user (idempotent per day).
 export async function POST(req: NextRequest) {
-  const user = getSession();
+  const user = await getSession();
   if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   const u = db.accrueDaily(user.id);
   return NextResponse.json({

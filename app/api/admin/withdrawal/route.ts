@@ -5,7 +5,7 @@ import { getSession } from "@/lib/auth";
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
-  const admin = getSession();
+  const admin = await getSession();
   if (!admin || admin.role !== "admin")
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 

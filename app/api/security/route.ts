@@ -12,7 +12,7 @@ function totpSecret() {
 }
 
 export async function POST(req: NextRequest) {
-  const user = getSession();
+  const user = await getSession();
   if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   const { action } = await req.json();
 

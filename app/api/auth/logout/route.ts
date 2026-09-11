@@ -10,6 +10,6 @@ export async function POST() {
 }
 
 export async function GET() {
-  const user = getSession();
+  const user = await getSession();
   return NextResponse.json({ user });
 }

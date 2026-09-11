@@ -5,7 +5,7 @@ import { db } from "@/lib/store";
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
-  const session = getSession();
+  const session = await getSession();
   if (!session) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
   const { agreedAt } = await req.json().catch(() => ({}));
@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET() {
-  const session = getSession();
+  const session = await getSession();
   if (!session) return NextResponse.json({ signed: false });
   const user = db.findById(session.id);
   return NextResponse.json({

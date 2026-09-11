@@ -11,7 +11,7 @@ const SIDES = ["BUY", "SELL"] as const;
 // seconds), capped so total never exceeds the daily target. Also emits a
 // synthetic trade so the user sees the AI "working".
 export async function POST(req: NextRequest) {
-  const u = requireActiveSession();
+  const u = await requireActiveSession();
   if (!u) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   if (u.dailyRate <= 0 || u.deposited <= 0)
     return NextResponse.json({ ok: true, tick: 0, trade: null });

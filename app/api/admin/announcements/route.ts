@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 // Admin: create a platform announcement (shown on every member & pastor panel).
 export async function POST(req: NextRequest) {
-  const admin = getSession();
+  const admin = await getSession();
   if (!admin) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   if (admin.role !== "admin") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  const admin = getSession();
+  const admin = await getSession();
   if (!admin) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   if (admin.role !== "admin") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 

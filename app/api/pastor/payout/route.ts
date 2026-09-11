@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 // Pastor requests a payout of their available earnings.
 export async function POST(req: NextRequest) {
-  const s = getSession();
+  const s = await getSession();
   if (!s) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   const me = db.findById(s.id);
   if (!me || !me.isPastor) return NextResponse.json({ error: "Forbidden" }, { status: 403 });

@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 // have referred (members linked to them), activity feed, payout history and
 // shareable referral link.
 export async function GET() {
-  const s = getSession();
+  const s = await getSession();
   if (!s) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   const me = db.findById(s.id);
   if (!me || !me.isPastor) {

@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 // Admin only: approve/reject pastor applications, edit share rates, and
 // approve/reject pastor payout requests.
 export async function POST(req: NextRequest) {
-  const admin = getSession();
+  const admin = await getSession();
   if (!admin) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   if (admin.role !== "admin") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   try {

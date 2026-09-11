@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 // Member referral program: your invite code/link, and the members you invited.
 export async function GET() {
-  const u = requireActiveSession();
+  const u = await requireActiveSession();
   if (!u) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
   const code = db.ensureReferralCode(u.id);

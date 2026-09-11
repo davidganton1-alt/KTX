@@ -6,7 +6,7 @@ import { requireActiveSession } from "@/lib/auth";
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
-  const user = requireActiveSession();
+  const user = await requireActiveSession();
   if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
   const { amount, tier } = await req.json();

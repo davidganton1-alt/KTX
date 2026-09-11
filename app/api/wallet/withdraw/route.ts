@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 // Withdraw PROFIT only. Principal (deposits + free credit) is never withdrawn.
 export async function POST(req: NextRequest) {
-  const user = requireActiveSession();
+  const user = await requireActiveSession();
   if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   const { amount } = await req.json();
   try {

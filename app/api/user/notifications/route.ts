@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 // Merged notifications feed: personal notifications + platform announcements.
 // Visiting marks personal notifications as seen (clears the badge).
 export async function GET() {
-  const u = requireActiveSession();
+  const u = await requireActiveSession();
   if (!u) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
   const unread = u.notifications.filter((n) => n.at > u.lastSeenNotifs).length;

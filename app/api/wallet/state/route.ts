@@ -5,7 +5,7 @@ import { getSession } from "@/lib/auth";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const user = getSession();
+  const user = await getSession();
   if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   const u = db.findById(user.id);
   if (!u) return NextResponse.json({ error: "Not found" }, { status: 404 });

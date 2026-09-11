@@ -7,7 +7,7 @@ import { getSession } from "@/lib/auth";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const admin = getSession();
+  const admin = await getSession();
   if (!admin) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   if (admin.role !== "admin") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
