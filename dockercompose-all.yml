@@ -49,6 +49,9 @@ services:
       # Persistent git repo + source code (Docker-managed named volume)
       # Data folder only (separate from main data)
       - C:/Users/hp/KingdomTradeX-GitHub-Site/data:/app/data
+      # Supabase env (anon + service_role keys). NOT baked into the image and
+      # NOT committed; git-bash tar sends .env.local but the Dockerfile never COPYs it.
+      - C:/Users/hp/KingdomTradeX-GitHub-Site/.env.local:/app/.env.local:ro
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3001/"]
       interval: 30s

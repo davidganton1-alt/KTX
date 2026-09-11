@@ -1,68 +1,80 @@
-import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/store";
-import { pastorsDb } from "@/lib/pastorStore";
-import { AUTH_COOKIE, signSession } from "@/lib/auth";
-import { sendVerificationEmail } from "@/lib/email";
-import { randomBytes } from "crypto";
+import { NextRequest, NextResponse } from 'next/server';
+import { supabaseAdmin } from '@/lib/supabase';
+import { setSessionCookie } from '@/lib/auth';
 
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
   try {
-    const { name, email, password, pastor, refCode } = await req.json();
-    if (!name || !email || !password) {
-      return NextResponse.json(
-        { error: "Name, email and password are required." },
-        { status: 400 }
-      );
-    }
-    if (password.length < 8) {
-      return NextResponse.json(
-        { error: "Password must be at least 8 characters." },
-        { status: 400 }
-      );
-    }
-    const user = db.create({ name, email, password });
+    const { email, password, name } = await req.json();
 
-    // Link the new member to a pastor if a valid approved pastor name was given.
-    if (pastor && typeof pastor === "string" && pastor.trim()) {
-      const p = pastorsDb.findApprovedByName(pastor);
-      if (p) {
-        db.update(user.id, {
-          referredBy: p.id,
-          pastorName: p.name,
-          pastorShareRate: p.shareRate,
-        });
-        pastorsDb.addReferral(p.id, name);
-      }
+    if (!email || !password || !name) {
+      return NextResponse.json({ error: 'Name, email and password required' }, { status: 400 });
     }
 
-    // Member referral program: link via invite code if provided.
-    if (refCode && typeof refCode === "string" && refCode.trim()) {
-      const referrer = db.findByReferralCode(refCode.trim());
-      if (referrer && referrer.id !== user.id) {
-        db.linkMemberReferral(user.id, referrer.id, name);
-      }
-    }
-
-    // Generate verification token
-    const verifyToken = require("crypto").randomBytes(32).toString("hex");
-
-    // Update user with verification token (correct 2-arg signature)
-    db.update(user.id, { 
-      verifyToken,
-      emailVerified: false 
+    // Create user in Supabase Auth
+    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true, // Auto-confirm email for now
+      user_metadata: { name },
     });
 
-    // Send verification email (Dev Mode logs to console)
-    const verifyLink = sendVerificationEmail(email, verifyToken);
+    if (authError || !authData.user) {
+      return NextResponse.json({ error: authError?.message || 'Registration failed' }, { status: 400 });
+    }
 
-    return NextResponse.json({ 
-      success: true, 
-      verifyLink, // Return for Dev Mode UI display
-      message: "Account created. Please verify your email to continue." 
+    // Create profile
+    const { error: profileError } = await supabaseAdmin
+      .from('profiles')
+      .insert({
+        id: authData.user.id,
+        email,
+        name,
+        role: 'user',
+      });
+
+    if (profileError) {
+      // Rollback: delete the auth user
+      await supabaseAdmin.auth.admin.deleteUser(authData.user.id);
+      return NextResponse.json({ error: 'Profile creation failed' }, { status: 500 });
+    }
+
+    // Create wallet with $50 free credit
+    const { error: walletError } = await supabaseAdmin
+      .from('wallets')
+      .insert({
+        user_id: authData.user.id,
+        free_credit: 50,
+      });
+
+    if (walletError) {
+      console.error('Wallet creation failed:', walletError);
+      // Don't rollback user for wallet failure, just log it
+    }
+
+    // Sign in the user immediately
+    const { data: signInData, error: signInError } = await supabaseAdmin.auth.signInWithPassword({
+      email,
+      password,
     });
-  } catch (e: any) {
-    return NextResponse.json({ error: e.message || "Registration failed." }, { status: 400 });
+
+    if (signInError || !signInData.session) {
+      return NextResponse.json({ error: 'Auto-login failed' }, { status: 500 });
+    }
+
+    setSessionCookie(signInData.session.access_token);
+
+    return NextResponse.json({
+      user: {
+        id: authData.user.id,
+        email,
+        name,
+        role: 'user',
+      },
+    });
+  } catch (error: any) {
+    console.error('Register error:', error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

@@ -1,58 +1,53 @@
-import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/store";
-import { AUTH_COOKIE, signSession } from "@/lib/auth";
+import { NextRequest, NextResponse } from 'next/server';
+import { supabaseAdmin } from '@/lib/supabase';
+import { setSessionCookie } from '@/lib/auth';
 
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
   try {
-    db.seedAdmin();
-    db.seedDemoUser();
     const { email, password } = await req.json();
+
     if (!email || !password) {
-      return NextResponse.json(
-        { error: "Email and password are required." },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Email and password required' }, { status: 400 });
     }
-    const user = db.verifyPassword(email, password);
-    if (!user) {
-      return NextResponse.json(
-        { error: "Invalid email or password." },
-        { status: 401 }
-      );
+
+    // Authenticate with Supabase
+    const { data, error } = await supabaseAdmin.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error || !data.user || !data.session) {
+      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
-    if (user.suspended) {
-      return NextResponse.json(
-        { error: "This account has been suspended. Please contact support." },
-        { status: 403 }
-      );
+
+    // Fetch profile
+    const { data: profile, error: profileError } = await supabaseAdmin
+      .from('profiles')
+      .select('*')
+      .eq('id', data.user.id)
+      .single();
+
+    if (profileError || !profile) {
+      return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
     }
-    // Block unverified users
-    if (!user.emailVerified) {
-      return NextResponse.json(
-        { error: "Please verify your email before signing in. Check your inbox or the link shown during registration." },
-        { status: 403 }
-      );
-    }
-    const token = signSession(user);
-    const res = NextResponse.json({
+
+    // Set session cookie
+    setSessionCookie(data.session.access_token);
+
+    return NextResponse.json({
       user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        isPastor: user.isPastor || false,
+        id: profile.id,
+        email: profile.email,
+        name: profile.name,
+        role: profile.role,
+        isPastor: profile.is_pastor,
+        hasSignedAgreement: profile.has_signed_agreement,
       },
     });
-    res.cookies.set(AUTH_COOKIE, token, {
-      httpOnly: true,
-      sameSite: "lax",
-      path: "/",
-      maxAge: 60 * 60 * 24 * 7,
-    });
-    return res;
-  } catch {
-    return NextResponse.json({ error: "Login failed." }, { status: 500 });
+  } catch (error: any) {
+    console.error('Login error:', error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

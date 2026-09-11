@@ -1,21 +1,18 @@
-import { NextResponse } from "next/server";
-import { getSession } from "@/lib/auth";
-import { db } from "@/lib/store";
+import { NextResponse } from 'next/server';
+import { getSession } from '@/lib/auth';
 
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  const session = getSession();
-  if (!session) return NextResponse.json({ role: null, isPastor: false });
-  
-  // Fetch full user to check isPastor status
-  const user = db.findById(session.id);
-  
-  return NextResponse.json({
-    role: session.role,
-    name: session.name,
-    isPastor: user?.isPastor ?? false,
-    hasSeenTour: user?.hasSeenTour ?? false,
-    hasSignedAgreement: user?.hasSignedAgreement ?? false,
-  });
+  try {
+    const session = await getSession();
+    
+    if (!session) {
+      return NextResponse.json({ user: null });
+    }
+
+    return NextResponse.json({ user: session });
+  } catch (error: any) {
+    return NextResponse.json({ user: null, error: error.message });
+  }
 }
