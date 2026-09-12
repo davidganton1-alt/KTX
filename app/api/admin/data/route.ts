@@ -144,7 +144,70 @@ export async function GET() {
     pastorApplications,
     emailLog: pastorsDb.recentEmails(10),
     announcements: await loadAnnouncements(),
+    flockMembers: await loadFlockMembers(),
+    pastorEarnings: await loadPastorEarnings(),
   });
+}
+
+// Prompt 5: flock + earnings audit trail from Supabase (fallback: JSON stores)
+async function loadFlockMembers() {
+  try {
+    const { data } = await supabaseAdmin
+      .from("flock_members")
+      .select("pastor_id, user_id, joined_at, total_contributed, pastor:pastors(name, email), member:profiles(name, email)")
+      .order("joined_at", { ascending: false })
+      .limit(200);
+    if (data && data.length) {
+      return data.map((r: any) => ({
+        pastorName: r.pastor?.name ?? null,
+        pastorEmail: r.pastor?.email ?? null,
+        memberName: r.member?.name ?? null,
+        memberEmail: r.member?.email ?? null,
+        joinedAt: r.joined_at ? new Date(r.joined_at).getTime() : 0,
+        totalContributed: Number(r.total_contributed || 0),
+      }));
+    }
+  } catch (e: any) {
+    console.error("[admin/data] flock read failed:", e.message);
+  }
+  // JSON fallback: referredBy links on users + pastor roster names
+  return db
+    .findAll()
+    .filter((u) => u.referredBy)
+    .map((u) => {
+      const pastor = pastorsDb.findById(u.referredBy!);
+      return {
+        pastorName: pastor?.name ?? u.pastorName ?? null,
+        pastorEmail: pastor?.email ?? null,
+        memberName: u.name,
+        memberEmail: u.email,
+        joinedAt: u.createdAt,
+        totalContributed: 0,
+      };
+    });
+}
+
+async function loadPastorEarnings() {
+  try {
+    const { data } = await supabaseAdmin
+      .from("pastor_earnings")
+      .select("pastor:pastors(name), member:profiles(name), amount, source, notes, created_at")
+      .order("created_at", { ascending: false })
+      .limit(100);
+    if (data && data.length) {
+      return data.map((r: any) => ({
+        pastorName: r.pastor?.name ?? null,
+        memberName: r.member?.name ?? null,
+        amount: Number(r.amount),
+        source: r.source,
+        notes: r.notes,
+        at: r.created_at ? new Date(r.created_at).getTime() : 0,
+      }));
+    }
+  } catch (e: any) {
+    console.error("[admin/data] earnings read failed:", e.message);
+  }
+  return [];
 }
 
 // announcements: Supabase is the record of truth; JSON mirror as fallback

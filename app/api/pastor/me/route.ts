@@ -40,11 +40,45 @@ export async function GET() {
   try {
     const { data } = await supabaseAdmin
       .from("pastors")
-      .select("share_rate, earned_total, events, payouts, profit_history")
+      .select("id, share_rate, earned_total, events, payouts, profit_history")
       .ilike("email", me.email)
       .maybeSingle();
     sb = data;
   } catch {}
+
+  // STEP 8 (Prompt 5): earnings audit trail + flock from Supabase when present
+  let earnings: any[] = [];
+  let flock: { id: string; name: string; email: string; totalContributed: number }[] = [];
+  try {
+    if (sb?.id) {
+      const [{ data: earn }, { data: fl }] = await Promise.all([
+        supabaseAdmin
+          .from("pastor_earnings")
+          .select("amount, source, notes, created_at")
+          .eq("pastor_id", sb.id)
+          .order("created_at", { ascending: false })
+          .limit(100),
+        supabaseAdmin
+          .from("flock_members")
+          .select("user_id, total_contributed, profiles(name, email)")
+          .eq("pastor_id", sb.id),
+      ]);
+      earnings = (earn ?? []).map((r: any) => ({
+        amount: Number(r.amount),
+        source: r.source,
+        notes: r.notes,
+        at: r.created_at ? new Date(r.created_at).getTime() : 0,
+      }));
+      flock = (fl ?? []).map((r: any) => ({
+        id: r.user_id,
+        name: r.profiles?.name ?? "Member",
+        email: r.profiles?.email ?? "",
+        totalContributed: Number(r.total_contributed || 0),
+      }));
+    }
+  } catch (e: any) {
+    console.error("[pastor/me] earnings/flock read failed:", e.message);
+  }
 
   const earned = sb ? Number(sb.earned_total) : (pastor?.earnedTotal ?? 0);
   const shareRate = sb ? Number(sb.share_rate) : (pastor?.shareRate ?? 5);
@@ -92,15 +126,34 @@ export async function GET() {
       }));
   }
 
+  // Prefer the Supabase flock (record of truth) when populated; merge in
+  // tier/deposit detail from JSON where the member is known.
+  const finalReferrals = flock.length
+    ? flock.map((f) => {
+        const j = referred.find((r) => legacyIdFor(f.id) === r.id || r.id === f.id);
+        return {
+          id: f.id,
+          name: f.name,
+          email: f.email,
+          tier: j?.tier ?? "none",
+          deposited: j?.deposited ?? 0,
+          profit: j?.profit ?? 0,
+          pastorShareRate: j?.pastorShareRate ?? shareRate,
+          totalContributed: f.totalContributed,
+        };
+      })
+    : referred;
+
   return NextResponse.json({
     name: me.name,
     email: me.email,
     earnedTotal: earned,
     available,
     shareRate,
-    referrals: referred,
-    referralsCount: referred.length,
+    referrals: finalReferrals,
+    referralsCount: finalReferrals.length,
     inviteLink,
+    earnings,
     events: events.slice(0, 30),
     payouts,
     profitHistory,

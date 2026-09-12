@@ -3,6 +3,7 @@ import { requireActiveSession, supabaseIdFor } from "@/lib/auth";
 import { db } from "@/lib/store";
 import { supabaseAdmin } from "@/lib/supabase";
 import { syncWalletFromJson } from "@/lib/wallet";
+import { accruePastorShare } from "@/lib/pastorAccrual";
 
 export const dynamic = "force-dynamic";
 
@@ -31,6 +32,9 @@ export async function POST(_req: NextRequest) {
           notes: "daily accrual",
         });
       if (error) console.error("[accrue] transaction insert failed:", error.message);
+      // mirror the pastor share into the Supabase audit trail (JSON credit
+      // already happened inside db.accrueDaily)
+      await accruePastorShare(u.id, gained);
     }
     await syncWalletFromJson(sid, updated);
   }

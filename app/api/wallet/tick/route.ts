@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/store";
 import { requireActiveSession } from "@/lib/auth";
+import { accruePastorShare } from "@/lib/pastorAccrual";
 
 export const dynamic = "force-dynamic";
 
@@ -36,6 +37,8 @@ export async function POST(req: NextRequest) {
       const { syncWalletFromJson } = await import("@/lib/wallet");
       const sid = supabaseIdFor(u.id);
       if (sid) await syncWalletFromJson(sid, after);
+      // mirror the pastor share of this tick into the Supabase audit trail
+      await accruePastorShare(u.id, tick);
     }
   }
 
