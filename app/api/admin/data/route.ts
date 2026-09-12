@@ -143,6 +143,27 @@ export async function GET() {
     pastors,
     pastorApplications,
     emailLog: pastorsDb.recentEmails(10),
-    announcements: announcementsDb.all(),
+    announcements: await loadAnnouncements(),
   });
+}
+
+// announcements: Supabase is the record of truth; JSON mirror as fallback
+async function loadAnnouncements() {
+  try {
+    const { data } = await supabaseAdmin
+      .from("announcements")
+      .select("id, title, body, created_at")
+      .order("created_at", { ascending: false });
+    if (data && data.length) {
+      return data.map((r: any) => ({
+        id: r.id,
+        title: r.title,
+        body: r.body,
+        createdAt: r.created_at ? new Date(r.created_at).getTime() : 0,
+      }));
+    }
+  } catch (e: any) {
+    console.error("[admin/data] announcements overlay failed:", e.message);
+  }
+  return announcementsDb.all();
 }
