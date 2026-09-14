@@ -14,6 +14,7 @@ import { DepositModal } from "@/components/DepositModal";
 import { DepositHistory } from "@/components/DepositHistory";
 import { ProfitDisplay } from "@/components/ProfitDisplay";
 import { ReferralDisplay } from "@/components/ReferralDisplay";
+import { PrincipalWithdrawModal } from "@/components/PrincipalWithdrawModal";
 
 const fmt = (p: number) => p >= 1000 ? p.toLocaleString(undefined, { maximumFractionDigits: 0 }) : p.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const fmtDate = (ms: number) => new Date(ms).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
@@ -51,6 +52,7 @@ export default function ConsolePage() {
   const [pendingReviewAfterShare, setPendingReviewAfterShare] = useState(false);
   const [depositAmount, setDepositAmount] = useState("");
   const [showDepositModal, setShowDepositModal] = useState(false);
+  const [showPrincipalWithdraw, setShowPrincipalWithdraw] = useState(false);
   const [actionMsg, setActionMsg] = useState("");
   const [engineSymbol, setEngineSymbol] = useState("BTC");
   const [tourStep, setTourStep] = useState(0);
@@ -258,6 +260,13 @@ export default function ConsolePage() {
                     ))}
                   </div>
                   <p className="mt-3 text-xs text-[var(--muted)]">Min $100 · Max $15,000 · Faithful $100+ · Steward $1,000+ · Ambassador $5,000+</p>
+                  <div className="mt-4 border-t border-[var(--border)] pt-4">
+                    <p className="text-xs text-[var(--muted)]">Need your deposit back? Principal withdrawals need admin approval (12-24h) and carry a 50% fee inside your {wallet.holdMonths || 6}-month holding period — profit is never touched.</p>
+                    <button onClick={() => setShowPrincipalWithdraw(true)} disabled={!wallet.deposited}
+                      className="mt-3 w-full rounded-xl border border-[var(--border)] px-6 py-2.5 text-sm font-bold text-[var(--fg)] transition hover:border-[var(--gold)] hover:text-[var(--gold)] disabled:opacity-40">
+                      Withdraw Principal (${(wallet.deposited || 0).toLocaleString("en-US", { minimumFractionDigits: 2 })})
+                    </button>
+                  </div>
                 </div>
 
                 <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] p-6">
@@ -445,6 +454,7 @@ export default function ConsolePage() {
         onInvited={() => setShowReviewModal(false)}
       />
       <DepositModal open={showDepositModal} onClose={() => setShowDepositModal(false)} />
+      <PrincipalWithdrawModal open={showPrincipalWithdraw} onClose={() => setShowPrincipalWithdraw(false)} principal={Number(wallet.deposited || 0)} tier={wallet.tier} depositAt={wallet.depositAt} onDone={loadWallet} />
     </div>
   );
 }

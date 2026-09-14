@@ -71,9 +71,9 @@ const steps = [
 ];
 
 const tiers = [
-  { name: "Faithful", min: "$100 to $999", rate: "0.25% / day", perk: "Crypto, US stocks and commodities. Starter AI, daily profit, profit-only withdrawals.", verse: "Be faithful with the little things, and you will be trusted with much. Luke 16:10", hold: "6-month hold, 25% early fee", accent: "from-amber-600 to-gold-light", highlight: false },
-  { name: "Steward", min: "$1,000 to $4,999", rate: "0.50% / day", perk: "Advanced AI across all markets, priority rebalancing, 0.50% target daily.", verse: "Stewards of the manifold grace of God. 1 Peter 4:10", hold: "9-month hold, 25% early fee", accent: "from-slate-400 to-cyan-light", highlight: true },
-  { name: "Ambassador", min: "$5,000 to $15,000", rate: "0.75% / day", perk: "Elite AI desk, dedicated risk guardrails across all markets, 0.75% target daily.", verse: "Honour the Lord with your wealth, with the firstfruits of all your crops. Proverbs 3:9", hold: "12-month hold, 25% early fee", accent: "from-yellow-400 to-gold-light", highlight: false },
+  { name: "Faithful", min: "$100 to $999", rate: "0.25% / day", perk: "Crypto, US stocks and commodities. Starter AI, daily profit, profit-only withdrawals.", verse: "Be faithful with the little things, and you will be trusted with much. Luke 16:10", hold: "6-month hold, 50% early exit fee", accent: "from-amber-600 to-gold-light", highlight: false },
+  { name: "Steward", min: "$1,000 to $4,999", rate: "0.50% / day", perk: "Advanced AI across all markets, priority rebalancing, 0.50% target daily.", verse: "Stewards of the manifold grace of God. 1 Peter 4:10", hold: "9-month hold, 50% early exit fee", accent: "from-slate-400 to-cyan-light", highlight: true },
+  { name: "Ambassador", min: "$5,000 to $15,000", rate: "0.75% / day", perk: "Elite AI desk, dedicated risk guardrails across all markets, 0.75% target daily.", verse: "Honour the Lord with your wealth, with the firstfruits of all your crops. Proverbs 3:9", hold: "12-month hold, 50% early exit fee", accent: "from-yellow-400 to-gold-light", highlight: false },
 ];
 
 const values = [

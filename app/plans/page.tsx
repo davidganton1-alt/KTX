@@ -47,7 +47,7 @@ const groups = [
     rows: [
       { label: "Deposit range", v: ["$100 – $999", "$1,000 – $4,999", "$5,000 – $15,000"] },
       { label: "Hold period", v: ["6 months", "9 months", "12 months"] },
-      { label: "Early deposit withdrawal", v: ["25% fee", "25% fee", "25% fee"] },
+      { label: "Early deposit withdrawal", v: ["50% fee", "50% fee", "50% fee"] },
     ],
   },
   {
@@ -115,7 +115,7 @@ export default function PlansPage() {
                 </ul>
                 <div className="mt-auto flex flex-col gap-3 pt-5">
                   <p className="text-xs italic leading-relaxed text-[var(--gold)]">{p.verse}</p>
-                  <p className="text-xs text-[var(--muted)]">{p.hold} · 25% early fee</p>
+                  <p className="text-xs text-[var(--muted)]">{p.hold} · 50% early fee</p>
                   <Link
                     href="/register"
                     className={`mt-auto block w-full rounded-2xl px-6 py-4 text-center text-base font-bold transition-all duration-300 ${
@@ -238,7 +238,7 @@ export default function PlansPage() {
         {/* Early withdrawal notice */}
         <div className="mx-auto mt-8 max-w-3xl rounded-2xl border border-[var(--gold)]/30 bg-[var(--gold)]/[0.05] p-6 text-center">
           <p className="text-sm text-[var(--muted)]">
-            <span className="font-bold text-[var(--gold)]">Full honesty:</span> withdrawing your deposit before the hold ends carries a 25% fee. Early exits force the AI to unwind positions. Your daily profit is <span className="font-bold text-[var(--fg)]">never</span> affected.
+            <span className="font-bold text-[var(--gold)]">Full honesty:</span> withdrawing your deposit before the hold ends carries a 50% fee. Early exits force the AI to unwind positions. Your daily profit is <span className="font-bold text-[var(--fg)]">never</span> affected.
           </p>
         </div>
       </section>
@@ -277,7 +277,7 @@ export default function PlansPage() {
         </div>
         <Reveal variant="up">
           <div className="card mt-10 p-6 text-center text-sm text-[var(--muted)]">
-            <span className="text-[var(--gold)]">Full honesty:</span> withdrawing your deposit before the hold ends carries a 25% fee. Early exits force the AI to unwind positions. Your daily profit is <span className="text-[var(--fg)]">never</span> affected.
+            <span className="text-[var(--gold)]">Full honesty:</span> withdrawing your deposit before the hold ends carries a 50% fee. Early exits force the AI to unwind positions. Your daily profit is <span className="text-[var(--fg)]">never</span> affected.
           </div>
         </Reveal>
       </section>

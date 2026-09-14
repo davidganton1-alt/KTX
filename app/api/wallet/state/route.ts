@@ -73,6 +73,7 @@ export async function GET() {
     balance,
     profit,
     dailyRate,
+    depositAt: w.deposit_at ?? null,
     lastProfitDate: u?.lastProfitDate ?? "",
     profitHistory: u?.profitHistory ?? [],
     deposits: u?.deposits ?? [],

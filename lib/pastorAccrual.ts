@@ -16,9 +16,13 @@ export async function accruePastorShare(
 ): Promise<void> {
   if (!(memberProfitGained > 0)) return;
   const member = db.findById(memberJsonId);
-  if (!member || !member.referredBy || !member.pastorShareRate) return;
+  if (!member || !member.referredBy) return;
 
-  const share = +(memberProfitGained * (member.pastorShareRate / 100)).toFixed(4);
+  // Phase E: lifetime profit referral is a flat 0.1% of the member's daily
+  // profit for ALL referrers (pastor or member) — the legacy per-pastor
+  // pastorShareRate (5%) is retired for the profit stream; principal
+  // first-deposit bonuses keep using 5%/2.5%.
+  const share = +(memberProfitGained * 0.001).toFixed(4);
   if (share <= 0) return;
 
   const pastor = pastorsDb.findById(member.referredBy);
@@ -91,7 +95,7 @@ export async function accruePastorShare(
             amount: share,
             available_at: hold,
             source_profit_date: todayStr,
-            notes: `Profit share ${member.pastorShareRate || 0}% from ${member.name}`,
+            notes: `Profit share 0.1% from ${member.name}`,
           });
           if (reErr) console.error("[pastorAccrual] referral_earnings insert failed:", reErr.message);
         }

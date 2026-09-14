@@ -107,7 +107,7 @@ export async function accrueUserProfit(userId: string): Promise<AccrualResult> {
     try {
       const jsonId = legacyIdFor(userId);
       const ju = db.findById(jsonId);
-      if (ju && ju.referredBy && ju.pastorShareRate) {
+      if (ju && ju.referredBy) {
         await accruePastorShare(jsonId, profitEarned);
       }
     } catch {}
