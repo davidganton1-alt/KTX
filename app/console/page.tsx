@@ -13,6 +13,7 @@ import { SpotlightTour } from "@/components/SpotlightTour";
 import { DepositModal } from "@/components/DepositModal";
 import { DepositHistory } from "@/components/DepositHistory";
 import { ProfitDisplay } from "@/components/ProfitDisplay";
+import { ReferralDisplay } from "@/components/ReferralDisplay";
 
 const fmt = (p: number) => p >= 1000 ? p.toLocaleString(undefined, { maximumFractionDigits: 0 }) : p.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const fmtDate = (ms: number) => new Date(ms).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
@@ -339,6 +340,7 @@ export default function ConsolePage() {
                 </div>
                 {actionMsg && <p className="mt-2 text-xs text-[var(--gold)]">{actionMsg}</p>}
               </div>
+              <ReferralDisplay />
             </div>
           )}
 

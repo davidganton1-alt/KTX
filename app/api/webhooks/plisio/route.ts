@@ -104,6 +104,21 @@ export async function POST(req: NextRequest) {
         deposit.referred_by || undefined
       );
 
+      // Phase D: per-earning record with 7-day hold
+      if (split.referralCommission > 0 && deposit.referred_by) {
+        const hold = new Date(Date.now() + 7 * 24 * 3600 * 1000).toISOString();
+        const { error: reErr } = await supabaseAdmin.from('referral_earnings').insert({
+          referrer_id: deposit.referred_by,
+          source_user_id: deposit.user_id,
+          earning_type: 'principal',
+          amount: split.referralCommission,
+          available_at: hold,
+          source_deposit_id: deposit.id,
+          notes: `${referralRate}% of first deposit (USD ${amount})`,
+        });
+        if (reErr) console.error('[plisio-webhook] referral_earnings insert failed:', reErr.message);
+      }
+
       await supabaseAdmin
         .from('deposits')
         .update({

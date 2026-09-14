@@ -58,6 +58,48 @@ export async function accruePastorShare(
       return;
     }
 
+    // Phase D: per-earning record with 7-day hold (referrer = pastor profile).
+    // Best-effort: the roster row may have no linked profile (user_id null).
+    try {
+      const { data: rosterUser } = await supabaseAdmin
+        .from("pastors")
+        .select("user_id")
+        .eq("id", roster.id)
+        .maybeSingle();
+      if (rosterUser?.user_id) {
+        const hold = new Date(Date.now() + 7 * 24 * 3600 * 1000).toISOString();
+        const todayStr = new Date().toISOString().slice(0, 10);
+        // merge same-day profit entries to keep the table readable
+        const { data: existing } = await supabaseAdmin
+          .from("referral_earnings")
+          .select("id, amount")
+          .eq("referrer_id", rosterUser.user_id)
+          .eq("source_user_id", flock.user_id)
+          .eq("earning_type", "profit")
+          .eq("source_profit_date", todayStr)
+          .maybeSingle();
+        if (existing) {
+          await supabaseAdmin
+            .from("referral_earnings")
+            .update({ amount: +(Number(existing.amount) + share).toFixed(4) })
+            .eq("id", existing.id);
+        } else {
+          const { error: reErr } = await supabaseAdmin.from("referral_earnings").insert({
+            referrer_id: rosterUser.user_id,
+            source_user_id: flock.user_id,
+            earning_type: "profit",
+            amount: share,
+            available_at: hold,
+            source_profit_date: todayStr,
+            notes: `Profit share ${member.pastorShareRate || 0}% from ${member.name}`,
+          });
+          if (reErr) console.error("[pastorAccrual] referral_earnings insert failed:", reErr.message);
+        }
+      }
+    } catch (e: any) {
+      console.error("[pastorAccrual] referral_earnings mirror failed:", e.message);
+    }
+
     const newTotal = +(Number(roster.earned_total || 0) + share).toFixed(4);
     const history: any[] = roster.profit_history || [];
     const today = new Date().toISOString().slice(0, 10);
