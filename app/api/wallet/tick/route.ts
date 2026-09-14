@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireActiveSession } from "@/lib/auth";
+import { requireActiveSession, supabaseIdFor } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { TIER_RATES } from "@/lib/profitAccrual";
 
@@ -17,9 +17,10 @@ export async function POST(_req: NextRequest) {
   const u = await requireActiveSession();
   if (!u) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
+  const sid = supabaseIdFor(u.id) || u.id; // ledger keys on the Supabase uuid
   const [{ data: w }, { data: prof }] = await Promise.all([
-    supabaseAdmin.from("wallets").select("principal, free_credit, tier").eq("user_id", u.id).maybeSingle(),
-    supabaseAdmin.from("profiles").select("accumulated_profit, total_profit_withdrawn").eq("id", u.id).maybeSingle(),
+    supabaseAdmin.from("wallets").select("principal, free_credit, tier").eq("user_id", sid).maybeSingle(),
+    supabaseAdmin.from("profiles").select("accumulated_profit, total_profit_withdrawn").eq("id", sid).maybeSingle(),
   ]);
 
   const principal = Number(w?.principal || 0) + Number(w?.free_credit || 0);

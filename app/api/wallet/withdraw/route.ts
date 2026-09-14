@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireActiveSession } from "@/lib/auth";
+import { requireActiveSession, supabaseIdFor } from "@/lib/auth";
 import { processProfitWithdrawal } from "@/lib/profitWithdraw";
 
 export const dynamic = "force-dynamic";
@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const res = await processProfitWithdrawal(u.id, Number(amount), String(network || "trc20"), String(address));
+  const res = await processProfitWithdrawal(supabaseIdFor(u.id) || u.id, Number(amount), String(network || "trc20"), String(address));
   if (!res.ok) {
     return NextResponse.json({ error: res.error }, { status: res.status });
   }

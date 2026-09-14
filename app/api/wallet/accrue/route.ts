@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireActiveSession } from "@/lib/auth";
+import { requireActiveSession, supabaseIdFor } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { accrueUserProfit } from "@/lib/profitAccrual";
 
@@ -12,7 +12,8 @@ export async function POST(_req: NextRequest) {
   const u = await requireActiveSession();
   if (!u) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
-  const result = await accrueUserProfit(u.id);
+  const sid = supabaseIdFor(u.id) || u.id; // ledger keys on the Supabase uuid
+  const result = await accrueUserProfit(sid);
   if (!result.success) {
     return NextResponse.json({ error: result.error || "Accrual failed" }, { status: 400 });
   }
@@ -20,12 +21,12 @@ export async function POST(_req: NextRequest) {
   const { data: prof } = await supabaseAdmin
     .from("profiles")
     .select("accumulated_profit, total_profit_withdrawn, last_profit_accrual_at")
-    .eq("id", u.id)
+    .eq("id", sid)
     .maybeSingle();
   const { data: w } = await supabaseAdmin
     .from("wallets")
     .select("principal, free_credit")
-    .eq("user_id", u.id)
+    .eq("user_id", sid)
     .maybeSingle();
 
   const available = +(Number(prof?.accumulated_profit || 0) - Number(prof?.total_profit_withdrawn || 0)).toFixed(4);
