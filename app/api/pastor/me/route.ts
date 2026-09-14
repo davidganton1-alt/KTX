@@ -40,7 +40,7 @@ export async function GET() {
   try {
     const { data } = await supabaseAdmin
       .from("pastors")
-      .select("id, share_rate, earned_total, events, payouts, profit_history")
+      .select("id, name, ministry, share_rate, earned_total, events, payouts, profit_history")
       .ilike("email", me.email)
       .maybeSingle();
     sb = data;
@@ -146,6 +146,7 @@ export async function GET() {
 
   return NextResponse.json({
     name: me.name,
+    ministry: pastor?.ministry ?? null,
     email: me.email,
     earnedTotal: earned,
     available,

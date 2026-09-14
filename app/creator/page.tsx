@@ -1,9 +1,9 @@
 'use client';
 
-// Pastor dashboard — Phase 2.2. Renders the shared RoleDashboard (approved
-// preview design) bound to live data: wallet/state, deposits/history,
-// referral/balance (commissions ledger), pastor/me (flock + invite link).
-// Pastors are users first: all member features plus Ministry section.
+// Creator dashboard — Phase 2.2.
+// TODO Phase F: add 'creator' role; currently shares pastor economics per spec
+// (is_pastor accounts are the gate) and identical 5% + 0.1% referral math.
+// Same RoleDashboard design as pastor, Creator persona: Network / Community.
 
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -14,16 +14,16 @@ import { PrincipalWithdrawModal } from '@/components/PrincipalWithdrawModal';
 import { ReferralWithdrawModal } from '@/components/ReferralWithdrawModal';
 import { TradingAgreementModal } from '@/components/TradingAgreementModal';
 
-const BASE_PASTOR: RolePersona = {
-  brandSub: 'Pastor',
-  roleSection: 'Ministry',
-  peopleLabel: 'Flock',
-  name: 'Pastor',
-  org: 'Your ministry',
-  orgField: 'Ministry / church',
+const BASE_CREATOR: RolePersona = {
+  brandSub: 'Creator',
+  roleSection: 'Network',
+  peopleLabel: 'Community',
+  name: 'Creator',
+  org: 'Your brand',
+  orgField: 'Brand',
 };
 
-export default function PastorPage() {
+export default function CreatorPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [wallet, setWallet] = useState<any>(null);
@@ -40,8 +40,9 @@ export default function PastorPage() {
 
   const load = useCallback(async () => {
     try {
+      // Gate: creator seats today are held by pastor-approved accounts.
       const pRes = await fetch('/api/pastor/me', { cache: 'no-store' });
-      if (pRes.status === 401 || pRes.status === 403) { router.push('/login'); return; }
+      if (pRes.status === 401) { router.push('/login'); return; }
       if (pRes.ok) setPastor(await pRes.json());
 
       const [wRes, dRes, rRes, meRes] = await Promise.all([
@@ -77,9 +78,9 @@ export default function PastorPage() {
   }
 
   const persona: RolePersona = {
-    ...BASE_PASTOR,
-    name: wallet?.name ?? pastor?.name ?? 'Pastor',
-    org: pastor?.ministry ?? BASE_PASTOR.org,
+    ...BASE_CREATOR,
+    name: wallet?.name ?? me?.name ?? 'Creator',
+    org: pastor?.ministry ?? BASE_CREATOR.org,
   };
 
   return (
