@@ -1,429 +1,481 @@
-"use client";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { AnimatedNumber } from "@/components/AnimatedNumber";
-import { ProEngine } from "@/components/ProEngine";
-import { TierComparison } from "@/components/TierComparison";
-import { PortfolioChart } from "@/components/PortfolioChart";
-import { TradingAgreementModal } from "@/components/TradingAgreementModal";
-import { ShareGate } from "@/components/ShareGate";
-import { ReviewInvitationModal } from "@/components/ReviewInvitationModal";
-import { SOCIAL_URLS } from "@/lib/social";
-import { SpotlightTour } from "@/components/SpotlightTour";
-import { DepositModal } from "@/components/DepositModal";
-import { DepositHistory } from "@/components/DepositHistory";
-import { ProfitDisplay } from "@/components/ProfitDisplay";
-import { ReferralDisplay } from "@/components/ReferralDisplay";
-import { PrincipalWithdrawModal } from "@/components/PrincipalWithdrawModal";
+'use client';
+import { useEffect, useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import { Sidebar, type NavSection } from '@/components/design-system/Sidebar';
+import { PageHeader } from '@/components/design-system/PageHeader';
+import { StatCard, StatInline } from '@/components/design-system/StatCard';
+import { DataCard } from '@/components/design-system/DataCard';
+import { DataTable, StatusPill } from '@/components/design-system/DataTable';
+import { Button } from '@/components/design-system/Button';
+import { Label, Num } from '@/components/design-system/Typography';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import { AnimatedNumber } from '@/components/AnimatedNumber';
+import { ProEngine } from '@/components/ProEngine';
+import { TierComparison } from '@/components/TierComparison';
+import { PortfolioChart } from '@/components/PortfolioChart';
+import { TradingAgreementModal } from '@/components/TradingAgreementModal';
+import { ShareGate } from '@/components/ShareGate';
+import { ReviewInvitationModal } from '@/components/ReviewInvitationModal';
+import { SOCIAL_URLS } from '@/lib/social';
+import { SpotlightTour } from '@/components/SpotlightTour';
+import { DepositModal } from '@/components/DepositModal';
+import { DepositHistory } from '@/components/DepositHistory';
+import { ProfitDisplay } from '@/components/ProfitDisplay';
+import { ProfitWithdrawModal } from '@/components/ProfitWithdrawModal';
+import { ReferralDisplay } from '@/components/ReferralDisplay';
+import { PrincipalWithdrawModal } from '@/components/PrincipalWithdrawModal';
 
-const fmt = (p: number) => p >= 1000 ? p.toLocaleString(undefined, { maximumFractionDigits: 0 }) : p.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const fmtDate = (ms: number) => new Date(ms).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+const fmt = (p: number) => (p >= 1000 ? p.toLocaleString(undefined, { maximumFractionDigits: 0 }) : p.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+const money = (n: number) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmtDate = (ms: number) => new Date(ms).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
 
 const TOUR_STEPS = [
-  { id: "tour-balance", title: "Your Portfolio", desc: "This is your total balance, including your principal and accrued profit. Watch it grow daily." },
-  { id: "tour-actions", title: "Quick Actions", desc: "Deposit funds to activate your plan, or withdraw your profit instantly. No locks, no friction." },
-  { id: "tour-engine", title: "Live AI Engine", desc: "This is your trading desk. The AI executes trades in real-time with strict risk guardrails. You can watch every move." },
-  { id: "tour-sidebar", title: "Command Center", desc: "Access your wallet, referrals, security, and settings from here. Everything you need is one click away." },
+  { id: 'tour-balance', title: 'Your Portfolio', desc: 'This is your total balance, including your principal and accrued profit. Watch it grow daily.' },
+  { id: 'tour-actions', title: 'Quick Actions', desc: 'Deposit funds to activate your plan, or withdraw your profit instantly. No locks, no friction.' },
+  { id: 'tour-engine', title: 'Live AI Engine', desc: 'This is your trading desk. The AI executes trades in real-time with strict risk guardrails. You can watch every move.' },
+  { id: 'tour-sidebar', title: 'Command Center', desc: 'Access your wallet, referrals, security, and settings from here. Everything you need is one click away.' },
 ];
 
-const TABS = [
-  { id: "dashboard", label: "Dashboard", icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" },
-  { id: "wallet", label: "Wallet", icon: "M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" },
-  { id: "ai-engine", label: "AI Engine", icon: "M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" },
-  { id: "markets", label: "Markets", icon: "M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" },
-  { id: "referrals", label: "Referrals", icon: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" },
-  { id: "security", label: "Security", icon: "M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" },
-  { id: "support", label: "Support", icon: "M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" },
-  { id: "settings", label: "Settings", icon: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" },
+const SECTIONS: NavSection[] = [
+  {
+    heading: 'Portfolio',
+    items: [
+      { id: 'dashboard', label: 'Dashboard', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a2 2 0 01-2 2h-8a2 2 0 01-2-2v-4' },
+      { id: 'wallet', label: 'Wallet', icon: 'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z' },
+      { id: 'earnings', label: 'Earnings', icon: 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6' },
+      { id: 'engine', label: 'AI Engine', icon: 'M9 3v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2z' },
+      { id: 'markets', label: 'Markets', icon: 'M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z' },
+    ],
+  },
+  {
+    heading: 'Account',
+    items: [
+      { id: 'referrals', label: 'Referrals', icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857' },
+      { id: 'security', label: 'Security', icon: 'M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z' },
+      { id: 'support', label: 'Support', icon: 'M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z' },
+      { id: 'settings', label: 'Settings', icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z' },
+    ],
+  },
 ];
+
+const TIER_LABELS: Record<string, string> = { none: 'Unranked', faithful: 'Faithful', steward: 'Steward', ambassador: 'Ambassador' };
+const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 export default function ConsolePage() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState("dashboard");
+  const [tab, setTab] = useState('dashboard');
   const [wallet, setWallet] = useState<any>(null);
   const [me, setMe] = useState<any>(null);
   const [referral, setReferral] = useState<any>(null);
+  const [deposits, setDeposits] = useState<any[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [tourStep, setTourStep] = useState(0);
+  const [actionMsg, setActionMsg] = useState('');
+
+  const [showDepositModal, setShowDepositModal] = useState(false);
+  const [showProfitWithdraw, setShowProfitWithdraw] = useState(false);
+  const [showPrincipalWithdraw, setShowPrincipalWithdraw] = useState(false);
   const [showTierModal, setShowTierModal] = useState(false);
   const [showAgreement, setShowAgreement] = useState(false);
-  const [showWithdrawShare, setShowWithdrawShare] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewTrigger, setReviewTrigger] = useState<'firstWithdrawal' | 'activeUser30Days' | 'thirdWithdrawal'>('firstWithdrawal');
+  const [showWithdrawShare, setShowWithdrawShare] = useState(false);
   const [pendingReviewAfterShare, setPendingReviewAfterShare] = useState(false);
-  const [depositAmount, setDepositAmount] = useState("");
-  const [showDepositModal, setShowDepositModal] = useState(false);
-  const [showPrincipalWithdraw, setShowPrincipalWithdraw] = useState(false);
-  const [actionMsg, setActionMsg] = useState("");
-  const [engineSymbol, setEngineSymbol] = useState("BTC");
-  const [tourStep, setTourStep] = useState(0);
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const [wRes, meRes, rRes] = await Promise.all([
-          fetch("/api/wallet/state", { cache: "no-store" }),
-          fetch("/api/auth/me", { cache: "no-store" }),
-          fetch("/api/user/referral", { cache: "no-store" }),
-        ]);
-        if (wRes.ok) setWallet(await wRes.json());
-        const meData = meRes.ok ? await meRes.json() : null;
-        if (meData) setMe(meData);
-        if (rRes.ok) setReferral(await rRes.json());
-        if (meData?.role && !meData.hasSignedAgreement) {
-          setShowAgreement(true);
-        }
-      } catch {}
-    }
-    load();
-  }, []);
-
-  useEffect(() => {
-    const handleNext = () => setTourStep(s => s + 1);
-    window.addEventListener("tour-next", handleNext);
-    return () => window.removeEventListener("tour-next", handleNext);
-  }, []);
-
-  async function handleLogout() {
-    await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/login");
-  }
-
-  async function handleDeposit() {
-    if (!depositAmount || Number(depositAmount) <= 0) return;
-    setActionMsg("Processing deposit...");
+  const loadDeposits = useCallback(async () => {
     try {
-      const res = await fetch("/api/wallet/deposit", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ amount: Number(depositAmount) }) });
-      const data = await res.json();
-      if (res.ok) { setActionMsg(`Deposit of $${Number(depositAmount).toFixed(2)} successful!`); setDepositAmount(""); loadWallet(); }
-      else setActionMsg(data.error || "Deposit failed.");
-    } catch { setActionMsg("Network error."); }
-  }
+      const res = await fetch('/api/deposits/history', { credentials: 'include', cache: 'no-store' });
+      if (res.ok) { const d = await res.json(); setDeposits(d.deposits || []); }
+    } catch {}
+  }, []);
 
+  const loadData = useCallback(async () => {
+    try {
+      const [wRes, meRes, rRes] = await Promise.all([
+        fetch('/api/wallet/state', { cache: 'no-store' }),
+        fetch('/api/auth/me', { cache: 'no-store' }),
+        fetch('/api/user/referral', { cache: 'no-store' }),
+      ]);
+      if (wRes.ok) setWallet(await wRes.json());
+      const meData = meRes.ok ? await meRes.json() : null;
+      if (meData) setMe(meData);
+      if (rRes.ok) setReferral(await rRes.json());
+      if (meData?.role && !meData.hasSignedAgreement) setShowAgreement(true);
+    } catch {}
+  }, []);
 
-  async function loadWallet() {
-    const res = await fetch("/api/wallet/state", { cache: "no-store" });
-    if (res.ok) setWallet(await res.json());
-  }
+  const loadWallet = useCallback(async () => {
+    try {
+      const res = await fetch('/api/wallet/state', { cache: 'no-store' });
+      if (res.ok) setWallet(await res.json());
+    } catch {}
+  }, []);
 
-  // refresh the funds panels when a crypto deposit confirms elsewhere
   useEffect(() => {
-    const h = () => { loadWallet(); };
+    loadData();
+    loadDeposits();
+  }, [loadData, loadDeposits]);
+
+  // refresh funds surfaces when a crypto deposit confirms elsewhere
+  useEffect(() => {
+    const h = () => { loadWallet(); loadDeposits(); };
     window.addEventListener('ktx:deposits-changed', h);
     return () => window.removeEventListener('ktx:deposits-changed', h);
+  }, [loadWallet, loadDeposits]);
+
+  useEffect(() => {
+    const handleNext = () => setTourStep((s) => s + 1);
+    window.addEventListener('tour-next', handleNext);
+    return () => window.removeEventListener('tour-next', handleNext);
   }, []);
 
   async function completeTour() {
     setTourStep(0);
-    try { await fetch("/api/user/tour", { method: "POST" }); } catch {}
+    try { await fetch('/api/user/tour', { method: 'POST' }); } catch {}
+  }
+
+  async function handleLogout() {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    router.push('/login');
   }
 
   if (!wallet) return <div className="flex min-h-screen items-center justify-center bg-[var(--bg)]"><div className="h-10 w-10 animate-spin rounded-full border-2 border-[var(--gold)] border-t-transparent" /></div>;
 
-  const tierLabels: Record<string, string> = { none: "Unranked", faithful: "Faithful", steward: "Steward", ambassador: "Ambassador" };
-  const tierColors: Record<string, string> = { none: "text-[var(--muted)]", faithful: "text-[var(--gold)]", steward: "text-[var(--cyan)]", ambassador: "text-[var(--gold)]" };
-  const nextTier = wallet.tier === "none" ? "faithful" : wallet.tier === "faithful" ? "steward" : wallet.tier === "steward" ? "ambassador" : null;
+  const tier = wallet.tier || 'none';
+  const deposited = Number(wallet.deposited || 0);
+  const availableProfit = Number(wallet.availableProfit || 0);
+  const platformCredit = Number(wallet.platformCredit ?? (wallet.freeCreditUnlocked ? 50 : 0));
+  const dailyRate = Number(wallet.tierRate ?? wallet.dailyRate ?? 0);
+  const nextTier = tier === 'none' ? 'faithful' : tier === 'faithful' ? 'steward' : tier === 'steward' ? 'ambassador' : null;
   const tierThresholds: Record<string, number> = { none: 0, faithful: 100, steward: 1000, ambassador: 5000 };
-  const progress = nextTier ? Math.min(100, (wallet.deposited / tierThresholds[nextTier]) * 100) : 100;
+  const progress = nextTier ? Math.min(100, (deposited / tierThresholds[nextTier]) * 100) : 100;
+
+  const txnRows = [
+    ...(deposits.map((d: any) => ({ id: `d-${d.id}`, date: d.createdAt, type: 'Deposit', amount: Number(d.amount), status: d.status, kind: 'in' }))),
+    ...(wallet.withdrawals ?? []).map((w: any, i: number) => ({ id: `w-${i}-${w.date ?? i}`, date: w.date, type: `Withdrawal${w.currency === 'usdt_principal' ? ' (principal)' : ''}`, amount: Number(w.amount), status: w.status, kind: 'out' })),
+  ].sort((a, b) => (b.date || 0) - (a.date || 0));
+
+  const go = (t: string) => { setTab(t); setSidebarOpen(false); };
+
+  const sidebar = <Sidebar brand="KingdomTradeX" brandSub="Member" sections={SECTIONS} active={tab} onSelect={go} footer={<ThemeToggle />} />;
 
   return (
     <div className="flex min-h-screen bg-[var(--bg)] text-[var(--fg)] font-sans">
-      {/* SIDEBAR */}
-      <aside id="tour-sidebar" className={`fixed inset-y-0 left-0 z-40 w-64 transform border-r border-[var(--border)] bg-[var(--bg-soft)] transition-transform duration-300 lg:static lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
-        <div className="flex h-16 items-center justify-center border-b border-[var(--border)]">
-          <span className="text-xl font-bold tracking-tight text-[var(--fg)]">KTX <span className="text-[var(--gold)]">Console</span></span>
+      {/* SIDEBAR (desktop) */}
+      <div id="tour-sidebar" className="hidden lg:block">{sidebar}</div>
+
+      {/* SIDEBAR (mobile drawer) */}
+      {sidebarOpen && (
+        <div className="fixed inset-0 z-40 lg:hidden">
+          <div className="absolute inset-0 bg-black/60" onClick={() => setSidebarOpen(false)} />
+          <div className="absolute inset-y-0 left-0 w-64">{sidebar}</div>
         </div>
-        <nav className="mt-6 space-y-1 px-3">
-          {TABS.map((tab) => (
-            <button key={tab.id} onClick={() => { setActiveTab(tab.id); setSidebarOpen(false); }}
-              className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-colors ${activeTab === tab.id ? "bg-[var(--gold)]/10 text-[var(--gold)]" : "text-[var(--muted)] hover:bg-[var(--card)] hover:text-[var(--fg)]"}`}>
-              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d={tab.icon} />
-              </svg>
-              {tab.label}
-            </button>
-          ))}
-        </nav>
-        <div className="absolute bottom-6 left-0 w-full px-3">
-          <button onClick={handleLogout} className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-[var(--loss)]/80 hover:bg-[var(--loss)]/10 hover:text-[var(--loss)]">
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
-            Sign Out
-          </button>
-        </div>
-      </aside>
+      )}
 
       {/* MAIN */}
-      <main className="flex-1 overflow-y-auto">
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-[var(--border)] bg-[var(--bg)]/80 px-6 backdrop-blur-md">
-          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-[var(--muted)] lg:hidden">
-            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
-          </button>
-          <h2 className="text-lg font-bold text-[var(--fg)]">{TABS.find(t => t.id === activeTab)?.label}</h2>
+      <main className="min-w-0 flex-1 overflow-y-auto">
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b border-[var(--border)] bg-[var(--bg)]/80 px-6 backdrop-blur-md">
+          <div className="flex items-center gap-3">
+            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-[var(--muted)] lg:hidden" aria-label="Open menu">
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
+            </button>
+            <span className="text-[14px] font-medium text-[var(--fg)] lg:hidden">KTX Console</span>
+          </div>
           <div className="flex items-center gap-4">
-            <span className={`rounded-full border border-[var(--border)] bg-[var(--card)] px-3 py-1 text-xs font-bold uppercase ${tierColors[wallet.tier]}`}>{tierLabels[wallet.tier]}</span>
+            <span className={`rounded-full border px-3 py-1 text-[11px] font-medium uppercase tracking-[0.05em] ${tier === 'ambassador' || tier === 'faithful' ? 'border-[var(--gold)]/40 text-[var(--gold)]' : tier === 'steward' ? 'border-[var(--cyan)]/40 text-[var(--cyan)]' : 'border-[var(--border)] text-[var(--muted)]'}`}>{TIER_LABELS[tier]}</span>
             <div className="h-8 w-8 rounded-full bg-gradient-to-br from-[var(--gold)] to-amber-600" />
+            <Button variant="ghost" size="sm" onClick={handleLogout}>Sign out</Button>
           </div>
         </header>
 
         <div className="p-6 lg:p-8">
-          {/* ═══ DASHBOARD ═══ */}
-          {activeTab === "dashboard" && (
-            <div className="space-y-6">
-              {/* Stats */}
-              <div className="grid gap-4 md:grid-cols-3">
-                <div id="tour-balance" className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] p-6">
-                  <p className="text-sm text-[var(--muted)]">Total Balance</p>
-                  <p className="mt-2 text-3xl font-extrabold text-[var(--fg)] tabular-nums">$<AnimatedNumber value={wallet.balance} /></p>
-                  {!wallet.freeCreditUnlocked && <p className="mt-2 text-xs text-[var(--gold)]">🔒 Deposit to unlock $50 free credit</p>}
-                </div>
-                <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] p-6">
-                  <p className="text-sm text-[var(--muted)]">Withdrawable Profit</p>
-                  <p className="mt-2 text-3xl font-extrabold text-[var(--profit)] tabular-nums">$<AnimatedNumber value={wallet.availableProfit ?? 0} /></p>
-                  <p className="mt-2 text-xs text-[var(--muted)]">Target: {((wallet.tierRate ?? 0) * 100).toFixed(2)}% / day</p>
-                </div>
-                <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] p-6">
-                  <p className="text-sm text-[var(--muted)]">Deposited Principal</p>
-                  <p className="mt-2 text-3xl font-extrabold text-[var(--fg)] tabular-nums">$<AnimatedNumber value={wallet.deposited} /></p>
-                  <p className="mt-2 text-xs text-[var(--muted)]">Hold: {wallet.holdMonths} months</p>
-                </div>
-              </div>
+          <div key={tab} className="ds-fade-in mx-auto max-w-[1200px]">
 
-              {/* Tier Progress */}
-              {nextTier && (
-                <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] p-6">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-bold text-[var(--fg)]">Progress to <span className={tierColors[nextTier]}>{tierLabels[nextTier]}</span></p>
-                    <span className="text-xs text-[var(--muted)]">${fmt(wallet.deposited)} / ${fmt(tierThresholds[nextTier])}</span>
+            {/* ═══ DASHBOARD ═══ */}
+            {tab === 'dashboard' && (
+              <>
+                <PageHeader
+                  crumbs={['Member', 'Overview']}
+                  title={`Welcome back, ${wallet.name || 'Member'}`}
+                  description={`${cap(tier)} plan · $${money(deposited)} principal · ${tier !== 'none' ? `${(dailyRate * 100).toFixed(2)}% daily target` : 'deposit to activate your plan'}`}
+                  actions={
+                    <>
+                      <Button variant="secondary" onClick={() => setShowProfitWithdraw(true)} disabled={availableProfit <= 0}>Withdraw profit</Button>
+                      <Button variant="primary" onClick={() => setShowDepositModal(true)}>Deposit</Button>
+                    </>
+                  }
+                />
+                <div id="tour-balance" className="mt-6 grid gap-4 md:grid-cols-4">
+                  <StatCard label="Total balance" value={<>$<AnimatedNumber value={wallet.balance} /></>} context="Principal + credit + profit" />
+                  <StatCard label="Withdrawable profit" value={<>$<AnimatedNumber value={availableProfit} /></>} tone="profit" context={`Target: ${(dailyRate * 100).toFixed(2)}% / day`} onClick={() => setShowProfitWithdraw(true)} />
+                  <StatCard label="Deposited principal" value={<>$<AnimatedNumber value={deposited} /></>} context={`Hold: ${wallet.holdMonths || 6} months`} onClick={() => go('wallet')} />
+                  <StatCard label="Platform credit" value={platformCredit > 0 ? '$50.00' : 'Locked'} tone="gold" context={wallet.freeCreditUnlocked ? 'Earns profit · not withdrawable' : 'Deposit to unlock $50 free credit'} />
+                </div>
+                <div id="tour-actions" className="mt-4 grid gap-4 md:grid-cols-3">
+                  <StatCard label="Fund your plan" value="Deposit USDT" context="TRC20 · QR in seconds" onClick={() => setShowDepositModal(true)} />
+                  <StatCard label="Live terminal" value="AI Engine" context="Real-time fills on your desk" onClick={() => go('engine')} />
+                  <StatCard label="Grow your tier" value="Compare plans" context="Higher tier, higher daily rate" onClick={() => setShowTierModal(true)} />
+                </div>
+                {nextTier && (
+                  <DataCard title={`Progress to ${TIER_LABELS[nextTier]}`}>
+                    <div className="mt-1 flex items-baseline justify-between">
+                      <span className="text-[12px] text-[var(--muted)]">Deposit more to unlock the next daily rate</span>
+                      <span className="text-[12px] tabular-nums text-[var(--muted)]">${fmt(deposited)} / ${fmt(tierThresholds[nextTier])}</span>
+                    </div>
+                    <div className="mt-3 h-1.5 rounded-full bg-[var(--card)]">
+                      <div className="h-full rounded-full bg-gradient-to-r from-[var(--gold)] to-amber-500 transition-all duration-500" style={{ width: `${progress}%` }} />
+                    </div>
+                  </DataCard>
+                )}
+                {nextTier && <div className="mt-6" />}
+                <div className="mt-6 grid gap-6 lg:grid-cols-3">
+                  <div className="lg:col-span-2">
+                    <PortfolioChart deposited={deposited} profit={Number(wallet.profit ?? 0)} freeCredit={wallet.freeCreditUnlocked ? 50 : 0} />
                   </div>
-                  <div className="mt-3 h-2 rounded-full bg-[var(--card)]">
-                    <div className="h-full rounded-full bg-gradient-to-r from-[var(--gold)] to-amber-500" style={{ width: `${progress}%` }} />
-                  </div>
+                  <DataCard title="Your plan">
+                    <div className="space-y-2.5">
+                      <StatInline label="Tier" value={TIER_LABELS[tier]} tone="gold" />
+                      <StatInline label="Daily target" value={tier !== 'none' ? `${(dailyRate * 100).toFixed(2)}%` : '—'} tone="profit" />
+                      <StatInline label="Holding period" value={`${wallet.holdMonths || 6} months`} />
+                      <StatInline label="Pastor" value={wallet.pastorName || '—'} />
+                      <div className="my-2 border-t border-[var(--border)]" />
+                      <StatInline label="Referral bonus earned" value={`$${fmt(Number(wallet.referralBonusEarned ?? 0))}`} tone="gold" />
+                    </div>
+                    <div className="mt-4 border-t border-[var(--border)] pt-3">
+                      <Button variant="ghost" size="sm" className="w-full justify-center" onClick={() => setShowAgreement(true)}>View Trading Agreement</Button>
+                    </div>
+                  </DataCard>
                 </div>
-              )}
-
-              {/* Quick Actions */}
-              <div id="tour-actions" className="grid gap-4 md:grid-cols-3">
-                <button id="tour-actions" onClick={() => setShowDepositModal(true)} className="group rounded-xl border border-emerald-500/20 bg-[var(--profit)]/10 p-5 text-left transition hover:bg-[var(--profit)]/20">
-                  <span className="text-2xl text-[var(--profit)]">💰</span>
-                  <p className="mt-2 font-bold text-[var(--profit)]">Deposit Funds</p>
-                  <p className="mt-1 text-xs text-[var(--muted)]">Activate your plan & unlock credit</p>
-                </button>
-                <button onClick={() => setActiveTab("wallet")} disabled={(wallet.availableProfit ?? 0) <= 0} className="group rounded-xl border border-[var(--border)] bg-[var(--card)] p-5 text-left transition hover:bg-[var(--card)] disabled:opacity-40">
-                  <span className="text-2xl text-[var(--fg)]">💸</span>
-                  <p className="mt-2 font-bold text-[var(--fg)]">Withdraw Profit</p>
-                  <p className="mt-1 text-xs text-[var(--muted)]">Instant, zero friction</p>
-                </button>
-                <button onClick={() => setActiveTab("ai-engine")} className="group rounded-xl border border-[var(--gold)]/20 bg-[var(--gold)]/10 p-5 text-left transition hover:bg-[var(--gold)]/20">
-                  <span className="text-2xl text-[var(--gold)]">🧠</span>
-                  <p className="mt-2 font-bold text-[var(--gold)]">AI Engine</p>
-                  <p className="mt-1 text-xs text-[var(--muted)]">Watch live execution</p>
-                </button>
-              </div>
-
-              {/* Portfolio Allocation + Tier Button */}
-              <div className="grid gap-4 lg:grid-cols-3">
-                <div className="lg:col-span-2">
-                  <PortfolioChart deposited={wallet.deposited} profit={wallet.profit} freeCredit={wallet.freeCreditUnlocked ? 50 : 0} />
+                <div id="tour-engine" className="mt-6">
+                  <ProEngine initialSymbol="BTC" />
                 </div>
-                <button
-                  onClick={() => setShowTierModal(true)}
-                  className="rounded-xl border border-[var(--gold)]/20 bg-[var(--gold)]/5 p-6 text-left transition hover:bg-[var(--gold)]/10"
-                >
-                  <span className="text-2xl">👑</span>
-                  <p className="mt-2 font-bold text-[var(--gold)]">Compare Tiers</p>
-                  <p className="mt-1 text-xs text-[var(--muted)]">See what each tier unlocks and how to upgrade</p>
-                </button>
-              </div>
+              </>
+            )}
 
-              {/* Engine Preview */}
-              <div id="tour-engine">
-                <ProEngine initialSymbol="BTC" />
-              </div>
-            </div>
-          )}
-
-          {/* ═══ WALLET ═══ */}
-          {activeTab === "wallet" && (
-            <div className="space-y-6">
-              <div className="grid gap-6 md:grid-cols-2">
-                <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] p-6">
-                  <h3 className="text-lg font-bold text-[var(--fg)]">Deposit Funds</h3>
-                  <p className="mt-2 text-sm text-[var(--muted)]">Pay in USDT (TRC20) from any wallet. Your plan activates as soon as the network confirms, and the $50 free credit unlocks on your first deposit.</p>
-                  <button onClick={() => setShowDepositModal(true)}
-                    className="mt-4 w-full rounded-xl bg-gradient-to-r from-[var(--gold)] to-amber-500 px-6 py-3 text-sm font-bold text-black transition hover:brightness-110">
-                    Deposit with Crypto (USDT TRC20)
-                  </button>
-                  <div className="mt-3 flex gap-2">
-                    {[100, 500, 1000, 5000].map(a => (
-                      <button key={a} onClick={() => setShowDepositModal(true)} className="rounded-lg border border-[var(--border)] px-3 py-1.5 text-xs text-[var(--muted)] hover:border-[var(--gold)] hover:text-[var(--gold)]">${a.toLocaleString("en-US")}</button>
-                    ))}
-                  </div>
-                  <p className="mt-3 text-xs text-[var(--muted)]">Min $100 · Max $15,000 · Faithful $100+ · Steward $1,000+ · Ambassador $5,000+</p>
-                  <div className="mt-4 border-t border-[var(--border)] pt-4">
-                    <p className="text-xs text-[var(--muted)]">Need your deposit back? Principal withdrawals need admin approval (12-24h) and carry a 50% fee inside your {wallet.holdMonths || 6}-month holding period — profit is never touched.</p>
-                    <button onClick={() => setShowPrincipalWithdraw(true)} disabled={!wallet.deposited}
-                      className="mt-3 w-full rounded-xl border border-[var(--border)] px-6 py-2.5 text-sm font-bold text-[var(--fg)] transition hover:border-[var(--gold)] hover:text-[var(--gold)] disabled:opacity-40">
-                      Withdraw Principal (${(wallet.deposited || 0).toLocaleString("en-US", { minimumFractionDigits: 2 })})
-                    </button>
-                  </div>
+            {/* ═══ WALLET ═══ */}
+            {tab === 'wallet' && (
+              <>
+                <PageHeader crumbs={['Member', 'Wallet']} title="Wallet & Funds" description="Deposits, principal withdrawals and your full transaction ledger."
+                  actions={<>
+                    <Button variant="secondary" onClick={() => setShowPrincipalWithdraw(true)} disabled={deposited <= 0}>Withdraw principal</Button>
+                    <Button variant="primary" onClick={() => setShowDepositModal(true)}>Deposit with Crypto</Button>
+                  </>} />
+                {actionMsg && <div className="mt-6 rounded-xl border border-[var(--gold)]/40 bg-[var(--gold)]/10 px-5 py-3 text-center text-[13px] text-[var(--gold)]">{actionMsg}</div>}
+                <div className="mt-6 grid gap-6 md:grid-cols-3">
+                  <StatCard label="Principal" value={`$${money(deposited)}`} context="Invested in your plan" />
+                  <StatCard label="Profit available" value={`$${money(availableProfit)}`} tone="profit" context="Automatic payout · no approval" onClick={() => setShowProfitWithdraw(true)} />
+                  <StatCard label="Platform credit" value={wallet.freeCreditUnlocked ? '$50.00' : 'Locked'} tone="gold" context={wallet.freeCreditUnlocked ? 'Not withdrawable' : 'Unlocks with your first deposit'} />
                 </div>
-
-                <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] p-6">
-                  <h3 className="text-lg font-bold text-[var(--fg)]">Withdraw Profit</h3>
-                  <p className="mt-2 text-sm text-[var(--muted)]">Profit pays straight to your crypto wallet (USDT), automatically, with no admin wait.</p>
-                  <p className="mt-3 text-xs text-[var(--muted)]">Use the <b className="text-[var(--fg)]">Profit Earnings</b> panel below to withdraw.</p>
+                <div className="mt-6 grid gap-6 lg:grid-cols-2">
+                  <DataCard title="Deposit" subtitle="Pay in USDT (TRC20) from any wallet. Plan activates on network confirmation and the $50 credit unlocks on your first deposit." interactive>
+                    <div className="grid grid-cols-4 gap-2">
+                      {[100, 500, 1000, 5000].map((a) => <Button key={a} variant="secondary" size="sm" onClick={() => setShowDepositModal(true)}>${a.toLocaleString('en-US')}</Button>)}
+                    </div>
+                    <Button variant="primary" className="mt-3 w-full" onClick={() => setShowDepositModal(true)}>Deposit with Crypto (USDT TRC20)</Button>
+                    <p className="mt-3 text-[12px] text-[var(--muted)]">Min $100 · Max $15,000 · Faithful $100+ · Steward $1,000+ · Ambassador $5,000+</p>
+                  </DataCard>
+                  <DataCard title="Withdraw" interactive>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between rounded-lg border border-[var(--border)] px-4 py-3">
+                        <div>
+                          <p className="text-[14px] font-medium text-[var(--fg)]">Profit</p>
+                          <p className="text-[12px] text-[var(--muted)]">Automatic payout · no fee · minutes</p>
+                        </div>
+                        <Button variant="primary" size="sm" onClick={() => setShowProfitWithdraw(true)} disabled={availableProfit <= 0}>Withdraw ${money(availableProfit)}</Button>
+                      </div>
+                      <div className="flex items-center justify-between rounded-lg border border-[var(--border)] px-4 py-3">
+                        <div>
+                          <p className="text-[14px] font-medium text-[var(--fg)]">Principal</p>
+                          <p className="text-[12px] text-[var(--muted)]">Admin review 12–24h · 50% fee inside your {wallet.holdMonths || 6}-month holding period — profit is never touched</p>
+                        </div>
+                        <Button variant="secondary" size="sm" onClick={() => setShowPrincipalWithdraw(true)} disabled={deposited <= 0}>Request</Button>
+                      </div>
+                      <div className="flex items-center justify-between rounded-lg border border-[var(--border)] px-4 py-3">
+                        <div>
+                          <p className="text-[14px] font-medium text-[var(--fg)]">Referral earnings</p>
+                          <p className="text-[12px] text-[var(--muted)]">Admin review · unlocks after 7-day hold</p>
+                        </div>
+                        <Button variant="secondary" size="sm" onClick={() => go('referrals')}>Go to Referrals</Button>
+                      </div>
+                    </div>
+                  </DataCard>
                 </div>
-              </div>
-
-              {actionMsg && <div className="rounded-xl border border-[var(--gold)]/40 bg-[var(--gold)]/10 p-4 text-center text-sm text-[var(--gold)]">{actionMsg}</div>}
-
-              <ProfitDisplay />
-
-              <DepositHistory />
-
-              <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] p-6">
-                <h3 className="mb-4 text-lg font-bold text-[var(--fg)]">Transaction History</h3>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left font-mono text-[11px]">
-                    <thead><tr className="border-b border-[var(--border)] text-[9px] uppercase tracking-widest text-[var(--muted)]">
-                      <th className="px-2 py-2">Date</th><th className="px-2 py-2">Type</th><th className="px-2 py-2">Amount</th><th className="px-2 py-2">Status</th>
-                    </tr></thead>
-                    <tbody>
-                      {(wallet.deposits ?? []).map((d: any, i: number) => (
-                        <tr key={`d${i}`} className="border-b border-[var(--border)]">
-                          <td className="px-2 py-2 text-[var(--muted)]">{fmtDate(d.date)}</td>
-                          <td className="px-2 py-2 font-bold text-[var(--profit)]">Deposit</td>
-                          <td className="px-2 py-2 text-[var(--fg)]">${fmt(d.amount)}</td>
-                          <td className="px-2 py-2 capitalize text-[var(--muted)]">{d.status}</td>
-                        </tr>
-                      ))}
-                      {(wallet.withdrawals ?? []).map((w: any, i: number) => (
-                        <tr key={`w${i}`} className="border-b border-[var(--border)]">
-                          <td className="px-2 py-2 text-[var(--muted)]">{fmtDate(w.date)}</td>
-                          <td className="px-2 py-2 font-bold text-[var(--loss)]">Withdrawal</td>
-                          <td className="px-2 py-2 text-[var(--fg)]">${fmt(w.amount)}</td>
-                          <td className="px-2 py-2 capitalize text-[var(--muted)]">{w.status}</td>
-                        </tr>
-                      ))}
-                      {(wallet.deposits ?? []).length === 0 && (wallet.withdrawals ?? []).length === 0 && (
-                        <tr><td colSpan={4} className="px-2 py-6 text-center text-[var(--muted)]">No transactions yet.</td></tr>
-                      )}
-                    </tbody>
-                  </table>
+                <div className="mt-6">
+                  <DataCard title="All transactions" padded={false}>
+                    <div className="px-2 pb-2">
+                      <DataTable
+                        rows={txnRows}
+                        pageSize={8}
+                        emptyText="No transactions yet."
+                        columns={[
+                          { key: 'date', header: 'Date', width: '110px', render: (r: any) => fmtDate(r.date || 0) },
+                          { key: 'type', header: 'Description' },
+                          { key: 'amount', header: 'Amount', align: 'right', render: (r: any) => <span className={r.kind === 'in' ? 'text-[var(--profit)]' : ''}>{r.kind === 'in' ? '+' : '−'}${money(Math.abs(r.amount))}</span> },
+                          { key: 'status', header: 'Status', align: 'right', render: (r: any) => (
+                            <StatusPill tone={r.status === 'completed' || r.status === 'finished' || r.status === 'confirmed' ? 'green' : r.status === 'failed' || r.status === 'rejected' || r.status === 'cancelled' ? 'red' : r.status === 'pending_approval' || r.status === 'awaiting_engine_transfer' || r.status === 'processing' ? 'cyan' : 'gold'}>{cap(String(r.status).replace(/_/g, ' '))}</StatusPill>
+                          ) },
+                        ]}
+                      />
+                    </div>
+                  </DataCard>
                 </div>
-              </div>
-            </div>
-          )}
-
-          {/* ═══ AI ENGINE ═══ */}
-          {activeTab === "ai-engine" && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-bold text-[var(--fg)]">AI Trade Engine: Live Terminal</h3>
-                <span className="text-xs text-[var(--muted)]">Real-time execution · 500ms refresh · 5s candles</span>
-              </div>
-              <ProEngine initialSymbol="BTC" />
-            </div>
-          )}
-
-          {/* ═══ MARKETS ═══ */}
-          {activeTab === "markets" && <MarketsGrid />}
-
-          {/* ═══ REFERRALS ═══ */}
-          {activeTab === "referrals" && (
-            <div className="space-y-6">
-              <div className="grid gap-4 md:grid-cols-3">
-                <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] p-6"><p className="text-sm text-[var(--muted)]">Total Referrals</p><p className="mt-2 text-3xl font-extrabold text-[var(--fg)]">{referral?.referrals?.length ?? 0}</p></div>
-                <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] p-6"><p className="text-sm text-[var(--muted)]">Bonus Earned</p><p className="mt-2 text-3xl font-extrabold text-[var(--profit)]">${fmt(referral?.bonusEarned ?? 0)}</p></div>
-                <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] p-6"><p className="text-sm text-[var(--muted)]">Your Code</p><p className="mt-2 text-2xl font-extrabold text-[var(--gold)] font-mono">{referral?.code ?? "—"}</p></div>
-              </div>
-              <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] p-6">
-                <h3 className="mb-4 text-lg font-bold text-[var(--fg)]">Your Referral Link</h3>
-                <div className="flex gap-2">
-                  <input readOnly value={`${typeof window !== "undefined" ? window.location.origin : ""}/register?ref=${referral?.code ?? ""}`}
-                    onFocus={(e) => e.target.select()}
-                    className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--bg)] px-4 py-3 font-mono text-xs text-[var(--gold)] outline-none" />
-                  <button onClick={async () => { try { await navigator.clipboard.writeText(`${window.location.origin}/register?ref=${referral?.code}`); setActionMsg("Link copied!"); setTimeout(() => setActionMsg(""), 2000); } catch {} }}
-                    className="rounded-lg bg-[var(--gold)] px-6 py-3 text-sm font-bold text-black transition hover:brightness-110">Copy</button>
+                <div className="mt-6">
+                  <DepositHistory />
                 </div>
-                {actionMsg && <p className="mt-2 text-xs text-[var(--gold)]">{actionMsg}</p>}
-              </div>
-              <ReferralDisplay />
-            </div>
-          )}
+              </>
+            )}
 
-          {/* ═══ SECURITY ═══ */}
-          {activeTab === "security" && (
-            <div className="space-y-6">
-              <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] p-6">
-                <h3 className="text-lg font-bold text-[var(--fg)]">Account Security</h3>
-                <div className="mt-4 space-y-4">
-                  <div className="flex items-center justify-between rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
-                    <div><p className="font-bold text-[var(--fg)]">Email Verification</p><p className="text-xs text-[var(--muted)]">Your email is verified and secure</p></div>
-                    <span className="rounded-full bg-[var(--profit)]/15 px-3 py-1 text-xs font-bold text-[var(--profit)]">✓ Verified</span>
-                  </div>
-                  <div className="flex items-center justify-between rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
-                    <div><p className="font-bold text-[var(--fg)]">Two-Factor Authentication</p><p className="text-xs text-[var(--muted)]">Add an extra layer of security</p></div>
-                    <button className="rounded-lg border border-[var(--border)] px-4 py-2 text-xs text-[var(--fg)] hover:border-[var(--gold)] hover:text-[var(--gold)]">Enable</button>
+            {/* ═══ EARNINGS ═══ */}
+            {tab === 'earnings' && (
+              <>
+                <PageHeader crumbs={['Member', 'Earnings']} title="Profit Earnings" description="Your daily accruals, lifetime profit and withdrawal history." />
+                <div className="mt-6">
+                  <ProfitDisplay />
+                </div>
+              </>
+            )}
+
+            {/* ═══ AI ENGINE ═══ */}
+            {tab === 'engine' && (
+              <>
+                <PageHeader crumbs={['Member', 'AI Engine']} title="AI Engine" description="Live terminal — real-time execution on your allocated desk." />
+                <div className="mt-6">
+                  <ProEngine initialSymbol="BTC" />
+                </div>
+              </>
+            )}
+
+            {/* ═══ MARKETS ═══ */}
+            {tab === 'markets' && (
+              <>
+                <PageHeader crumbs={['Member', 'Markets']} title="Markets" description="Live prices across every asset class the engine trades." />
+                <div className="mt-6"><MarketsGrid /></div>
+              </>
+            )}
+
+            {/* ═══ REFERRALS ═══ */}
+            {tab === 'referrals' && (
+              <>
+                <PageHeader crumbs={['Member', 'Referrals']} title="Referrals" description="2.5% of each friend's first deposit, plus 0.1% of their profit for life. Funds unlock after a 7-day hold." />
+                <div className="mt-6 grid gap-4 md:grid-cols-4">
+                  <StatCard label="Total referrals" value={referral?.referrals?.length ?? 0} />
+                  <StatCard label="Bonus earned" value={`$${fmt(referral?.bonusEarned ?? 0)}`} tone="profit" />
+                  <StatCard label="Referral count" value={wallet.memberReferralsCount ?? 0} context="Members funded through you" />
+                  <div className="ds-card rounded-xl px-5 py-4">
+                    <Label>Your code</Label>
+                    <div className="mt-2"><Num className="font-mono text-[var(--gold)]">{referral?.code ?? '—'}</Num></div>
+                    <p className="mt-1 text-[12px] text-[var(--muted)]">kingdomtradex.com/register?ref=…</p>
                   </div>
                 </div>
-              </div>
-            </div>
-          )}
-
-          {/* ═══ SUPPORT ═══ */}
-          {activeTab === "support" && (
-            <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] p-6">
-              <h3 className="text-lg font-bold text-[var(--fg)]">Support Center</h3>
-              <p className="mt-2 text-sm text-[var(--muted)]">Need help? Our team is here for you.</p>
-              <div className="mt-4 grid gap-4 md:grid-cols-2">
-                <a href="/help-center" className="rounded-xl border border-[var(--border)] p-4 transition hover:border-[var(--gold)]">
-                  <p className="font-bold text-[var(--fg)]">FAQ</p><p className="mt-1 text-xs text-[var(--muted)]">Answers to common questions</p>
-                </a>
-                <a href="mailto:support@kingdomtradex.com" className="rounded-xl border border-[var(--border)] p-4 transition hover:border-[var(--gold)]">
-                  <p className="font-bold text-[var(--fg)]">Email Support</p><p className="mt-1 text-xs text-[var(--muted)]">support@kingdomtradex.com</p>
-                </a>
-              </div>
-            </div>
-          )}
-
-          {/* ═══ SETTINGS ═══ */}
-          {activeTab === "settings" && (
-            <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] p-6">
-              <h3 className="text-lg font-bold text-[var(--fg)]">Account Settings</h3>
-              <div className="mt-4 space-y-4">
-                <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
-                  <p className="text-sm font-bold text-[var(--fg)]">Display Name</p>
-                  <p className="mt-1 text-sm text-[var(--muted)]">{me?.name ?? "—"}</p>
+                <div className="mt-6">
+                  <DataCard title="Invite link">
+                    <div className="flex gap-2">
+                      <input readOnly value={`${typeof window !== 'undefined' ? window.location.origin : ''}/register?ref=${referral?.code ?? ''}`}
+                        onFocus={(e) => e.target.select()}
+                        className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--bg)] px-4 py-3 font-mono text-[13px] text-[var(--gold)] outline-none" />
+                      <Button variant="primary" onClick={async () => { try { await navigator.clipboard.writeText(`${window.location.origin}/register?ref=${referral?.code}`); setActionMsg('Link copied!'); setTimeout(() => setActionMsg(''), 2000); } catch {} }}>Copy</Button>
+                    </div>
+                    {actionMsg && <p className="mt-2 text-[12px] text-[var(--gold)]">{actionMsg}</p>}
+                  </DataCard>
                 </div>
-                <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
-                  <p className="text-sm font-bold text-[var(--fg)]">Current Tier</p>
-                  <p className={`mt-1 text-sm font-bold ${tierColors[wallet.tier]}`}>{tierLabels[wallet.tier]}</p>
+                <div className="mt-6">
+                  <ReferralDisplay />
                 </div>
-              </div>
-            </div>
-          )}
+              </>
+            )}
+
+            {/* ═══ SECURITY ═══ */}
+            {tab === 'security' && (
+              <>
+                <PageHeader crumbs={['Member', 'Security']} title="Security" description="Protect your account." />
+                <div className="mt-6 grid gap-6 lg:grid-cols-2">
+                  <DataCard title="Verified" subtitle="Identity signals on your account">
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between rounded-lg border border-[var(--border)] px-4 py-3">
+                        <div><p className="text-[14px] font-medium text-[var(--fg)]">Email verification</p><p className="text-[12px] text-[var(--muted)]">{wallet.email}</p></div>
+                        <StatusPill tone="green">Verified</StatusPill>
+                      </div>
+                      <div className="flex items-center justify-between rounded-lg border border-[var(--border)] px-4 py-3">
+                        <div><p className="text-[14px] font-medium text-[var(--fg)]">Two-factor authentication</p><p className="text-[12px] text-[var(--muted)]">Add an extra layer of security</p></div>
+                        <Button variant="secondary" size="sm">{wallet.twoFactorEnabled ? 'Enabled' : 'Enable'}</Button>
+                      </div>
+                    </div>
+                  </DataCard>
+                  <DataCard title="Agreements">
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between rounded-lg border border-[var(--border)] px-4 py-3">
+                        <div><p className="text-[14px] font-medium text-[var(--fg)]">Trading Agreement</p><p className="text-[12px] text-[var(--muted)]">{me?.hasSignedAgreement ? 'Signed' : 'Signature required'}</p></div>
+                        <Button variant="secondary" size="sm" onClick={() => setShowAgreement(true)}>View</Button>
+                      </div>
+                      <div className="flex items-center justify-between rounded-lg border border-[var(--border)] px-4 py-3">
+                        <div><p className="text-[14px] font-medium text-[var(--fg)]">Trustpilot review</p><p className="text-[12px] text-[var(--muted)]">Share your experience</p></div>
+                        <Button variant="ghost" size="sm" onClick={() => { setReviewTrigger('activeUser30Days'); setShowReviewModal(true); }}>Leave review</Button>
+                      </div>
+                    </div>
+                  </DataCard>
+                </div>
+              </>
+            )}
+
+            {/* ═══ SUPPORT ═══ */}
+            {tab === 'support' && (
+              <>
+                <PageHeader crumbs={['Member', 'Support']} title="Support" description="Our team is here for you." />
+                <div className="mt-6 grid gap-6 md:grid-cols-2">
+                  <DataCard title="Help Center" subtitle="Answers to common questions" interactive>
+                    <Button variant="secondary" className="w-full" onClick={() => { window.location.href = '/help-center'; }}>Open Help Center</Button>
+                  </DataCard>
+                  <DataCard title="Email Support" subtitle="support@kingdomtradex.com" interactive>
+                    <Button variant="secondary" className="w-full" onClick={() => { window.location.href = 'mailto:support@kingdomtradex.com'; }}>Write to us</Button>
+                  </DataCard>
+                </div>
+              </>
+            )}
+
+            {/* ═══ SETTINGS ═══ */}
+            {tab === 'settings' && (
+              <>
+                <PageHeader crumbs={['Member', 'Settings']} title="Settings" description="Profile and preferences." />
+                <div className="mt-6 grid gap-6 lg:grid-cols-2">
+                  <DataCard title="Profile">
+                    <div className="space-y-2.5">
+                      <StatInline label="Display name" value={me?.name ?? wallet.name ?? '—'} />
+                      <StatInline label="Email" value={wallet.email ?? '—'} />
+                      <StatInline label="Current tier" value={TIER_LABELS[tier]} tone="gold" />
+                      <StatInline label="Member since" value={wallet.depositAt ? fmtDate(wallet.depositAt) : '—'} />
+                    </div>
+                  </DataCard>
+                  <DataCard title="Preferences">
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between rounded-lg border border-[var(--border)] px-4 py-3">
+                        <div><p className="text-[14px] font-medium text-[var(--fg)]">Theme</p><p className="text-[12px] text-[var(--muted)]">Toggle below in the sidebar footer</p></div>
+                        <ThemeToggle />
+                      </div>
+                      <div className="flex items-center justify-between rounded-lg border border-[var(--border)] px-4 py-3">
+                        <div><p className="text-[14px] font-medium text-[var(--fg)]">Session</p><p className="text-[12px] text-[var(--muted)]">Sign out of this device</p></div>
+                        <Button variant="danger" size="sm" onClick={handleLogout}>Sign out</Button>
+                      </div>
+                    </div>
+                  </DataCard>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </main>
 
       {/* TOUR */}
       <SpotlightTour steps={TOUR_STEPS} activeStep={tourStep} onComplete={completeTour} />
 
-      {/* Tier Comparison Modal */}
-      <TierComparison
-        currentTier={wallet.tier}
-        deposited={wallet.deposited}
-        isOpen={showTierModal}
-        onClose={() => setShowTierModal(false)}
-      />
+      {/* MODALS (all preserved) */}
+      <TierComparison currentTier={wallet.tier} deposited={deposited} isOpen={showTierModal} onClose={() => setShowTierModal(false)} />
 
       {showAgreement && (
         <TradingAgreementModal
           userName={me?.name}
           onAgree={() => {
             setShowAgreement(false);
-            setMe((m: any) => m ? { ...m, hasSignedAgreement: true } : m);
+            setMe((m: any) => (m ? { ...m, hasSignedAgreement: true } : m));
           }}
         />
       )}
@@ -447,14 +499,10 @@ export default function ConsolePage() {
         secondaryAction={{ label: 'Leave a Trustpilot review', url: SOCIAL_URLS.trustpilot }}
       />
 
-      <ReviewInvitationModal
-        open={showReviewModal}
-        triggerType={reviewTrigger}
-        onClose={() => setShowReviewModal(false)}
-        onInvited={() => setShowReviewModal(false)}
-      />
+      <ReviewInvitationModal open={showReviewModal} triggerType={reviewTrigger} onClose={() => setShowReviewModal(false)} onInvited={() => setShowReviewModal(false)} />
       <DepositModal open={showDepositModal} onClose={() => setShowDepositModal(false)} />
-      <PrincipalWithdrawModal open={showPrincipalWithdraw} onClose={() => setShowPrincipalWithdraw(false)} principal={Number(wallet.deposited || 0)} tier={wallet.tier} depositAt={wallet.depositAt} onDone={loadWallet} />
+      <ProfitWithdrawModal open={showProfitWithdraw} onClose={() => setShowProfitWithdraw(false)} availableProfit={availableProfit} onDone={loadWallet} />
+      <PrincipalWithdrawModal open={showPrincipalWithdraw} onClose={() => setShowPrincipalWithdraw(false)} principal={deposited} tier={tier} depositAt={wallet.depositAt} onDone={loadWallet} />
     </div>
   );
 }
@@ -464,7 +512,7 @@ function MarketsGrid() {
   useEffect(() => {
     async function load() {
       try {
-        const res = await fetch("/api/markets", { cache: "no-store" });
+        const res = await fetch('/api/markets', { cache: 'no-store' });
         if (res.ok) { const d = await res.json(); setAssets(d.assets || []); }
       } catch {}
     }
@@ -480,13 +528,13 @@ function MarketsGrid() {
       {assets.map((a) => {
         const up = a.change24h >= 0;
         return (
-          <div key={a.id} className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] p-4">
+          <div key={a.id} className="ds-card rounded-xl p-4">
             <div className="flex items-center justify-between">
-              <p className="font-bold text-[var(--fg)]">{a.symbol}</p>
-              <span className={`text-xs font-bold ${up ? "text-[var(--profit)]" : "text-[var(--loss)]"}`}>{up ? "+" : ""}{a.change24h.toFixed(1)}%</span>
+              <p className="font-medium text-[var(--fg)]">{a.symbol}</p>
+              <span className={`text-[12px] tabular-nums ${up ? 'text-[var(--profit)]' : 'text-[var(--loss)]'}`}>{up ? '+' : ''}{a.change24h.toFixed(1)}%</span>
             </div>
-            <p className="mt-1 text-xs text-[var(--muted)]">{a.name}</p>
-            <p className="mt-2 text-lg font-extrabold text-[var(--fg)] tabular-nums">${fmt(a.price)}</p>
+            <p className="mt-1 text-[12px] text-[var(--muted)]">{a.name}</p>
+            <p className="mt-2 text-[16px] font-medium tabular-nums text-[var(--fg)]">${fmt(a.price)}</p>
           </div>
         );
       })}
