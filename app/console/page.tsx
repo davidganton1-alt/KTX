@@ -12,6 +12,7 @@ import { SOCIAL_URLS } from "@/lib/social";
 import { SpotlightTour } from "@/components/SpotlightTour";
 import { DepositModal } from "@/components/DepositModal";
 import { DepositHistory } from "@/components/DepositHistory";
+import { ProfitDisplay } from "@/components/ProfitDisplay";
 
 const fmt = (p: number) => p >= 1000 ? p.toLocaleString(undefined, { maximumFractionDigits: 0 }) : p.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const fmtDate = (ms: number) => new Date(ms).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
@@ -292,6 +293,8 @@ export default function ConsolePage() {
               </div>
 
               {actionMsg && <div className="rounded-xl border border-[var(--gold)]/40 bg-[var(--gold)]/10 p-4 text-center text-sm text-[var(--gold)]">{actionMsg}</div>}
+
+              <ProfitDisplay />
 
               <DepositHistory />
 

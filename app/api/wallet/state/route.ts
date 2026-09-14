@@ -3,6 +3,7 @@ import { getSession, legacyIdFor } from "@/lib/auth";
 import { db, TIERS, type Tier } from "@/lib/store";
 import { supabaseAdmin } from "@/lib/supabase";
 import { syncWalletFromJson, walletBalance, type WalletRow } from "@/lib/wallet";
+import { TIER_RATES as TIER_RATES_FOR_STATE } from "@/lib/profitAccrual";
 
 export const dynamic = "force-dynamic";
 
@@ -40,6 +41,16 @@ export async function GET() {
   }
 
   if (!wallet) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+  // Phase C profit ledger fields (profiles is the record of truth)
+  const { data: prof } = await supabaseAdmin
+    .from("profiles")
+    .select("accumulated_profit, total_profit_withdrawn, platform_credit, last_profit_accrual_at")
+    .eq("id", session.id)
+    .maybeSingle();
+  const accumulatedProfit = Number(prof?.accumulated_profit || 0);
+  const totalProfitWithdrawn = Number(prof?.total_profit_withdrawn || 0);
+  const platformCredit = Number(prof?.platform_credit || 0);
 
   const w = wallet as WalletRow;
   const tier = ((w.tier && w.tier !== "none" ? w.tier : u?.tier) || "none") as
@@ -80,5 +91,11 @@ export async function GET() {
     lastSeenNotifs: u?.lastSeenNotifs ?? 0,
     suspended: u?.suspended || false,
     accruedTotal: Number(w.accrued_total),
+    accumulatedProfit,
+    totalProfitWithdrawn,
+    availableProfit: +(accumulatedProfit - totalProfitWithdrawn).toFixed(4),
+    platformCredit,
+    lastProfitAccrualAt: prof?.last_profit_accrual_at ?? null,
+    tierRate: TIER_RATES_FOR_STATE[tier as string] ?? null,
   });
 }
