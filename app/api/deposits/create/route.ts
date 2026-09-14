@@ -102,6 +102,7 @@ export async function POST(req: NextRequest) {
         user_id: session.id,
         nowpayments_payment_id: payment.payment_id,
         amount: amt,
+        pay_amount: payment.pay_amount ?? null,
         currency: PAY_CURRENCY,
         status: 'waiting',
         deposit_address: payment.pay_address,

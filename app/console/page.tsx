@@ -10,6 +10,8 @@ import { ShareGate } from "@/components/ShareGate";
 import { ReviewInvitationModal } from "@/components/ReviewInvitationModal";
 import { SOCIAL_URLS } from "@/lib/social";
 import { SpotlightTour } from "@/components/SpotlightTour";
+import { DepositModal } from "@/components/DepositModal";
+import { DepositHistory } from "@/components/DepositHistory";
 
 const fmt = (p: number) => p >= 1000 ? p.toLocaleString(undefined, { maximumFractionDigits: 0 }) : p.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const fmtDate = (ms: number) => new Date(ms).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
@@ -46,6 +48,7 @@ export default function ConsolePage() {
   const [reviewTrigger, setReviewTrigger] = useState<'firstWithdrawal' | 'activeUser30Days' | 'thirdWithdrawal'>('firstWithdrawal');
   const [pendingReviewAfterShare, setPendingReviewAfterShare] = useState(false);
   const [depositAmount, setDepositAmount] = useState("");
+  const [showDepositModal, setShowDepositModal] = useState(false);
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const [actionMsg, setActionMsg] = useState("");
   const [engineSymbol, setEngineSymbol] = useState("BTC");
@@ -117,6 +120,13 @@ export default function ConsolePage() {
     const res = await fetch("/api/wallet/state", { cache: "no-store" });
     if (res.ok) setWallet(await res.json());
   }
+
+  // refresh the funds panels when a crypto deposit confirms elsewhere
+  useEffect(() => {
+    const h = () => { loadWallet(); };
+    window.addEventListener('ktx:deposits-changed', h);
+    return () => window.removeEventListener('ktx:deposits-changed', h);
+  }, []);
 
   async function completeTour() {
     setTourStep(0);
@@ -210,7 +220,7 @@ export default function ConsolePage() {
 
               {/* Quick Actions */}
               <div id="tour-actions" className="grid gap-4 md:grid-cols-3">
-                <button onClick={() => setActiveTab("wallet")} className="group rounded-xl border border-emerald-500/20 bg-[var(--profit)]/10 p-5 text-left transition hover:bg-[var(--profit)]/20">
+                <button id="tour-actions" onClick={() => setShowDepositModal(true)} className="group rounded-xl border border-emerald-500/20 bg-[var(--profit)]/10 p-5 text-left transition hover:bg-[var(--profit)]/20">
                   <span className="text-2xl text-[var(--profit)]">💰</span>
                   <p className="mt-2 font-bold text-[var(--profit)]">Deposit Funds</p>
                   <p className="mt-1 text-xs text-[var(--muted)]">Activate your plan & unlock credit</p>
@@ -255,18 +265,17 @@ export default function ConsolePage() {
               <div className="grid gap-6 md:grid-cols-2">
                 <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] p-6">
                   <h3 className="text-lg font-bold text-[var(--fg)]">Deposit Funds</h3>
-                  <p className="mt-2 text-sm text-[var(--muted)]">Add funds to activate your plan and unlock the $50 free credit.</p>
-                  <div className="mt-4 flex gap-3">
-                    <input type="number" value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)} placeholder="0.00" min="1"
-                      className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--bg)] px-4 py-3 text-sm text-[var(--fg)] outline-none focus:border-[var(--gold)]" />
-                    <button onClick={handleDeposit} disabled={!depositAmount || Number(depositAmount) <= 0}
-                      className="rounded-lg bg-[var(--profit)] px-6 py-3 text-sm font-bold text-[var(--fg)] transition hover:bg-[var(--profit)] disabled:opacity-50">Deposit</button>
-                  </div>
+                  <p className="mt-2 text-sm text-[var(--muted)]">Pay in USDT (TRC20) from any wallet. Your plan activates as soon as the network confirms, and the $50 free credit unlocks on your first deposit.</p>
+                  <button onClick={() => setShowDepositModal(true)}
+                    className="mt-4 w-full rounded-xl bg-gradient-to-r from-[var(--gold)] to-amber-500 px-6 py-3 text-sm font-bold text-black transition hover:brightness-110">
+                    Deposit with Crypto (USDT TRC20)
+                  </button>
                   <div className="mt-3 flex gap-2">
-                    {[100, 500, 1000, 2500].map(a => (
-                      <button key={a} onClick={() => setDepositAmount(String(a))} className="rounded-lg border border-[var(--border)] px-3 py-1.5 text-xs text-[var(--muted)] hover:border-[var(--gold)] hover:text-[var(--gold)]">${a}</button>
+                    {[100, 500, 1000, 5000].map(a => (
+                      <button key={a} onClick={() => setShowDepositModal(true)} className="rounded-lg border border-[var(--border)] px-3 py-1.5 text-xs text-[var(--muted)] hover:border-[var(--gold)] hover:text-[var(--gold)]">${a.toLocaleString("en-US")}</button>
                     ))}
                   </div>
+                  <p className="mt-3 text-xs text-[var(--muted)]">Min $100 · Max $15,000 · Faithful $100+ · Steward $1,000+ · Ambassador $5,000+</p>
                 </div>
 
                 <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] p-6">
@@ -283,6 +292,8 @@ export default function ConsolePage() {
               </div>
 
               {actionMsg && <div className="rounded-xl border border-[var(--gold)]/40 bg-[var(--gold)]/10 p-4 text-center text-sm text-[var(--gold)]">{actionMsg}</div>}
+
+              <DepositHistory />
 
               <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] p-6">
                 <h3 className="mb-4 text-lg font-bold text-[var(--fg)]">Transaction History</h3>
@@ -454,6 +465,7 @@ export default function ConsolePage() {
         onClose={() => setShowReviewModal(false)}
         onInvited={() => setShowReviewModal(false)}
       />
+      <DepositModal open={showDepositModal} onClose={() => setShowDepositModal(false)} />
     </div>
   );
 }
