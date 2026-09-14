@@ -29,7 +29,13 @@ async function refundPrincipal(withdrawal: any, reason: string) {
         .eq('id', w.id);
     }
     const { db } = await import('@/lib/store');
-    db.notify(legacyIdFor(withdrawal.user_id), `Principal withdrawal of $${Number(withdrawal.amount).toFixed(2)} ${reason}. Funds returned to your plan.`, 'withdrawal');
+    const lid = legacyIdFor(withdrawal.user_id);
+    const ju = db.findById(lid);
+    if (ju) {
+      // JSON is the mirror source for the funds view — restore it too
+      db.update(lid, { deposited: +(Number(ju.deposited || 0) + Number(withdrawal.amount)).toFixed(2) });
+    }
+    db.notify(lid, `Principal withdrawal of $${Number(withdrawal.amount).toFixed(2)} ${reason}. Funds returned to your plan.`, 'withdrawal');
   } catch (e: any) {
     console.error('[principal-approvals] refund failed:', e.message);
   }

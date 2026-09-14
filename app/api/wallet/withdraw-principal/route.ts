@@ -73,6 +73,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Principal moved while requesting, please retry.' }, { status: 409 });
     }
 
+    // Reserve in the JSON operational store too — the state route mirrors
+    // JSON -> Supabase wallets, so a JSON-only reservation would be undone
+    // (and a Supabase-only one gets overwritten on the next read).
+    const { legacyIdFor } = await import('@/lib/auth');
+    const { db } = await import('@/lib/store');
+    const lid = legacyIdFor(session.id);
+    const ju = db.findById(lid);
+    if (ju) {
+      db.update(lid, { deposited: +(Number(ju.deposited || 0) - amt).toFixed(2) });
+    }
+
     const { data: withdrawal, error: withdrawalError } = await supabaseAdmin
       .from('withdrawals')
       .insert({
@@ -94,11 +105,18 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (withdrawalError || !withdrawal) {
-      // release the reservation
+      // release the reservation (both stores)
       await supabaseAdmin
         .from('wallets')
-        .update({ principal: +(Number(wallet.principal) ).toFixed(2) })
+        .update({ principal: +(Number(wallet.principal)).toFixed(2) })
         .eq('id', wallet.id);
+      try {
+        const { legacyIdFor: lif } = await import('@/lib/auth');
+        const { db: d } = await import('@/lib/store');
+        const lid2 = lif(session.id);
+        const ju2 = d.findById(lid2);
+        if (ju2) d.update(lid2, { deposited: +(Number(ju2.deposited || 0) + amt).toFixed(2) });
+      } catch {}
       return NextResponse.json({ error: 'Failed to create withdrawal' }, { status: 500 });
     }
 
