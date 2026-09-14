@@ -1,6 +1,6 @@
-import { supabaseAdmin } from "@/lib/supabase";
-import { creditWallet, debitWallet, getWalletBalance } from "@/lib/walletService";
-import { createPayout, validatePayoutAddress } from "@/lib/nowpayments";
+import { supabaseAdmin } from '@/lib/supabase';
+import { creditWallet, debitWallet, getWalletBalance } from '@/lib/walletService';
+import { createWithdrawal, isValidUSDTAddress, usdtTicker } from '@/lib/plisio';
 
 // Shared automatic profit-withdrawal core (Phase C.5).
 // Used by /api/profit/withdraw and (with address) the legacy /api/wallet/withdraw.
@@ -44,17 +44,12 @@ export async function processProfitWithdrawal(
     return { ok: false, status: 503, error: "Payout wallet temporarily low. Please try again later." };
   }
 
-  let valid = true;
-  try {
-    const validation = await validatePayoutAddress(address.trim(), coin);
-    valid = validation.result;
-  } catch {
-    // validation API hiccup: refuse rather than send to an unchecked address
-    return { ok: false, status: 502, error: "Address validation unavailable, please retry." };
+  // Local address validation (Plisio has no validate-address endpoint and
+  // its payouts need no IP whitelist).
+  if (!isValidUSDTAddress(address.trim(), net)) {
+    return { ok: false, status: 400, error: `Invalid ${net.toUpperCase()} USDT address format` };
   }
-  if (!valid) {
-    return { ok: false, status: 400, error: "Invalid destination address for " + coin.toUpperCase() };
-  }
+  const ticker = usdtTicker(net as 'trc20' | 'bep20' | 'erc20');
 
   const { data: withdrawal, error: withdrawalError } = await supabaseAdmin
     .from("withdrawals")
@@ -65,7 +60,7 @@ export async function processProfitWithdrawal(
       amount: amt,
       network_fee: 0,
       net_amount: amt,
-      currency: coin,
+      currency: ticker,
       network: net,
       destination_address: address.trim(),
       status: "processing",
@@ -84,14 +79,21 @@ export async function processProfitWithdrawal(
   }
 
   try {
-    const payout = await createPayout({ address: address.trim(), currency: coin, amount: amt });
+    // NOTE: Plisio withdraws in the COIN unit (USDT quantity), not USD;
+    // with USDT we pass the USD figure 1:1 (fee deducted by Plisio on top).
+    const payout = await createWithdrawal({
+      currency: ticker,
+      to: address.trim(),
+      amount: amt,
+    });
+    const done = payout?.status === "finished" || payout?.status === "confirming";
 
     await supabaseAdmin
       .from("withdrawals")
       .update({
-        nowpayments_payout_id: String(payout.id),
-        status: payout.status === "finished" || payout.status === "confirming" ? "completed" : "processing",
-        completed_at: payout.status === "finished" ? new Date().toISOString() : null,
+        nowpayments_payout_id: String(payout.id || payout.txn_id || ""),
+        status: done ? "completed" : "processing",
+        completed_at: payout?.status === "finished" ? new Date().toISOString() : null,
       })
       .eq("id", withdrawal.id);
 
@@ -117,7 +119,7 @@ export async function processProfitWithdrawal(
       type: "withdrawal",
       amount: amt,
       status: "completed",
-      notes: `payout ${payout.id} ${net}`,
+      notes: `payout ${payout.id || payout.txn_id || "?"} ${net}`,
     });
 
     return {
@@ -125,7 +127,7 @@ export async function processProfitWithdrawal(
       data: {
         success: true,
         withdrawal_id: withdrawal.id,
-        payout_id: payout.id,
+        payout_id: payout.id || payout.txn_id,
         amount: amt,
         network: net,
         address: address.trim(),

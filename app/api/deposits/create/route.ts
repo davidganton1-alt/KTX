@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession, legacyIdFor, supabaseIdFor } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabase';
-import { createPayment } from '@/lib/nowpayments';
+import { createInvoice } from '@/lib/plisio';
 import { db } from '@/lib/store';
 import { pastorsDb } from '@/lib/pastorStore';
 
@@ -82,17 +82,16 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Create NOWPayments payment (placeholder key until user supplies one)
-    // This NOWPayments account prices USD against network-specific stable
-    // currencies: plain 'usdt' is rejected, 'usdttrc20' (TRON) is live and
-    // cheapest of the available options.
-    const PAY_CURRENCY = 'usdttrc20';
-    const payment = await createPayment({
-      price_amount: amt,
-      price_currency: 'usd',
-      pay_currency: PAY_CURRENCY,
-      order_id: `${session.id}-${Date.now()}`,
-      ipn_callback_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001'}/api/webhooks/nowpayments`,
+    // Create Plisio invoice (USD priced, USDT paid; Plisio picks the network
+    // from the paid currency ticker, e.g. USDTTRX for TRC20).
+    const orderNumber = `KTX-${session.id.slice(0, 8)}-${Date.now()}`;
+    const payment = await createInvoice({
+      source_currency: 'USD',
+      source_amount: amt,
+      order_number: orderNumber,
+      order_name: `KingdomTradeX ${depositTier} deposit`,
+      currency: 'USDT_TRX', // TRC-20 (Plisio plain 'USDT' = ERC-20!)
+      callback_url: process.env.PLISIO_CALLBACK_URL || `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001'}/api/webhooks/plisio?json=true`,
     });
 
     // Store deposit record
@@ -100,12 +99,12 @@ export async function POST(req: NextRequest) {
       .from('deposits')
       .insert({
         user_id: session.id,
-        nowpayments_payment_id: payment.payment_id,
+        nowpayments_payment_id: payment.txn_id, // txn_id reused as gateway id column
         amount: amt,
-        pay_amount: payment.pay_amount ?? null,
-        currency: PAY_CURRENCY,
+        pay_amount: payment.amount ? Number(payment.amount) : null,
+        currency: payment.currency || 'USDT',
         status: 'waiting',
-        deposit_address: payment.pay_address,
+        deposit_address: payment.wallet_hash || payment.invoice_url,
         tier_at_deposit: depositTier,
         referred_by: referredBySupa,
         is_first_deposit: isFirstDeposit,
@@ -120,11 +119,13 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       deposit_id: deposit.id,
-      payment_id: payment.payment_id,
-      deposit_address: payment.pay_address,
-      pay_amount: payment.pay_amount,
+      payment_id: payment.txn_id,
+      deposit_address: payment.wallet_hash || '',
+      invoice_url: payment.invoice_url || '',
+      qr_code: payment.qr_code || null,
+      pay_amount: payment.amount ? Number(payment.amount) : null,
       amount: amt,
-      currency: PAY_CURRENCY,
+      currency: payment.currency || 'USDT',
       tier: depositTier,
       referral_rate: referralRate,
       is_first_deposit: isFirstDeposit,
@@ -132,10 +133,10 @@ export async function POST(req: NextRequest) {
     });
   } catch (e: any) {
     console.error('[deposit] Error:', e.message);
-    // Upstream API failure (bad/placeholder key) is a bad-gateway condition,
+    // Upstream API failure (bad key, quota) is a bad-gateway condition,
     // not our own crash.
     const msg = e.message || 'Deposit creation failed';
-    const upstream = /NOWPayments API error/.test(msg);
+    const upstream = /Plisio|Unauthorized|invalid credentials|HTTP /.test(msg);
     return NextResponse.json({ error: msg }, { status: upstream ? 502 : 500 });
   }
 }

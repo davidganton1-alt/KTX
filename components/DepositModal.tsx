@@ -10,7 +10,9 @@ type PaymentData = {
   deposit_id: string;
   payment_id: string;
   deposit_address: string;
-  pay_amount: number;
+  invoice_url?: string;
+  qr_code?: string | null;
+  pay_amount: number | null;
   amount: number;
   currency: string;
   tier: string;
@@ -241,29 +243,55 @@ export function DepositModal({ open, onClose }: { open: boolean; onClose: () => 
                   </p>
                 </div>
 
-                <div className="mt-5 flex justify-center rounded-2xl bg-white p-4">
-                  <QRCodeSVG value={payment.deposit_address} size={200} level="M" includeMargin={false} />
+                <div className="mt-5 flex flex-col items-center justify-center gap-2 rounded-2xl bg-white p-4">
+                  {payment.qr_code ? (
+                    // Plisio-hosted QR (white-label) when available
+                    <img
+                      src={payment.qr_code.startsWith('data:') ? payment.qr_code : `data:image/png;base64,${payment.qr_code}`}
+                      alt="Payment QR code"
+                      className="h-[200px] w-[200px] object-contain"
+                    />
+                  ) : payment.deposit_address ? (
+                    <QRCodeSVG value={payment.deposit_address} size={200} level="M" includeMargin={false} />
+                  ) : (
+                    <p className="py-16 text-sm text-black">QR unavailable - use the payment link below</p>
+                  )}
                 </div>
 
                 <p className="mt-4 text-xs font-semibold uppercase tracking-wider text-[var(--muted)]">
                   Send exactly
                 </p>
                 <p className="text-2xl font-extrabold tabular-nums text-[var(--fg)]">
-                  {payment.pay_amount} USDT
+                  {payment.pay_amount ?? payment.amount} USDT
                 </p>
-                <p className="text-xs text-[var(--muted)]">≈ ${payment.amount.toLocaleString('en-US')} USD · {tierFor(payment.amount)?.label} tier</p>
+                <p className="text-xs text-[var(--muted)]">≈ ${payment.amount.toLocaleString('en-US')} USD · {tierFor(payment.amount)?.label} tier · USDT TRC-20</p>
 
-                <div className="mt-4 flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--bg)] p-3">
-                  <code className="min-w-0 flex-1 truncate text-left font-mono text-xs text-[var(--fg)]" title={payment.deposit_address}>
-                    {payment.deposit_address}
-                  </code>
-                  <button
-                    onClick={copyAddress}
-                    className="shrink-0 rounded-lg border border-[var(--gold)]/40 px-3 py-1.5 text-xs font-bold text-[var(--gold)] transition hover:bg-[var(--gold)]/10"
+                {payment.deposit_address ? (
+                  <div className="mt-4 flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--bg)] p-3">
+                    <code className="min-w-0 flex-1 truncate text-left font-mono text-xs text-[var(--fg)]" title={payment.deposit_address}>
+                      {payment.deposit_address}
+                    </code>
+                    <button
+                      onClick={copyAddress}
+                      className="shrink-0 rounded-lg border border-[var(--gold)]/40 px-3 py-1.5 text-xs font-bold text-[var(--gold)] transition hover:bg-[var(--gold)]/10"
+                    >
+                      {copied ? 'Copied ✓' : 'Copy'}
+                    </button>
+                  </div>
+                ) : (
+                  <p className="mt-4 text-xs text-[var(--muted)]">Address pending confirmation.</p>
+                )}
+
+                {payment.invoice_url && (
+                  <a
+                    href={payment.invoice_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-3 block truncate text-center text-xs text-[var(--accent,#A855F7)] underline-offset-2 hover:underline"
                   >
-                    {copied ? 'Copied ✓' : 'Copy'}
-                  </button>
-                </div>
+                    Or open the secure payment page ↗
+                  </a>
+                )}
 
                 <div className="mt-4 flex items-center justify-center gap-2 text-sm">
                   <span className="relative flex h-2.5 w-2.5">
