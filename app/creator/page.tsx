@@ -41,8 +41,10 @@ export default function CreatorPage() {
   const load = useCallback(async () => {
     try {
       // Gate: creator seats today are held by pastor-approved accounts.
+      // TODO Phase F: add 'creator' role; currently shares pastor economics per spec.
       const pRes = await fetch('/api/pastor/me', { cache: 'no-store' });
       if (pRes.status === 401) { router.push('/login'); return; }
+      if (pRes.status === 403) { router.push('/console'); return; }
       if (pRes.ok) setPastor(await pRes.json());
 
       const [wRes, dRes, rRes, meRes] = await Promise.all([
