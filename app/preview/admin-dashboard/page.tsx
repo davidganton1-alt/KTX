@@ -6,6 +6,7 @@ import { PageHeader } from '@/components/design-system/PageHeader';
 import { StatCard, StatInline } from '@/components/design-system/StatCard';
 import { DataCard } from '@/components/design-system/DataCard';
 import { DataTable, StatusPill } from '@/components/design-system/DataTable';
+import { Button } from '@/components/design-system/Button';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
 const money = (n: number) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -96,7 +97,7 @@ function DashboardTab({ go }: { go: (t: string) => void }) {
   return (
     <>
       <PageHeader crumbs={['Admin', 'Dashboard']} title="Control Room" description="Saturday, Sep 14, 2026 · all systems nominal"
-        actions={<button onClick={() => go('treasury')} className="rounded-lg bg-[var(--gold)] px-4 py-2 text-[14px] font-semibold text-black transition hover:brightness-110">Record Engine → Hot</button>} />
+        actions={<Button variant="primary" onClick={() => go('treasury')}>Record Engine → Hot</Button>} />
       <div className="mt-6 grid gap-4 md:grid-cols-4">
         <StatCard label="Total in custody" value={`$${money(116473.7)}`} context="5 platform wallets · USDT" onClick={() => go('treasury')} />
         <StatCard label="Members" value="312" context="6 new this week" onClick={() => go('users')} />
@@ -118,8 +119,8 @@ function DashboardTab({ go }: { go: (t: string) => void }) {
               { key: 'net', header: 'Net', align: 'right', render: (r) => `$${money(r.net)}` },
               { key: 'status', header: 'Status', align: 'right', render: (r) => (r.status === 'pending_approval' ? <Pill tone="gold">Review</Pill> : <Pill tone="cyan">Awaiting transfer</Pill>) },
               { key: 'act', header: '', align: 'right', render: (r) => r.status === 'pending_approval' ? (
-                <span className="inline-flex gap-1.5"><button className="rounded-md bg-[var(--profit)] px-2.5 py-1 text-[11px] font-semibold text-black">Approve</button><button className="rounded-md border border-[var(--border)] px-2.5 py-1 text-[11px] text-[var(--muted)] hover:text-[var(--fg)]">Reject</button></span>
-              ) : <button className="rounded-md border border-[var(--border)] px-2.5 py-1 text-[11px] text-[var(--muted)] hover:text-[var(--fg)]">Mark paid</button> },
+                <span className="inline-flex gap-1.5"><Button variant="primary" size="sm">Approve</Button><Button variant="danger" size="sm">Reject</Button></span>
+              ) : <Button variant="secondary" size="sm">Mark paid</Button> },
             ]} />
           </div>
         </DataCard>
@@ -166,7 +167,7 @@ function TreasuryTab() {
         </DataCard>
         <DataCard title="Record transfer" subtitle="Engine → Hot after XMR→USDT conversion" interactive>
           <div className="rounded-lg border border-[var(--border)] bg-[var(--bg)] px-4 py-3 text-[14px] text-[var(--muted)]">Amount (USDT)</div>
-          <button className="mt-3 w-full rounded-lg bg-[var(--gold)] px-4 py-2.5 text-[14px] font-semibold text-black">Record transfer</button>
+          <Button variant="primary" className="mt-3 w-full">Record transfer</Button>
           <p className="mt-3 text-[11px] leading-[1.6] text-[var(--muted)]">Engine: ${money(96000)} · Hot: ${money(18420.5)}. The move updates both ledgers atomically.</p>
         </DataCard>
       </div>
@@ -196,8 +197,8 @@ function WithdrawalsTab() {
               { key: 'when', header: 'Requested', align: 'right', render: (r) => <span className="text-[12px] text-[var(--muted)]">{r.when}</span> },
               { key: 'status', header: 'Status', align: 'right', render: (r) => (r.status === 'pending_approval' ? <Pill tone="gold">Review</Pill> : <Pill tone="cyan">Transfer</Pill>) },
               { key: 'act', header: '', align: 'right', render: (r) => r.status === 'pending_approval' ? (
-                <span className="inline-flex gap-1.5"><button className="rounded-md bg-[var(--profit)] px-2.5 py-1 text-[11px] font-semibold text-black">Approve</button><button className="rounded-md border border-[var(--border)] px-2.5 py-1 text-[11px] text-[var(--muted)]">Reject</button></span>
-              ) : <button className="rounded-md border border-[var(--border)] px-2.5 py-1 text-[11px] text-[var(--muted)]">Mark paid</button> },
+                <span className="inline-flex gap-1.5"><Button variant="primary" size="sm">Approve</Button><Button variant="danger" size="sm">Reject</Button></span>
+              ) : <Button variant="secondary" size="sm">Mark paid</Button> },
             ]} />
           </div>
         </DataCard>
@@ -249,7 +250,7 @@ function PastorsTab() {
               { key: 'when', header: 'Since', align: 'right' },
               { key: 'status', header: 'Status', align: 'right', render: (r) => (r.status === 'pending' ? <Pill tone="gold">Pending</Pill> : <Pill tone="green">Approved</Pill>) },
               { key: 'act', header: '', align: 'right', render: (r) => r.status === 'pending' ? (
-                <span className="inline-flex gap-1.5"><button className="rounded-md bg-[var(--profit)] px-2.5 py-1 text-[11px] font-semibold text-black">Approve</button><button className="rounded-md border border-[var(--border)] px-2.5 py-1 text-[11px] text-[var(--muted)]">Reject</button></span>
+                <span className="inline-flex gap-1.5"><Button variant="primary" size="sm">Approve</Button><Button variant="danger" size="sm">Reject</Button></span>
               ) : <span className="text-[12px] text-[var(--muted)]">—</span> },
             ]} />
           </div>
@@ -299,7 +300,7 @@ function AnnouncementsTab() {
           <div className="space-y-3">
             <div className="rounded-lg border border-[var(--border)] bg-[var(--bg)] px-4 py-3 text-[14px] text-[var(--muted)]">Title</div>
             <div className="h-24 rounded-lg border border-[var(--border)] bg-[var(--bg)] px-4 py-3 text-[14px] text-[var(--muted)]">Body…</div>
-            <button className="w-full rounded-lg bg-[var(--gold)] px-4 py-2.5 text-[14px] font-semibold text-black">Publish</button>
+            <Button variant="primary" className="w-full">Publish</Button>
           </div>
         </DataCard>
         <DataCard title="Recent" className="lg:col-span-2" padded={false}>
@@ -334,7 +335,7 @@ function ChatTab() {
             <div className="ml-auto max-w-[75%] rounded-xl rounded-tr-sm bg-[var(--gold)] px-4 py-2.5 text-black">Yes — $100 on the Faithful plan. Would you like me to walk you through it?</div>
             <div className="flex items-center gap-3 border-t border-[var(--border)] pt-4">
               <div className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--bg)] px-4 py-3 text-[var(--muted)]">Type a message…</div>
-              <button className="rounded-lg bg-[var(--gold)] px-5 py-3 font-semibold text-black">Send</button>
+              <Button variant="primary">Send</Button>
             </div>
           </div>
         </DataCard>

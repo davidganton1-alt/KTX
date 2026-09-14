@@ -6,6 +6,7 @@ import { PageHeader } from '@/components/design-system/PageHeader';
 import { StatCard, StatInline } from '@/components/design-system/StatCard';
 import { DataCard } from '@/components/design-system/DataCard';
 import { DataTable, StatusPill } from '@/components/design-system/DataTable';
+import { Button } from '@/components/design-system/Button';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
 const money = (n: number) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -117,8 +118,8 @@ function DashboardTab({ go }: { go: (t: string) => void }) {
         description="Ambassador plan · active since Jul 13, 2026 · hold ends Apr 13, 2027"
         actions={
           <>
-            <button onClick={() => go('wallet')} className="rounded-lg border border-[var(--border)] px-4 py-2 text-[14px] font-medium text-[var(--fg)] transition-colors hover:border-[var(--gold)]">Withdraw profit</button>
-            <button onClick={() => go('wallet')} className="rounded-lg bg-[var(--gold)] px-4 py-2 text-[14px] font-semibold text-black transition hover:brightness-110">Deposit</button>
+            <Button variant="secondary" onClick={() => go('wallet')}>Withdraw profit</Button>
+            <Button variant="primary" onClick={() => go('wallet')}>Deposit</Button>
           </>
         }
       />
@@ -161,7 +162,7 @@ function DashboardTab({ go }: { go: (t: string) => void }) {
               <StatInline label="Available" value="$147.00" tone="profit" />
               <StatInline label="Pending (hold)" value="$165.00" tone="gold" />
             </div>
-            <button onClick={() => go('referrals')} className="mt-3 text-[12px] font-medium text-[var(--gold)] hover:underline">Manage referrals →</button>
+            <div className="mt-3"><Button variant="ghost" size="sm" onClick={() => go('referrals')}>View all referrals →</Button></div>
           </DataCard>
         </div>
       </div>
@@ -182,12 +183,12 @@ function WalletTab() {
         <DataCard title="Deposit" subtitle="Generates a personal TRC20 address + QR" interactive>
           <div className="grid grid-cols-4 gap-2">
             {[100, 1000, 5000, 15000].map((a) => (
-              <button key={a} className="rounded-lg border border-[var(--border)] px-2 py-2 text-[12px] text-[var(--muted)] transition-colors hover:border-[var(--gold)] hover:text-[var(--gold)]">${a.toLocaleString('en-US')}</button>
+              <Button key={a} variant="secondary" size="sm">${a.toLocaleString('en-US')}</Button>
             ))}
           </div>
           <div className="mt-3 flex gap-3">
             <div className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--bg)] px-4 py-3 text-[14px] text-[var(--muted)]">Amount in USD</div>
-            <button className="rounded-lg bg-[var(--gold)] px-5 py-3 text-[14px] font-semibold text-black">Get address</button>
+            <Button variant="primary">Get address</Button>
           </div>
           <p className="mt-3 text-[12px] text-[var(--muted)]">Min $100 · Max $15,000 · USDT TRC20 only</p>
         </DataCard>
@@ -198,21 +199,21 @@ function WalletTab() {
                 <p className="text-[14px] font-medium text-[var(--fg)]">Profit</p>
                 <p className="text-[12px] text-[var(--muted)]">Automatic payout · no fee · minutes</p>
               </div>
-              <button className="rounded-lg bg-[var(--gold)] px-4 py-2 text-[13px] font-semibold text-black">Withdraw $1,047.50</button>
+              <Button variant="primary" size="sm">Withdraw $1,047.50</Button>
             </div>
             <div className="flex items-center justify-between rounded-lg border border-[var(--border)] px-4 py-3">
               <div>
                 <p className="text-[14px] font-medium text-[var(--fg)]">Principal</p>
                 <p className="text-[12px] text-[var(--muted)]">Admin review 12–24h · 50% fee until Apr 2027</p>
               </div>
-              <button className="rounded-lg border border-[var(--border)] px-4 py-2 text-[13px] font-medium text-[var(--fg)] transition-colors hover:border-[var(--gold)]">Request</button>
+              <Button variant="secondary" size="sm">Request</Button>
             </div>
             <div className="flex items-center justify-between rounded-lg border border-[var(--border)] px-4 py-3">
               <div>
                 <p className="text-[14px] font-medium text-[var(--fg)]">Referral earnings</p>
                 <p className="text-[12px] text-[var(--muted)]">Admin review · unlocks after 7-day hold</p>
               </div>
-              <button className="rounded-lg border border-[var(--border)] px-4 py-2 text-[13px] font-medium text-[var(--fg)] transition-colors hover:border-[var(--gold)]">Request $147.00</button>
+              <Button variant="secondary" size="sm">Request $147.00</Button>
             </div>
           </div>
         </DataCard>
@@ -248,7 +249,7 @@ function EarningsTab() {
   const max = Math.max(...PROFIT_WEEK.map((d) => d.amt));
   return (
     <>
-      <PageHeader crumbs={['Member', 'Earnings']} title="Earnings" description="Your profit ledger and the daily rhythm behind it." actions={<button className="rounded-lg bg-[var(--gold)] px-4 py-2 text-[14px] font-semibold text-black">Withdraw profit</button>} />
+      <PageHeader crumbs={['Member', 'Earnings']} title="Earnings" description="Your profit ledger and the daily rhythm behind it." actions={<Button variant="primary">Withdraw profit</Button>} />
       <div className="mt-6 grid gap-4 md:grid-cols-4">
         <StatCard label="Lifetime" value={`$${money(1247.5)}`} />
         <StatCard label="Available" value={`$${money(1047.5)}`} tone="profit" />
@@ -332,7 +333,7 @@ function EngineTab() {
 function ReferralsTab() {
   return (
     <>
-      <PageHeader crumbs={['Member', 'Referrals']} title="Referrals" description="2.5% of each friend's first deposit, plus 0.1% of their profit forever. Funds unlock after a 7-day hold." actions={<button className="rounded-lg bg-[var(--gold)] px-4 py-2 text-[14px] font-semibold text-black">Copy invite link</button>} />
+      <PageHeader crumbs={['Member', 'Referrals']} title="Referrals" description="2.5% of each friend's first deposit, plus 0.1% of their profit forever. Funds unlock after a 7-day hold." actions={<Button variant="primary">Copy invite link</Button>} />
       <div className="mt-6 grid gap-4 md:grid-cols-4">
         <StatCard label="Total earned" value={`$${money(312)}`} tone="gold" />
         <StatCard label="Available" value="$147.00" tone="profit" />
