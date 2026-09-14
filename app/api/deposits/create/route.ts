@@ -83,10 +83,14 @@ export async function POST(req: NextRequest) {
     }
 
     // Create NOWPayments payment (placeholder key until user supplies one)
+    // This NOWPayments account prices USD against network-specific stable
+    // currencies: plain 'usdt' is rejected, 'usdttrc20' (TRON) is live and
+    // cheapest of the available options.
+    const PAY_CURRENCY = 'usdttrc20';
     const payment = await createPayment({
       price_amount: amt,
       price_currency: 'usd',
-      pay_currency: 'usdt',
+      pay_currency: PAY_CURRENCY,
       order_id: `${session.id}-${Date.now()}`,
       ipn_callback_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001'}/api/webhooks/nowpayments`,
     });
@@ -98,7 +102,7 @@ export async function POST(req: NextRequest) {
         user_id: session.id,
         nowpayments_payment_id: payment.payment_id,
         amount: amt,
-        currency: 'usdt',
+        currency: PAY_CURRENCY,
         status: 'waiting',
         deposit_address: payment.pay_address,
         tier_at_deposit: depositTier,
@@ -119,7 +123,7 @@ export async function POST(req: NextRequest) {
       deposit_address: payment.pay_address,
       pay_amount: payment.pay_amount,
       amount: amt,
-      currency: 'usdt',
+      currency: PAY_CURRENCY,
       tier: depositTier,
       referral_rate: referralRate,
       is_first_deposit: isFirstDeposit,
