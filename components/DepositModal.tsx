@@ -199,7 +199,7 @@ export function DepositModal({ open, onClose }: { open: boolean; onClose: () => 
                         <p className="text-[var(--muted)]">
                           Tier: <b className={tier.cls}>{tier.label}</b>{' '}
                           <span className="text-xs">
-                            ({tier.id === 'ambassador' ? '1.00%' : tier.id === 'steward' ? '0.75%' : '0.50%'} daily target)
+                            ({tier.id === 'ambassador' ? '0.75%' : tier.id === 'steward' ? '0.50%' : '0.25%'} daily target)
                           </span>
                         </p>
                       ) : (

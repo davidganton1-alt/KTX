@@ -50,7 +50,6 @@ export default function ConsolePage() {
   const [pendingReviewAfterShare, setPendingReviewAfterShare] = useState(false);
   const [depositAmount, setDepositAmount] = useState("");
   const [showDepositModal, setShowDepositModal] = useState(false);
-  const [withdrawAmount, setWithdrawAmount] = useState("");
   const [actionMsg, setActionMsg] = useState("");
   const [engineSymbol, setEngineSymbol] = useState("BTC");
   const [tourStep, setTourStep] = useState(0);
@@ -97,25 +96,6 @@ export default function ConsolePage() {
     } catch { setActionMsg("Network error."); }
   }
 
-  async function handleWithdraw() {
-    if (!withdrawAmount || Number(withdrawAmount) <= 0) return;
-    setActionMsg("Processing withdrawal...");
-    try {
-      const res = await fetch("/api/wallet/withdraw", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ amount: Number(withdrawAmount) }) });
-      const data = await res.json();
-      if (res.ok) {
-        setActionMsg(`Withdrawal of $${Number(withdrawAmount).toFixed(2)} successful!`);
-        setWithdrawAmount("");
-        if (data.firstWithdrawal) {
-          setShowWithdrawShare(true);
-          const alreadyInvited = (wallet?.trustpilotInvitations ?? []).some((i: any) => i.triggerType === 'firstWithdrawal');
-          setPendingReviewAfterShare(!alreadyInvited);
-        }
-        loadWallet();
-      }
-      else setActionMsg(data.error || "Withdrawal failed.");
-    } catch { setActionMsg("Network error."); }
-  }
 
   async function loadWallet() {
     const res = await fetch("/api/wallet/state", { cache: "no-store" });
@@ -139,7 +119,7 @@ export default function ConsolePage() {
   const tierLabels: Record<string, string> = { none: "Unranked", faithful: "Faithful", steward: "Steward", ambassador: "Ambassador" };
   const tierColors: Record<string, string> = { none: "text-[var(--muted)]", faithful: "text-[var(--gold)]", steward: "text-[var(--cyan)]", ambassador: "text-[var(--gold)]" };
   const nextTier = wallet.tier === "none" ? "faithful" : wallet.tier === "faithful" ? "steward" : wallet.tier === "steward" ? "ambassador" : null;
-  const tierThresholds: Record<string, number> = { none: 0, faithful: 100, steward: 650, ambassador: 2000 };
+  const tierThresholds: Record<string, number> = { none: 0, faithful: 100, steward: 1000, ambassador: 5000 };
   const progress = nextTier ? Math.min(100, (wallet.deposited / tierThresholds[nextTier]) * 100) : 100;
 
   return (
@@ -196,8 +176,8 @@ export default function ConsolePage() {
                 </div>
                 <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] p-6">
                   <p className="text-sm text-[var(--muted)]">Withdrawable Profit</p>
-                  <p className="mt-2 text-3xl font-extrabold text-[var(--profit)] tabular-nums">$<AnimatedNumber value={wallet.profit} /></p>
-                  <p className="mt-2 text-xs text-[var(--muted)]">Target: {(wallet.dailyRate * 100).toFixed(2)}% / day</p>
+                  <p className="mt-2 text-3xl font-extrabold text-[var(--profit)] tabular-nums">$<AnimatedNumber value={wallet.availableProfit ?? 0} /></p>
+                  <p className="mt-2 text-xs text-[var(--muted)]">Target: {((wallet.tierRate ?? 0) * 100).toFixed(2)}% / day</p>
                 </div>
                 <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] p-6">
                   <p className="text-sm text-[var(--muted)]">Deposited Principal</p>
@@ -226,7 +206,7 @@ export default function ConsolePage() {
                   <p className="mt-2 font-bold text-[var(--profit)]">Deposit Funds</p>
                   <p className="mt-1 text-xs text-[var(--muted)]">Activate your plan & unlock credit</p>
                 </button>
-                <button onClick={() => setActiveTab("wallet")} disabled={wallet.profit <= 0} className="group rounded-xl border border-[var(--border)] bg-[var(--card)] p-5 text-left transition hover:bg-[var(--card)] disabled:opacity-40">
+                <button onClick={() => setActiveTab("wallet")} disabled={(wallet.availableProfit ?? 0) <= 0} className="group rounded-xl border border-[var(--border)] bg-[var(--card)] p-5 text-left transition hover:bg-[var(--card)] disabled:opacity-40">
                   <span className="text-2xl text-[var(--fg)]">💸</span>
                   <p className="mt-2 font-bold text-[var(--fg)]">Withdraw Profit</p>
                   <p className="mt-1 text-xs text-[var(--muted)]">Instant, zero friction</p>
@@ -281,14 +261,8 @@ export default function ConsolePage() {
 
                 <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] p-6">
                   <h3 className="text-lg font-bold text-[var(--fg)]">Withdraw Profit</h3>
-                  <p className="mt-2 text-sm text-[var(--muted)]">Available: <b className="text-[var(--profit)]">${fmt(wallet.profit)}</b>. Withdraw your daily profit anytime.</p>
-                  <div className="mt-4 flex gap-3">
-                    <input type="number" value={withdrawAmount} onChange={(e) => setWithdrawAmount(e.target.value)} placeholder="0.00" min="1" max={wallet.profit}
-                      className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--bg)] px-4 py-3 text-sm text-[var(--fg)] outline-none focus:border-[var(--gold)]" />
-                    <button onClick={handleWithdraw} disabled={!withdrawAmount || Number(withdrawAmount) <= 0 || wallet.profit <= 0}
-                      className="rounded-lg bg-[var(--gold)] px-6 py-3 text-sm font-bold text-black transition hover:brightness-110 disabled:opacity-50">Withdraw</button>
-                  </div>
-                  <button onClick={() => setWithdrawAmount(String(wallet.profit))} className="mt-3 text-xs text-[var(--gold)] hover:underline">Withdraw all (${fmt(wallet.profit)})</button>
+                  <p className="mt-2 text-sm text-[var(--muted)]">Profit pays straight to your crypto wallet (USDT), automatically, with no admin wait.</p>
+                  <p className="mt-3 text-xs text-[var(--muted)]">Use the <b className="text-[var(--fg)]">Profit Earnings</b> panel below to withdraw.</p>
                 </div>
               </div>
 

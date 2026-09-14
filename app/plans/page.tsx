@@ -25,17 +25,17 @@ export const metadata: Metadata = {
 
 const lineup = [
   {
-    name: "Faithful", rate: "0.5%", min: "$100 – $500", hold: "6-month hold", hl: false,
+    name: "Faithful", rate: "0.25%", min: "$100 – $999", hold: "6-month hold", hl: false,
     bullets: ["Crypto, US stocks & commodities", "Starter AI desk", "Daily profit, withdraw anytime"],
     verse: "Be faithful with the little things. Luke 16:10",
   },
   {
-    name: "Steward", rate: "0.75%", min: "$650 – $1,500", hold: "9-month hold", hl: true,
+    name: "Steward", rate: "0.50%", min: "$1,000 – $4,999", hold: "9-month hold", hl: true,
     bullets: ["All markets unlocked", "Advanced AI + priority rebalancing", "Profit-only withdrawals"],
     verse: "Stewards of the manifold grace of God. 1 Peter 4:10",
   },
   {
-    name: "Ambassador", rate: "1.0%", min: "$2,000 and up", hold: "12-month hold", hl: false,
+    name: "Ambassador", rate: "0.75%", min: "$5,000 – $15,000", hold: "12-month hold", hl: false,
     bullets: ["Elite AI desk", "Dedicated risk guardrails", "Largest daily target"],
     verse: "Honour the Lord with your wealth. Proverbs 3:9",
   },
@@ -45,7 +45,7 @@ const groups = [
   {
     name: "The seed",
     rows: [
-      { label: "Deposit range", v: ["$100 – $500", "$650 – $1,500", "$2,000 and up"] },
+      { label: "Deposit range", v: ["$100 – $999", "$1,000 – $4,999", "$5,000 – $15,000"] },
       { label: "Hold period", v: ["6 months", "9 months", "12 months"] },
       { label: "Early deposit withdrawal", v: ["25% fee", "25% fee", "25% fee"] },
     ],
@@ -62,7 +62,7 @@ const groups = [
   {
     name: "The harvest",
     rows: [
-      { label: "Target daily profit", v: ["0.5%", "0.75%", "1.0%"] },
+      { label: "Target daily profit", v: ["0.25%", "0.50%", "0.75%"] },
       { label: "Profit withdrawals", v: ["Anytime", "Anytime", "Anytime"] },
       { label: "Trade transparency", v: ["Full ledger", "Full ledger", "Full ledger"] },
     ],
@@ -86,7 +86,7 @@ export default function PlansPage() {
           Same AI. Same honesty. Three sizes of seed, each with its own daily target and harvest rhythm.
         </p>
         <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-          <span className="pill">0.5% – 1.0% daily targets</span>
+          <span className="pill">0.25% – 0.75% daily targets</span>
           <span className="pill">Profit-only withdrawals</span>
           <span className="pill">Transparent ledger</span>
         </div>
@@ -157,7 +157,7 @@ export default function PlansPage() {
               {/* Faithful */}
               <div className="flex flex-col items-center justify-center gap-2 border-r border-[var(--border)] px-4 py-4">
                 <p className="text-sm font-bold text-[var(--fg)]">
-                  Faithful <span className="text-[var(--gold)]">· 0.5%</span>
+                  Faithful <span className="text-[var(--gold)]">· 0.25%</span>
                 </p>
                 <a
                   href="/register"
@@ -170,7 +170,7 @@ export default function PlansPage() {
               {/* Steward (highlighted) */}
               <div className="flex flex-col items-center justify-center gap-2 border-r border-[var(--border)] bg-[var(--gold)]/[0.08] px-4 py-4">
                 <p className="text-sm font-bold text-[var(--fg)]">
-                  Steward <span className="text-[var(--gold)]">· 0.75%</span>
+                  Steward <span className="text-[var(--gold)]">· 0.50%</span>
                 </p>
                 <a
                   href="/register"
@@ -183,7 +183,7 @@ export default function PlansPage() {
               {/* Ambassador */}
               <div className="flex flex-col items-center justify-center gap-2 px-4 py-4">
                 <p className="text-sm font-bold text-[var(--fg)]">
-                  Ambassador <span className="text-[var(--gold)]">· 1.0%</span>
+                  Ambassador <span className="text-[var(--gold)]">· 0.75%</span>
                 </p>
                 <a
                   href="/register"
@@ -302,7 +302,7 @@ export default function PlansPage() {
           >
             <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
             <p className="text-xs font-bold uppercase tracking-widest text-[var(--muted)]">Faithful</p>
-            <p className="mt-3 text-4xl font-extrabold text-[var(--fg)]">0.5%</p>
+            <p className="mt-3 text-4xl font-extrabold text-[var(--fg)]">0.25%</p>
             <p className="text-sm text-[var(--muted)]">per day</p>
             <p className="mt-4 text-sm text-[var(--muted)]">Min. $100</p>
             <div className="mt-6 rounded-xl bg-[var(--card)] px-4 py-3 text-sm font-bold text-[var(--fg)] transition-colors group-hover:bg-[var(--gold)] group-hover:text-black">
@@ -319,9 +319,9 @@ export default function PlansPage() {
               Most Chosen
             </span>
             <p className="text-xs font-bold uppercase tracking-widest text-[var(--gold)]">Steward</p>
-            <p className="mt-3 text-4xl font-extrabold text-[var(--fg)]">0.75%</p>
+            <p className="mt-3 text-4xl font-extrabold text-[var(--fg)]">0.50%</p>
             <p className="text-sm text-[var(--muted)]">per day</p>
-            <p className="mt-4 text-sm text-[var(--muted)]">Min. $650</p>
+            <p className="mt-4 text-sm text-[var(--muted)]">Min. $1,000</p>
             <div className="mt-6 rounded-xl bg-[var(--gold)] px-4 py-3 text-sm font-bold text-black transition-transform group-hover:scale-105">
               Plant My Seed
             </div>
@@ -334,9 +334,9 @@ export default function PlansPage() {
           >
             <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
             <p className="text-xs font-bold uppercase tracking-widest text-[var(--muted)]">Ambassador</p>
-            <p className="mt-3 text-4xl font-extrabold text-[var(--fg)]">1.0%</p>
+            <p className="mt-3 text-4xl font-extrabold text-[var(--fg)]">0.75%</p>
             <p className="text-sm text-[var(--muted)]">per day</p>
-            <p className="mt-4 text-sm text-[var(--muted)]">Min. $2,000</p>
+            <p className="mt-4 text-sm text-[var(--muted)]">Min. $5,000</p>
             <div className="mt-6 rounded-xl bg-[var(--card)] px-4 py-3 text-sm font-bold text-[var(--fg)] transition-colors group-hover:bg-[var(--gold)] group-hover:text-black">
               Plant My Seed
             </div>

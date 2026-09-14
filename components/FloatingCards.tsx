@@ -8,7 +8,7 @@ export function FloatingCards() {
     <div className="pointer-events-none absolute inset-0 z-10 hidden lg:block" aria-hidden>
       <motion.div animate={float(6)} className="glass absolute left-[4%] top-[24%] w-56 rounded-2xl p-5">
         <p className="eyebrow">Daily yield</p>
-        <p className="mt-1 text-3xl font-bold text-profit">+0.75%</p>
+        <p className="mt-1 text-3xl font-bold text-profit">+0.25%</p>
         <svg viewBox="0 0 100 40" className="mt-3 h-10 w-full">
           <path d="M0,35 L20,25 L40,30 L60,15 L80,20 L100,5" fill="none" stroke="var(--profit)" strokeWidth="2" style={{ filter: "drop-shadow(0 0 6px var(--profit))" }} />
         </svg>

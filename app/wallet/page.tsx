@@ -16,9 +16,9 @@ type Wallet = {
 };
 
 const TIERS = [
-  { key: "faithful", label: "Faithful", min: 100, max: 500, rate: "0.5%", hold: 6, perk: "Crypto, US stocks & commodities." },
-  { key: "steward", label: "Steward", min: 650, max: 1500, rate: "0.75%", hold: 9, perk: "Advanced AI across all markets." },
-  { key: "ambassador", label: "Ambassador", min: 2000, max: 1000000, rate: "1.0%", hold: 12, perk: "Elite AI desk, dedicated guardrails." },
+  { key: "faithful", label: "Faithful", min: 100, max: 999, rate: "0.25%", hold: 6, perk: "Crypto, US stocks & commodities." },
+  { key: "steward", label: "Steward", min: 1000, max: 4999, rate: "0.50%", hold: 9, perk: "Advanced AI across all markets." },
+  { key: "ambassador", label: "Ambassador", min: 5000, max: 15000, rate: "0.75%", hold: 12, perk: "Elite AI desk, dedicated guardrails." },
 ];
 
 export default function WalletPage() {

@@ -82,26 +82,26 @@ export const TIERS: Record<
   faithful: {
     label: "Faithful",
     min: 100,
-    max: 500,
-    rate: 0.005, // 0.5%/day
+    max: 999,
+    rate: 0.0025, // 0.25%/day (display only; math lives in lib/profitAccrual)
     perk: "Starter AI across crypto, US stocks & commodities.",
     assetClasses: ["Crypto", "US Stocks", "Commodities"],
     holdMonths: 6,
   },
   steward: {
     label: "Steward",
-    min: 650,
-    max: 1500,
-    rate: 0.0075, // 0.75%/day
+    min: 1000,
+    max: 4999,
+    rate: 0.005, // 0.5%/day
     perk: "Advanced AI models, priority rebalancing across all markets.",
     assetClasses: ["Crypto", "US Stocks", "Commodities"],
     holdMonths: 9,
   },
   ambassador: {
     label: "Ambassador",
-    min: 2000,
-    max: 1000000,
-    rate: 0.01, // 1.0%/day
+    min: 5000,
+    max: 15000,
+    rate: 0.0075, // 0.75%/day
     perk: "Elite AI desk, dedicated risk guardrails across all markets.",
     assetClasses: ["Crypto", "US Stocks", "Commodities"],
     holdMonths: 12,
@@ -302,53 +302,20 @@ export const db = {
   },
   // Accrue a specific fractional amount to today's profit (live tick).
   accrueAmount(id: string, amount: number) {
-    const users = read();
-    const i = users.findIndex((u) => u.id === id);
-    if (i < 0) return null;
-    const u = users[i];
-    if (amount <= 0) return u;
-    const today = dayStr();
-    u.profit = +(u.profit + amount).toFixed(4);
-    u.balance = +(u.balance + amount).toFixed(4);
-    u.lastProfitDate = today;
-    const existing = u.profitHistory.find((h) => h.date === today);
-    if (existing) existing.profit = +(existing.profit + amount).toFixed(4);
-    else u.profitHistory.push({ date: today, profit: amount });
-    if (u.profitHistory.length > 90) u.profitHistory = u.profitHistory.slice(-90);
-    write(users);
-    // Pastor share: credit the referring pastor with their % of this accrual.
-    if (u.referredBy && u.pastorShareRate && amount > 0) {
-      const share = +(amount * (u.pastorShareRate / 100)).toFixed(4);
-      if (share > 0) pastorsDb.credit(u.referredBy, share, u.name);
-    }
-    return u;
+    // Phase C.5: RETIRED. The Supabase profit ledger (profiles.accumulated_profit
+    // via lib/profitAccrual) is the sole source of truth for profit math;
+    // the legacy JSON engine no longer modifies any funds. Kept as a no-op
+    // accessor so older callers don't crash.
+    return read().find((u) => u.id === id) || null;
   },
+
   // Accrue daily profit based on deposited + freeCredit principal
   accrueDaily(id: string): User {
+    // Phase C.5: RETIRED (see accrueAmount). Daily accrual now happens in
+    // lib/profitAccrual against Supabase; this returns the user unchanged.
     const users = read();
-    const i = users.findIndex((u) => u.id === id);
-    if (i < 0) throw new Error("User not found");
-    const u = users[i];
-    const today = dayStr();
-    if (u.lastProfitDate === today) return u; // already accrued today
-    if (u.dailyRate <= 0 || u.deposited <= 0) {
-      u.lastProfitDate = today;
-      write(users);
-      return u;
-    }
-    const principal = u.deposited + (u.deposited > 0 ? u.freeCredit : 0);
-    const gained = +(principal * u.dailyRate).toFixed(2);
-    u.profit += gained;
-    u.balance += gained;
-    u.lastProfitDate = today;
-    u.profitHistory.push({ date: today, profit: gained });
-    if (u.profitHistory.length > 60) u.profitHistory = u.profitHistory.slice(-60);
-    write(users);
-    // Pastor share: credit the referring pastor with their % of today's gain.
-    if (u.referredBy && u.pastorShareRate && gained > 0) {
-      const share = +(gained * (u.pastorShareRate / 100)).toFixed(4);
-      if (share > 0) pastorsDb.credit(u.referredBy, share, u.name);
-    }
+    const u = users.find((x) => x.id === id);
+    if (!u) throw new Error("User not found");
     return u;
   },
   requestWithdrawal(id: string, amount: number): Withdrawal {

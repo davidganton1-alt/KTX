@@ -1,58 +1,36 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireActiveSession, supabaseIdFor } from "@/lib/auth";
-import { db } from "@/lib/store";
-import { supabaseAdmin } from "@/lib/supabase";
-import { syncWalletFromJson } from "@/lib/wallet";
+import { requireActiveSession } from "@/lib/auth";
+import { processProfitWithdrawal } from "@/lib/profitWithdraw";
 
 export const dynamic = "force-dynamic";
 
-// Withdraw PROFIT only. JSON remains the operational store (pending review
-// list, reject restores funds); the Supabase transactions table records the
-// withdrawal and the wallets row is re-synced as the funds ledger.
+// Phase C.5: legacy JSON withdrawal flow is retired. Profit now lives in the
+// Supabase ledger and pays out automatically to a crypto address via
+// /api/profit/withdraw. This endpoint proxies to the same core so older
+// clients that already send an address keep working; without one it points
+// at the new flow instead of touching JSON funds.
 export async function POST(req: NextRequest) {
   const u = await requireActiveSession();
   if (!u) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
-  const { amount } = await req.json();
-  const amt = Number(amount);
-  if (!Number.isFinite(amt) || amt <= 0)
-    return NextResponse.json({ error: "Enter a valid amount." }, { status: 400 });
+  const { amount, address, network } = await req.json().catch(() => ({} as any));
 
-  try {
-    // throws "You can only withdraw profit." when amt > u.profit
-    const w = db.requestWithdrawal(u.id, amt);
-    db.notify(u.id, `Withdrawal of $${amt.toFixed(2)} requested and pending review.`, "withdrawal");
-    const firstWithdrawal = !u.hasSharedFirstWithdrawal;
-    db.update(u.id, { hasSharedFirstWithdrawal: true });
-
-    const fresh = db.findById(u.id)!;
-    const sid = supabaseIdFor(u.id);
-    let tx = null;
-    if (sid) {
-      const { data, error } = await supabaseAdmin
-        .from('transactions')
-        .insert({
-          user_id: sid,
-          type: "withdrawal",
-          amount: amt,
-          status: "pending",
-          notes: `profit withdrawal ${w.id}`,
-        })
-        .select()
-        .single();
-      if (error) console.error("[withdraw] transaction insert failed:", error.message);
-      else tx = data;
-      await syncWalletFromJson(sid, fresh);
-    }
-
-    return NextResponse.json({
-      ok: true,
-      withdrawal: w,
-      transaction: tx,
-      firstWithdrawal,
-      profit: fresh.profit,
-    });
-  } catch (e: any) {
-    return NextResponse.json({ error: e.message }, { status: 400 });
+  if (!address) {
+    return NextResponse.json(
+      { error: "Profit withdrawals now pay straight to a crypto address (USDT). Open the Wallet tab and use Withdraw Profit." },
+      { status: 400 }
+    );
   }
+
+  const res = await processProfitWithdrawal(u.id, Number(amount), String(network || "trc20"), String(address));
+  if (!res.ok) {
+    return NextResponse.json({ error: res.error }, { status: res.status });
+  }
+  return NextResponse.json({
+    ok: true,
+    withdrawal: { id: res.data.withdrawal_id, amount: res.data.amount, status: "processing" },
+    payout_id: res.data.payout_id,
+    firstWithdrawal: false,
+    profit: 0,
+  });
 }

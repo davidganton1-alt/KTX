@@ -40,7 +40,7 @@ export const FAQS: Faq[] = [
   {
     category: "Plans & Trading",
     q: "What are the plans and their daily rates?",
-    a: "We offer three tiers, all with a consistent notional sizing model. Faithful earns 0.5% per day (min. $100), Steward earns 0.75% per day (min. $650), and Ambassador earns 1.0% per day (min. $2,000). Higher tiers unlock additional benefits like priority withdrawals and dedicated support.",
+    a: "We offer three tiers, all with a consistent notional sizing model. Faithful earns 0.25% per day ($100 to $999), Steward earns 0.50% per day ($1,000 to $4,999), and Ambassador earns 0.75% per day ($5,000 to $15,000). Higher tiers unlock additional benefits like priority withdrawals and dedicated support.",
   },
   {
     category: "Plans & Trading",

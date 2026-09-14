@@ -1,49 +1,43 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireActiveSession, supabaseIdFor } from "@/lib/auth";
-import { db } from "@/lib/store";
+import { requireActiveSession } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
-import { syncWalletFromJson } from "@/lib/wallet";
-import { accruePastorShare } from "@/lib/pastorAccrual";
+import { accrueUserProfit } from "@/lib/profitAccrual";
 
 export const dynamic = "force-dynamic";
 
-// Accrue today's profit for the calling user (idempotent per day).
-// The JSON accrual still runs (it also credits the referring pastor's share
-// via pastorsDb inside db.accrueDaily); the Supabase ledger receives a
-// completed 'profit' transaction and the synced wallets row.
+// Phase C.5: the legacy JSON accrual engine is retired — this route now
+// proxies to the Supabase profit ledger (profiles.accumulated_profit) so
+// older pages (app/dashboard) keep working. Idempotent per UTC day.
 export async function POST(_req: NextRequest) {
   const u = await requireActiveSession();
   if (!u) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
-  const updated = db.accrueDaily(u.id);
-  const gained = +(updated.profit - u.profit).toFixed(4);
-  const todayProfit = updated.profitHistory[updated.profitHistory.length - 1]?.profit ?? 0;
-
-  const sid = supabaseIdFor(u.id);
-  if (sid) {
-    if (gained > 0) {
-      const { error } = await supabaseAdmin
-        .from('transactions')
-        .insert({
-          user_id: sid,
-          type: "profit",
-          amount: gained,
-          status: "completed",
-          notes: "daily accrual",
-        });
-      if (error) console.error("[accrue] transaction insert failed:", error.message);
-      // mirror the pastor share into the Supabase audit trail (JSON credit
-      // already happened inside db.accrueDaily)
-      await accruePastorShare(u.id, gained);
-    }
-    await syncWalletFromJson(sid, updated);
+  const result = await accrueUserProfit(u.id);
+  if (!result.success) {
+    return NextResponse.json({ error: result.error || "Accrual failed" }, { status: 400 });
   }
+
+  const { data: prof } = await supabaseAdmin
+    .from("profiles")
+    .select("accumulated_profit, total_profit_withdrawn, last_profit_accrual_at")
+    .eq("id", u.id)
+    .maybeSingle();
+  const { data: w } = await supabaseAdmin
+    .from("wallets")
+    .select("principal, free_credit")
+    .eq("user_id", u.id)
+    .maybeSingle();
+
+  const available = +(Number(prof?.accumulated_profit || 0) - Number(prof?.total_profit_withdrawn || 0)).toFixed(4);
+  const balance = +((Number(w?.principal || 0) + Number(w?.free_credit || 0) + available)).toFixed(4);
 
   return NextResponse.json({
     ok: true,
-    profit: updated.profit,
-    balance: updated.balance,
-    lastProfitDate: updated.lastProfitDate,
-    todayProfit: gained > 0 ? todayProfit : 0,
+    profit: available,
+    balance,
+    lastProfitDate: prof?.last_profit_accrual_at
+      ? new Date(prof.last_profit_accrual_at).toISOString().slice(0, 10)
+      : "",
+    todayProfit: result.profitEarned,
   });
 }

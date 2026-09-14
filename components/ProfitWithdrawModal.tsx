@@ -59,6 +59,7 @@ export function ProfitWithdrawModal({
       }
       setPayoutId(String(data.payout_id || data.withdrawal_id || ''));
       window.dispatchEvent(new Event('ktx:deposits-changed'));
+      if (data.firstWithdrawal) window.dispatchEvent(new Event('ktx:first-withdrawal'));
       onDone?.();
     } catch (e: any) {
       setError(e.message || 'Network error.');

@@ -1,48 +1,37 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/store";
 import { requireActiveSession } from "@/lib/auth";
-import { accruePastorShare } from "@/lib/pastorAccrual";
+import { supabaseAdmin } from "@/lib/supabase";
+import { TIER_RATES } from "@/lib/profitAccrual";
 
 export const dynamic = "force-dynamic";
 
 const SYMBOLS = ["BTC","ETH","SOL","AAPL","MSFT","NVDA","TSLA","AMZN","GOOGL","META","XAU","WTI","NG","WHEAT","COPPER"];
 const SIDES = ["BUY", "SELL"] as const;
 
-// A small live accrual tick: 1/240 of the daily target per call (~every few
-// seconds), capped so total never exceeds the daily target. Also emits a
-// synthetic trade so the user sees the AI "working".
-export async function POST(req: NextRequest) {
+// Phase C.5: money no longer moves here. Funds accrue once daily via
+// /api/profit/accrue or the cron (Supabase ledger). This endpoint is kept
+// for the live activity UI: it returns a display-only 1/240th slice of the
+// tier's daily target plus a synthetic trade, reading REAL profit/balance
+// from the new ledger.
+export async function POST(_req: NextRequest) {
   const u = await requireActiveSession();
   if (!u) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-  if (u.dailyRate <= 0 || u.deposited <= 0)
-    return NextResponse.json({ ok: true, tick: 0, trade: null });
 
-  const principal = u.deposited + (u.deposited > 0 ? u.freeCredit : 0);
-  const dailyTarget = +(principal * u.dailyRate).toFixed(2);
-  const tickSize = +(dailyTarget / 240).toFixed(4);
-  const earnedToday = u.profitHistory
-    .filter((h) => h.date === u.lastProfitDate)
-    .reduce((s, h) => s + h.profit, 0);
-  const remaining = +(dailyTarget - earnedToday).toFixed(4);
+  const [{ data: w }, { data: prof }] = await Promise.all([
+    supabaseAdmin.from("wallets").select("principal, free_credit, tier").eq("user_id", u.id).maybeSingle(),
+    supabaseAdmin.from("profiles").select("accumulated_profit, total_profit_withdrawn").eq("id", u.id).maybeSingle(),
+  ]);
+
+  const principal = Number(w?.principal || 0) + Number(w?.free_credit || 0);
+  const rate = TIER_RATES[String(w?.tier || "")] || 0;
+  const available = +(Number(prof?.accumulated_profit || 0) - Number(prof?.total_profit_withdrawn || 0)).toFixed(4);
 
   let tick = 0;
-  if (remaining > 0) {
-    tick = Math.min(tickSize, remaining);
-    // small live randomness so the ticker feels alive
-    tick = +(tick * (0.6 + Math.random() * 0.8)).toFixed(4);
-    const after = db.accrueAmount(u.id, tick);
-    // keep the Supabase funds ledger in step with the live ticker
-    if (after) {
-      const { supabaseIdFor } = await import("@/lib/auth");
-      const { syncWalletFromJson } = await import("@/lib/wallet");
-      const sid = supabaseIdFor(u.id);
-      if (sid) await syncWalletFromJson(sid, after);
-      // mirror the pastor share of this tick into the Supabase audit trail
-      await accruePastorShare(u.id, tick);
-    }
+  if (principal > 0 && rate > 0) {
+    const tickSize = (principal * rate) / 240;
+    tick = +(tickSize * (0.6 + Math.random() * 0.8)).toFixed(4);
   }
 
-  // synthetic trade
   const sym = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
   const side = SIDES[Math.floor(Math.random() * 2)];
   const trade = {
@@ -53,7 +42,7 @@ export async function POST(req: NextRequest) {
     at: Date.now(),
   };
 
-  return NextResponse.json({ ok: true, tick, trade, profit: u.profit, balance: u.balance });
+  return NextResponse.json({ ok: true, tick, trade, profit: available, balance: principal + available });
 }
 
 function cryptoRandom() {

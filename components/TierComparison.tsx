@@ -7,7 +7,7 @@ const TIERS = [
     name: "Faithful",
     threshold: 100,
     color: "from-amber-500 to-amber-600",
-    rate: "0.50%",
+    rate: "0.25%",
     features: [
       "Basic AI trading access",
       "Daily profit withdrawal",
@@ -19,9 +19,9 @@ const TIERS = [
   {
     id: "steward",
     name: "Steward",
-    threshold: 650,
+    threshold: 1000,
     color: "from-cyan-500 to-cyan-600",
-    rate: "0.75%",
+    rate: "0.50%",
     features: [
       "Everything in Faithful",
       "Priority withdrawal (instant)",
@@ -34,9 +34,9 @@ const TIERS = [
   {
     id: "ambassador",
     name: "Ambassador",
-    threshold: 2000,
+    threshold: 5000,
     color: "from-[var(--gold)] to-amber-500",
-    rate: "1.00%",
+    rate: "0.75%",
     features: [
       "Everything in Steward",
       "Dedicated account manager",
