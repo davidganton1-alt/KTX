@@ -1,9 +1,8 @@
 import { Label, Num } from './Typography';
 
 // Stat card — the answer to "ugly big numbers".
-// Hierarchy is label (11px uppercase) > value (20px) > context (12px).
-// The value is NEVER the biggest thing on the page; only page titles
-// use Display/hero size. Tone is used sparingly: one accent at a time.
+// Hierarchy: label (11px uppercase) > value (20px) > context (12px).
+// Phase 1.5: ds-card surface with micro-gradient + shadow.
 
 export type StatTone = 'default' | 'profit' | 'gold' | 'warning' | 'error' | 'muted';
 
@@ -23,6 +22,7 @@ export function StatCard({
   tone = 'default',
   align = 'left',
   className = '',
+  onClick,
 }: {
   label: string;
   value: React.ReactNode;
@@ -30,15 +30,22 @@ export function StatCard({
   tone?: StatTone;
   align?: 'left' | 'right';
   className?: string;
+  onClick?: () => void;
 }) {
+  const Comp: any = onClick ? 'button' : 'div';
   return (
-    <div className={`rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] px-5 py-4 ${align === 'right' ? 'text-right' : ''} ${className}`}>
+    <Comp
+      onClick={onClick}
+      className={`ds-card rounded-xl px-5 py-4 text-left ${onClick ? 'ds-card-interactive cursor-pointer' : ''} ${
+        align === 'right' ? 'text-right' : ''
+      } ${className}`}
+    >
       <Label>{label}</Label>
       <div className="mt-1.5">
         <Num className={toneClass[tone]}>{value}</Num>
       </div>
       {context && <p className="mt-1 text-[12px] leading-[1.5] text-[var(--muted)]">{context}</p>}
-    </div>
+    </Comp>
   );
 }
 

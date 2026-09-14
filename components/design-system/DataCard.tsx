@@ -1,5 +1,6 @@
 // Design system data card: title row + optional actions + content.
-// 24px padding, hairline border, no shadows, no hover animation.
+// Phase 1.5: ds-card surface (micro-gradient + soft shadow), rounded-xl
+// consistent, optional interactive lift.
 
 export function DataCard({
   title,
@@ -8,6 +9,7 @@ export function DataCard({
   children,
   className = '',
   padded = true,
+  interactive = false,
 }: {
   title?: React.ReactNode;
   subtitle?: React.ReactNode;
@@ -15,11 +17,12 @@ export function DataCard({
   children: React.ReactNode;
   className?: string;
   padded?: boolean;
+  interactive?: boolean;
 }) {
   return (
-    <section className={`rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] ${className}`}>
+    <section className={`ds-card rounded-xl ${interactive ? 'ds-card-interactive' : ''} ${className}`}>
       {(title || actions) && (
-        <header className="flex items-start justify-between gap-4 px-6 pt-5 pb-1">
+        <header className="flex items-start justify-between gap-4 px-6 pb-1 pt-5">
           <div className="min-w-0">
             {title && <h3 className="text-[16px] font-medium leading-snug text-[var(--fg)]">{title}</h3>}
             {subtitle && <p className="mt-0.5 text-[12px] text-[var(--muted)]">{subtitle}</p>}

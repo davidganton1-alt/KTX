@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 :root {
-  --bg: #0a0e27;
-  --bg-soft: #161b45;
+  --bg: #0c102b;
+  --bg-soft: #171d47;
   --fg: #eef2ff;
   --muted: #9aa3c7;
   --card: rgba(255, 255, 255, 0.04);
@@ -15,22 +15,37 @@
   --profit: #34d399;
   --loss: #f87171;
   --grid: rgba(255, 255, 255, 0.06);
+  /* Phase 1.5 design-system tokens: depth + surface treatment */
+  --surface-from: rgba(255, 255, 255, 0.045);
+  --surface-to: rgba(255, 255, 255, 0.012);
+  --surface-border: rgba(255, 255, 255, 0.09);
+  --shadow-card: 0 4px 12px rgba(2, 4, 16, 0.45), 0 1px 0 rgba(255, 255, 255, 0.03) inset;
+  --shadow-raise: 0 10px 28px rgba(2, 4, 16, 0.55);
+  --row-alt: rgba(255, 255, 255, 0.02);
+  --row-hover: rgba(255, 255, 255, 0.045);
 }
 
-/* Daylight theme */
+/* Daylight theme — warm ivory direction (Phase 1.5 refinement) */
 .theme-day {
-  --bg: #f6f7fb;
-  --bg-soft: #ffffff;
-  --fg: #0a0e27;
-  --muted: #5b639a;
-  --card: rgba(10, 14, 39, 0.04);
-  --border: rgba(10, 14, 39, 0.1);
-  --gold: #b8860b;
+  --bg: #f7f6f1;
+  --bg-soft: #fffefb;
+  --fg: #1a1e33;
+  --muted: #6b7086;
+  --card: rgba(26, 30, 51, 0.035);
+  --border: rgba(26, 30, 51, 0.09);
+  --gold: #a8760a;
   --purple: #6d28d9;
   --cyan: #0891b2;
   --profit: #059669;
   --loss: #dc2626;
-  --grid: rgba(10, 14, 39, 0.08);
+  --grid: rgba(26, 30, 51, 0.06);
+  --surface-from: rgba(255, 255, 255, 0.9);
+  --surface-to: rgba(250, 248, 241, 0.6);
+  --surface-border: rgba(26, 30, 51, 0.08);
+  --shadow-card: 0 1px 2px rgba(26, 30, 51, 0.05), 0 4px 16px rgba(26, 30, 51, 0.06);
+  --shadow-raise: 0 8px 24px rgba(26, 30, 51, 0.1);
+  --row-alt: rgba(26, 30, 51, 0.02);
+  --row-hover: rgba(168, 118, 10, 0.05);
 }
 
 html {
@@ -66,19 +81,43 @@ body {
 /* Refined aurora backdrop for the night theme */
 .theme-night body {
   background:
-    radial-gradient(1100px 620px at 10% -10%, rgba(168, 85, 247, 0.12), transparent 60%),
-    radial-gradient(900px 600px at 100% 0%, rgba(34, 211, 238, 0.1), transparent 55%),
-    radial-gradient(800px 800px at 50% 120%, rgba(245, 201, 123, 0.07), transparent 60%),
-    #0a0e27;
+    radial-gradient(1100px 620px at 10% -10%, rgba(168, 85, 247, 0.14), transparent 60%),
+    radial-gradient(900px 600px at 100% 0%, rgba(34, 211, 238, 0.11), transparent 55%),
+    radial-gradient(800px 800px at 50% 120%, rgba(245, 201, 123, 0.08), transparent 60%),
+    #0c102b;
   background-attachment: fixed;
 }
 
 .theme-day body {
   background:
-    radial-gradient(1000px 600px at 10% -10%, rgba(109, 40, 217, 0.1), transparent 60%),
-    radial-gradient(900px 600px at 100% 0%, rgba(8, 145, 178, 0.08), transparent 55%),
-    #f6f7fb;
+    radial-gradient(1000px 600px at 10% -10%, rgba(168, 118, 10, 0.06), transparent 60%),
+    radial-gradient(900px 600px at 100% 0%, rgba(8, 145, 178, 0.07), transparent 55%),
+    radial-gradient(900px 700px at 50% 115%, rgba(109, 40, 217, 0.05), transparent 60%),
+    #f7f6f1;
   background-attachment: fixed;
+}
+
+/* ---- Design system surfaces (Phase 1.5) ---- */
+.ds-card {
+  background: linear-gradient(160deg, var(--surface-from), var(--surface-to));
+  border: 1px solid var(--surface-border);
+  box-shadow: var(--shadow-card);
+  transition: box-shadow 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+}
+.ds-card-interactive:hover {
+  box-shadow: var(--shadow-raise);
+  border-color: color-mix(in srgb, var(--gold) 25%, var(--surface-border));
+}
+.ds-fade-in {
+  animation: dsFadeIn 0.35s ease both;
+}
+@keyframes dsFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ds-fade-in { animation: none; }
+  .ds-card, .ds-card-interactive { transition: none; }
 }
 
 /* ---- Global animated background (biblical + technology) ---- */

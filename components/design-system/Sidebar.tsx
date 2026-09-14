@@ -1,9 +1,8 @@
 'use client';
 
 // Design system sidebar: grouped nav, quiet icons, one active accent.
-// Naming discipline: each item is a single word (or two max); section
-// labels are 11px uppercase; the active item uses the gold tint, no bold
-// color spam.
+// Phase 1.5: roomier rhythm (12px item padding, 6px gaps, hairline between
+// sections), smooth hover fill.
 
 export type NavItem = {
   id: string;
@@ -33,35 +32,36 @@ export function Sidebar({
   footer?: React.ReactNode;
 }) {
   return (
-    <nav className="flex h-full w-60 shrink-0 flex-col border-r border-[var(--border)] bg-[var(--bg-soft)]">
-      <div className="px-6 py-6">
+    <nav className="sticky top-0 flex h-screen w-64 shrink-0 flex-col border-r border-[var(--border)]"
+      style={{ background: 'linear-gradient(180deg, var(--surface-from), var(--surface-to))' }}>
+      <div className="px-6 pb-6 pt-7">
         <p className="text-[16px] font-semibold tracking-[-0.01em] text-[var(--fg)]">{brand}</p>
-        {brandSub && <p className="mt-0.5 text-[11px] uppercase tracking-[0.05em] text-[var(--muted)]">{brandSub}</p>}
+        {brandSub && <p className="mt-1 text-[11px] uppercase tracking-[0.08em] text-[var(--muted)]">{brandSub}</p>}
       </div>
 
-      <div className="flex-1 overflow-y-auto px-3 pb-4">
+      <div className="flex-1 overflow-y-auto px-3 pb-6">
         {sections.map((section, si) => (
-          <div key={si} className={si > 0 ? 'mt-5' : ''}>
+          <div key={si} className={si > 0 ? 'mt-5 border-t border-[var(--border)] pt-5' : ''}>
             {section.heading && (
-              <p className="mb-1 px-3 text-[11px] font-medium uppercase tracking-[0.05em] text-[var(--muted)]">
+              <p className="mb-2 px-3 text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--muted)]">
                 {section.heading}
               </p>
             )}
-            <ul className="space-y-0.5">
+            <ul className="space-y-1.5">
               {section.items.map((item) => {
                 const isActive = active === item.id;
                 return (
                   <li key={item.id}>
                     <button
                       onClick={() => onSelect(item.id)}
-                      className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-[14px] transition-colors ${
+                      className={`group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-[14px] transition-all duration-200 ${
                         isActive
                           ? 'bg-[var(--gold)]/10 font-medium text-[var(--gold)]'
-                          : 'text-[var(--muted)] hover:bg-[var(--card)] hover:text-[var(--fg)]'
+                          : 'text-[var(--muted)] hover:bg-[var(--row-hover)] hover:text-[var(--fg)]'
                       }`}
                     >
                       {item.icon && (
-                        <svg className={`h-4 w-4 shrink-0 ${isActive ? 'opacity-100' : 'opacity-70'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                        <svg className={`h-4 w-4 shrink-0 transition-opacity ${isActive ? 'opacity-100' : 'opacity-60 group-hover:opacity-90'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                           <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
                         </svg>
                       )}

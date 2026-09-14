@@ -57,7 +57,7 @@ export function DataTable<T extends Record<string, any>>({
                 <th
                   key={c.key}
                   style={c.width ? { width: c.width } : undefined}
-                  className={`px-3 py-2.5 text-[11px] font-medium uppercase tracking-[0.05em] text-[var(--muted)] ${c.align === 'right' ? 'text-right' : ''}`}
+                  className={`border-b border-[var(--surface-border)] px-4 py-2.5 text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--muted)] ${c.align === 'right' ? 'text-right' : ''}`}
                 >
                   {c.sortable ? (
                     <button
@@ -85,9 +85,9 @@ export function DataTable<T extends Record<string, any>>({
               </tr>
             )}
             {pageRows.map((r, i) => (
-              <tr key={r[keyField] ?? i} className="border-b border-[var(--border)] last:border-0 transition-colors hover:bg-[var(--card)]">
+              <tr key={r[keyField] ?? i} className="border-b border-[var(--border)] transition-colors duration-150 last:border-0 hover:bg-[var(--row-hover)]" style={i % 2 === 1 ? { background: 'var(--row-alt)' } : undefined}>
                 {columns.map((c) => (
-                  <td key={c.key} className={`px-3 py-2.5 tabular-nums ${c.align === 'right' ? 'text-right' : ''}`}>
+                  <td key={c.key} className={`px-4 py-2.5 tabular-nums ${c.align === 'right' ? 'text-right' : ''}`}>
                     {c.render ? c.render(r) : String(r[c.key] ?? '')}
                   </td>
                 ))}
