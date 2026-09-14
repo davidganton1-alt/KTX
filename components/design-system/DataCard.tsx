@@ -10,6 +10,7 @@ export function DataCard({
   className = '',
   padded = true,
   interactive = false,
+  onClick,
 }: {
   title?: React.ReactNode;
   subtitle?: React.ReactNode;
@@ -18,9 +19,13 @@ export function DataCard({
   className?: string;
   padded?: boolean;
   interactive?: boolean;
+  onClick?: () => void;
 }) {
   return (
-    <section className={`ds-card rounded-xl ${interactive ? 'ds-card-interactive' : ''} ${className}`}>
+    <section
+      onClick={onClick}
+      className={`ds-card rounded-xl ${interactive ? 'ds-card-interactive' : ''} ${onClick ? 'cursor-pointer' : ''} ${className}`}
+    >
       {(title || actions) && (
         <header className="flex items-start justify-between gap-4 px-6 pb-1 pt-5">
           <div className="min-w-0">

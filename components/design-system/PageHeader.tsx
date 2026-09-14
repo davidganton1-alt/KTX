@@ -8,14 +8,16 @@ export function PageHeader({
   title,
   description,
   actions,
+  id,
 }: {
   crumbs?: string[];
   title: string;
   description?: string;
   actions?: React.ReactNode;
+  id?: string;
 }) {
   return (
-    <header className="flex flex-wrap items-end justify-between gap-4 border-b border-[var(--border)] pb-5">
+    <header id={id} className="flex flex-wrap items-end justify-between gap-4 border-b border-[var(--border)] pb-5">
       <div className="min-w-0">
         {crumbs && crumbs.length > 0 && (
           <Label className="mb-1.5">
