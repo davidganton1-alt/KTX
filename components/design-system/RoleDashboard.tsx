@@ -33,6 +33,7 @@ export type RoleDashboardData = {
   deposits?: any[]; // /api/deposits/history
   referral?: any; // /api/referral/balance
   pastor?: any; // /api/pastor/me
+  me?: any; // /api/auth/me (agreement state)
 };
 
 export type RoleDashboardHandlers = {
@@ -41,6 +42,8 @@ export type RoleDashboardHandlers = {
   onWithdrawPrincipal?: () => void;
   onCommissionWithdraw?: () => void;
   onLogout?: () => void;
+  onViewAgreement?: () => void;
+  onReview?: () => void;
 };
 
 const money = (n: number) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -263,7 +266,7 @@ export function RoleDashboard({ persona, data, handlers, loading }: { persona: R
           {tab === 'flock' && <PeopleTab p={persona} s={{ peopleRows, flockCount, flockPrincipal, flockDaily }} />}
           {tab === 'commissions' && <CommissionsTab s={{ commissionTotal, commissionAvail, commissionPending, commissionReview, bonusSum, profitSum, commissionRows }} h={handlers} />}
           {tab === 'invite' && <InviteTab p={persona} s={{ inviteLink, flockCount }} />}
-          {tab === 'settings' && <SettingsTab p={persona} s={{ name: real ? w.name : undefined, email: real ? w.email : undefined, twoFA: real ? !!w.twoFactorEnabled : true }} />}
+          {tab === 'settings' && <SettingsTab p={persona} h={handlers} s={{ name: real ? w.name : undefined, email: real ? w.email : undefined, twoFA: real ? !!w.twoFactorEnabled : true, agreementSigned: real ? !!data?.me?.hasSignedAgreement : true }} />}
         </div>
         {!real && (
           <p className="mt-10 text-center text-[11px] uppercase tracking-[0.08em] text-[var(--muted)]">
@@ -616,7 +619,7 @@ function InviteTab({ p, s }: any) {
   );
 }
 
-function SettingsTab({ p, s }: any) {
+function SettingsTab({ p, s, h }: any) {
   return (
     <>
       <PageHeader crumbs={['Settings']} title="Settings" description="Profile, security and payout preferences." />
@@ -637,7 +640,8 @@ function SettingsTab({ p, s }: any) {
         <DataCard title="Security & payouts">
           <div className="space-y-4">
             <div className="flex items-center justify-between"><div><p className="text-[14px] text-[var(--fg)]">Two-factor authentication</p><p className="text-[12px] text-[var(--muted)]">{s.twoFA ? 'Enabled' : 'Add an extra layer of security'}</p></div><Toggle on={s.twoFA} /></div>
-            <div className="flex items-center justify-between"><div><p className="text-[14px] text-[var(--fg)]">Notify on new member</p><p className="text-[12px] text-[var(--muted)]">Email when someone funds a plan</p></div><Toggle on /></div>
+            <div className="flex items-center justify-between"><div><p className="text-[14px] text-[var(--fg)]">Trading Agreement</p><p className="text-[12px] text-[var(--muted)]">{s.agreementSigned ? 'Signed' : 'Signature required'}</p></div><Button variant="secondary" size="sm" onClick={h?.onViewAgreement}>View</Button></div>
+            <div className="flex items-center justify-between"><div><p className="text-[14px] text-[var(--fg)]">Trustpilot review</p><p className="text-[12px] text-[var(--muted)]">Share your experience</p></div><Button variant="ghost" size="sm" onClick={h?.onReview}>Leave review</Button></div>
             <div className="flex items-center justify-between"><div><p className="text-[14px] text-[var(--fg)]">Default payout network</p><p className="text-[12px] text-[var(--muted)]">USDT · TRC20</p></div><Toggle on={false} /></div>
           </div>
         </DataCard>

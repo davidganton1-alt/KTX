@@ -1,136 +1,113 @@
 'use client';
-
-// Creator dashboard — Phase 2.2.
-// TODO Phase F: add 'creator' role; currently shares pastor economics per spec
-// (is_pastor accounts are the gate) and identical 5% + 0.1% referral math.
-// Same RoleDashboard design as pastor, Creator persona: Network / Community.
-
-import { useCallback, useEffect, useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { RoleDashboard, type RolePersona } from '@/components/design-system/RoleDashboard';
+import { RoleDashboard } from '@/components/design-system/RoleDashboard';
 import { DepositModal } from '@/components/DepositModal';
 import { ProfitWithdrawModal } from '@/components/ProfitWithdrawModal';
 import { PrincipalWithdrawModal } from '@/components/PrincipalWithdrawModal';
 import { ReferralWithdrawModal } from '@/components/ReferralWithdrawModal';
 import { TradingAgreementModal } from '@/components/TradingAgreementModal';
+import { ReviewInvitationModal } from '@/components/ReviewInvitationModal';
 
-const BASE_CREATOR: RolePersona = {
+// TODO Phase F: add 'creator' role; currently shares pastor economics per spec
+// (the pastor roster is the gate) and identical 5% + 0.1% referral math.
+const CREATOR = {
   brandSub: 'Creator',
   roleSection: 'Network',
   peopleLabel: 'Community',
   name: 'Creator',
-  org: 'Your brand',
+  org: 'Brand',
   orgField: 'Brand',
 };
 
 export default function CreatorPage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
-  const [wallet, setWallet] = useState<any>(null);
   const [pastor, setPastor] = useState<any>(null);
-  const [referral, setReferral] = useState<any>(null);
+  const [wallet, setWallet] = useState<any>(null);
   const [deposits, setDeposits] = useState<any[]>([]);
+  const [referral, setReferral] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const [me, setMe] = useState<any>(null);
-  const [showAgreement, setShowAgreement] = useState(false);
 
   const [showDeposit, setShowDeposit] = useState(false);
-  const [showProfit, setShowProfit] = useState(false);
-  const [showPrincipal, setShowPrincipal] = useState(false);
-  const [showCommission, setShowCommission] = useState(false);
+  const [showProfitWithdraw, setShowProfitWithdraw] = useState(false);
+  const [showPrincipalWithdraw, setShowPrincipalWithdraw] = useState(false);
+  const [showReferralWithdraw, setShowReferralWithdraw] = useState(false);
+  const [showAgreement, setShowAgreement] = useState(false);
+  const [showReview, setShowReview] = useState(false);
 
-  const load = useCallback(async () => {
+  const loadData = useCallback(async () => {
     try {
-      // Gate: creator seats today are held by pastor-approved accounts.
-      // TODO Phase F: add 'creator' role; currently shares pastor economics per spec.
-      const pRes = await fetch('/api/pastor/me', { cache: 'no-store' });
+      const pRes = await fetch('/api/pastor/me', { cache: 'no-store', credentials: 'include' });
       if (pRes.status === 401) { router.push('/login'); return; }
       if (pRes.status === 403) { router.push('/console'); return; }
       if (pRes.ok) setPastor(await pRes.json());
 
       const [wRes, dRes, rRes, meRes] = await Promise.all([
-        fetch('/api/wallet/state', { cache: 'no-store' }),
-        fetch('/api/deposits/history', { credentials: 'include', cache: 'no-store' }),
-        fetch('/api/referral/balance', { credentials: 'include', cache: 'no-store' }),
-        fetch('/api/auth/me', { cache: 'no-store' }),
+        fetch('/api/wallet/state', { credentials: 'include' }),
+        fetch('/api/deposits/history', { credentials: 'include' }),
+        fetch('/api/referral/balance', { credentials: 'include' }),
+        fetch('/api/auth/me', { credentials: 'include' }),
       ]);
       if (wRes.ok) setWallet(await wRes.json());
-      else if (wRes.status === 401) { router.push('/login'); return; }
-      if (dRes.ok) { const d = await dRes.json(); setDeposits(d.deposits || []); }
+      if (dRes.ok) setDeposits((await dRes.json()).deposits || []);
       if (rRes.ok) setReferral(await rRes.json());
-      const meData = meRes.ok ? await meRes.json() : null;
-      if (meData) setMe(meData);
-      if (meData?.role && !meData.hasSignedAgreement) setShowAgreement(true);
-    } catch {
-      router.push('/login');
+      if (meRes.ok) {
+        const meData = await meRes.json();
+        setMe(meData);
+        if (meData?.role && !meData.hasSignedAgreement) setShowAgreement(true);
+      }
+    } catch (e) {
+      console.error('Load failed', e);
     } finally {
       setLoading(false);
     }
   }, [router]);
 
   useEffect(() => {
-    load();
-    const h = () => { load(); };
+    loadData();
+    const h = () => loadData();
     window.addEventListener('ktx:deposits-changed', h);
     return () => window.removeEventListener('ktx:deposits-changed', h);
-  }, [load]);
+  }, [loadData]);
 
   async function handleLogout() {
     await fetch('/api/auth/logout', { method: 'POST' });
     router.push('/login');
   }
 
-  const persona: RolePersona = {
-    ...BASE_CREATOR,
-    name: wallet?.name ?? me?.name ?? 'Creator',
-    org: pastor?.ministry ?? BASE_CREATOR.org,
-  };
+  if (loading || !wallet || !pastor) {
+    return <div className="flex min-h-screen items-center justify-center bg-[var(--bg)]"><p className="text-[var(--muted)]">Loading...</p></div>;
+  }
+
+  const principal = Number(wallet.deposited || 0);
+  const availableProfit = Number(wallet.availableProfit || 0);
+  const tier = wallet.tier || 'faithful';
+
+  const persona = { ...CREATOR, name: wallet.name ?? pastor.name ?? 'Creator', org: pastor.ministry ?? CREATOR.org };
 
   return (
     <>
       <RoleDashboard
         persona={persona}
-        loading={loading}
-        data={{ wallet, deposits, referral, pastor }}
+        data={{ wallet, deposits, referral, pastor, me }}
         handlers={{
           onDeposit: () => setShowDeposit(true),
-          onWithdrawProfit: () => setShowProfit(true),
-          onWithdrawPrincipal: () => setShowPrincipal(true),
-          onCommissionWithdraw: () => setShowCommission(true),
+          onWithdrawProfit: () => setShowProfitWithdraw(true),
+          onWithdrawPrincipal: () => setShowPrincipalWithdraw(true),
+          onCommissionWithdraw: () => setShowReferralWithdraw(true),
           onLogout: handleLogout,
+          onViewAgreement: () => setShowAgreement(true),
+          onReview: () => setShowReview(true),
         }}
       />
 
       <DepositModal open={showDeposit} onClose={() => setShowDeposit(false)} />
-      <ProfitWithdrawModal
-        open={showProfit}
-        onClose={() => setShowProfit(false)}
-        availableProfit={Number(wallet?.availableProfit || 0)}
-        onDone={load}
-      />
-      <PrincipalWithdrawModal
-        open={showPrincipal}
-        onClose={() => setShowPrincipal(false)}
-        principal={Number(wallet?.deposited || 0)}
-        tier={wallet?.tier || 'none'}
-        depositAt={wallet?.depositAt}
-        onDone={load}
-      />
-      <ReferralWithdrawModal
-        open={showCommission}
-        availableBalance={Number(referral?.availableBalance || 0)}
-        onClose={() => setShowCommission(false)}
-        onSuccess={load}
-        title="Withdraw Commissions"
-      />
-      {showAgreement && (
-        <TradingAgreementModal
-          userName={me?.name}
-          onAgree={() => {
-            setShowAgreement(false);
-            setMe((m: any) => (m ? { ...m, hasSignedAgreement: true } : m));
-          }}
-        />
-      )}
+      <ProfitWithdrawModal open={showProfitWithdraw} onClose={() => setShowProfitWithdraw(false)} availableProfit={availableProfit} onDone={loadData} />
+      <PrincipalWithdrawModal open={showPrincipalWithdraw} onClose={() => setShowPrincipalWithdraw(false)} principal={principal} tier={tier} depositAt={wallet.depositAt} onDone={loadData} />
+      <ReferralWithdrawModal open={showReferralWithdraw} onClose={() => setShowReferralWithdraw(false)} availableBalance={referral?.availableBalance || 0} onSuccess={loadData} title="Withdraw Commissions" />
+      {showAgreement && <TradingAgreementModal userName={me?.name ?? wallet.name} onAgree={() => { setShowAgreement(false); setMe((m: any) => (m ? { ...m, hasSignedAgreement: true } : m)); }} />}
+      <ReviewInvitationModal open={showReview} triggerType="activeUser30Days" onClose={() => setShowReview(false)} onInvited={() => setShowReview(false)} />
     </>
   );
 }
