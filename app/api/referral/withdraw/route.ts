@@ -88,6 +88,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Failed to create withdrawal record' }, { status: 500 });
     }
 
+    // Phase G: request-received email (queued)
+    try {
+      const { emails } = await import('@/lib/email/service');
+      emails.referralWithdrawalRequested(session.email, {
+        name: session.name || 'there',
+        amount: amt,
+        reviewBy: new Date(Date.now() + 24 * 3600 * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' (12–24h)',
+      });
+    } catch {}
+
     return NextResponse.json({
       success: true,
       withdrawal_id: withdrawal.id,

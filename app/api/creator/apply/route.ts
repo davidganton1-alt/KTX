@@ -57,6 +57,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
+    // Phase G: application received email (queued)
+    try {
+      const { emails } = await import('@/lib/email/service');
+      emails.creatorApplicationReceived(email, { name, platform: platform.charAt(0).toUpperCase() + platform.slice(1), handle: platform_handle });
+    } catch {}
+
     return NextResponse.json({
       success: true,
       application_id: application.id,

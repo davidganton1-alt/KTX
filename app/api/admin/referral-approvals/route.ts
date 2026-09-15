@@ -77,6 +77,12 @@ export async function POST(req: NextRequest) {
         const { db } = await import('@/lib/store');
         db.notify(legacyIdFor(withdrawal.user_id), `Referral withdrawal of $${Number(withdrawal.amount).toFixed(2)} was not approved.`, 'withdrawal');
       } catch {}
+      try {
+        const { emails } = await import('@/lib/email/service');
+        const { getRecipient } = await import('@/lib/email/recipient');
+        const recip = await getRecipient(withdrawal.user_id);
+        if (recip) emails.referralWithdrawalDecision(recip.email, { name: recip.name, amount: Number(withdrawal.amount), approved: false, reason: admin_notes || undefined });
+      } catch {}
       return NextResponse.json({ success: true, message: 'Withdrawal rejected' });
     }
 
@@ -112,6 +118,13 @@ export async function POST(req: NextRequest) {
         const { legacyIdFor } = await import('@/lib/auth');
         const { db } = await import('@/lib/store');
         db.notify(legacyIdFor(withdrawal.user_id), `Referral withdrawal of $${amt.toFixed(2)} approved and sent (${net.toUpperCase()}).`, 'withdrawal');
+      } catch {}
+
+      try {
+        const { emails } = await import('@/lib/email/service');
+        const { getRecipient } = await import('@/lib/email/recipient');
+        const recip = await getRecipient(withdrawal.user_id);
+        if (recip) emails.referralWithdrawalDecision(recip.email, { name: recip.name, amount: amt, approved: true, network: net.toUpperCase() });
       } catch {}
 
       return NextResponse.json({

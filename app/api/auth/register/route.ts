@@ -153,6 +153,12 @@ export async function POST(req: NextRequest) {
     }
     setSessionCookie(signInData.session.access_token);
 
+    // Phase G: welcome email (queued, fire-and-forget)
+    try {
+      const { emails } = await import('@/lib/email/service');
+      emails.welcome(email, { name, tier: 'Faithful', platformCredit: 50 });
+    } catch {}
+
     return NextResponse.json({
       success: true,
       verifyLink,

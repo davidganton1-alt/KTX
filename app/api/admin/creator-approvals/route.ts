@@ -84,6 +84,28 @@ export async function POST(req: NextRequest) {
         const jid = legacyIdFor(application.user_id);
         if (jid) db.notify(jid, 'Your creator application was approved. Your creator dashboard is live.', 'referral');
       } catch {}
+      // Phase G: approval email with invite link
+      try {
+        const { emails } = await import('@/lib/email/service');
+        const { SITE_URL } = await import('@/lib/email/config');
+        const { getRecipient } = await import('@/lib/email/recipient');
+        const recip = await getRecipient(application.user_id);
+        if (recip) {
+          emails.creatorApplicationApproved(recip.email, {
+            name: recip.name,
+            brandName: application.brand_name || application.name,
+            inviteLink: SITE_URL + '/creator',
+          });
+        }
+      } catch {}
+    } else {
+      // Phase G: rejection email (with admin feedback as reason)
+      try {
+        const { emails } = await import('@/lib/email/service');
+        const { getRecipient } = await import('@/lib/email/recipient');
+        const recip = await getRecipient(application.user_id);
+        if (recip) emails.creatorApplicationRejected(recip.email, { name: recip.name, reason: admin_notes || undefined });
+      } catch {}
     }
 
     return NextResponse.json({

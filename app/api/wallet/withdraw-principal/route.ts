@@ -130,6 +130,18 @@ export async function POST(req: NextRequest) {
       db.notify(lid, `Principal withdrawal of $${amt.toFixed(2)} requested${inHoldingPeriod ? ' (50% early fee applies)' : ''}.`, 'withdrawal');
     } catch {}
 
+    // Phase G: request-received email (queued)
+    try {
+      const { emails } = await import('@/lib/email/service');
+      emails.principalWithdrawalRequested(session.email, {
+        name: session.name || 'there',
+        amount: amt,
+        net: netAmount,
+        feePct: inHoldingPeriod ? 50 : 0,
+        reviewBy: new Date(Date.now() + 24 * 3600 * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' (12–24h)',
+      });
+    } catch {}
+
     return NextResponse.json({
       success: true,
       withdrawal_id: withdrawal.id,

@@ -122,6 +122,21 @@ export async function processProfitWithdrawal(
       notes: `payout ${payout.id || payout.txn_id || "?"} ${net}`,
     });
 
+    // Phase G: profit withdrawal processed email (queued)
+    try {
+      const { emails } = await import("@/lib/email/service");
+      const { getRecipient } = await import("@/lib/email/recipient");
+      const recip = await getRecipient(sessionId);
+      if (recip) {
+        emails.profitWithdrawalProcessed(recip.email, {
+          name: recip.name,
+          amount: amt,
+          network: net.toUpperCase(),
+          txHash: String(payout.id || payout.txn_id || "") || undefined,
+        });
+      }
+    } catch {}
+
     return {
       ok: true,
       data: {

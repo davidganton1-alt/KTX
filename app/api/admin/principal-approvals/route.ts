@@ -131,6 +131,12 @@ export async function POST(req: NextRequest) {
         })
         .eq('id', withdrawal_id);
       await refundPrincipal(withdrawal, 'was rejected');
+      try {
+        const { emails } = await import('@/lib/email/service');
+        const { getRecipient } = await import('@/lib/email/recipient');
+        const recip = await getRecipient(withdrawal.user_id);
+        if (recip) emails.principalWithdrawalRejected(recip.email, { name: recip.name, amount: Number(withdrawal.amount), reason: admin_notes || undefined });
+      } catch {}
       return NextResponse.json({ success: true, message: 'Withdrawal rejected, principal returned' });
     }
 
@@ -160,6 +166,21 @@ export async function POST(req: NextRequest) {
     try {
       const { db } = await import('@/lib/store');
       db.notify(legacyIdFor(withdrawal.user_id), `Principal withdrawal approved — $${netAmt.toFixed(2)} is being prepared for payout.`, 'withdrawal');
+    } catch {}
+
+    // Phase G: approved email (queued)
+    try {
+      const { emails } = await import('@/lib/email/service');
+      const { getRecipient } = await import('@/lib/email/recipient');
+      const recip = await getRecipient(withdrawal.user_id);
+      if (recip) {
+        emails.principalWithdrawalApproved(recip.email, {
+          name: recip.name,
+          net: netAmt,
+          network: (withdrawal.network || 'trc20').toUpperCase(),
+          when: new Date(Date.now() + 48 * 3600 * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        });
+      }
     } catch {}
 
     return NextResponse.json({

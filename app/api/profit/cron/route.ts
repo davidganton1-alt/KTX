@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { accrueAllUsersProfit } from '@/lib/profitAccrual';
+import { runEmailDigests } from '@/lib/email/digests';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,7 +20,17 @@ export async function POST(req: Request) {
     }
 
     const summary = await accrueAllUsersProfit();
-    return NextResponse.json({ success: summary.failed === 0, summary });
+
+    // Phase G: piggyback the email digests (weekly summaries + agreement
+    // reminders) on the same daily beat; failures never block accrual.
+    let digests = null;
+    try {
+      digests = await runEmailDigests();
+    } catch (e: any) {
+      console.error('[profit-cron] digests failed:', e.message);
+    }
+
+    return NextResponse.json({ success: summary.failed === 0, summary, digests });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
   }

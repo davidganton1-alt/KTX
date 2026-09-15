@@ -179,6 +179,21 @@ export async function POST(req: NextRequest) {
       }
 
       console.log(`[plisio-webhook] Deposit processed: referral=$${split.referralCommission}, hot=$${split.hotWalletAmount}, engine=$${split.engineWalletAmount}`);
+
+      // Phase G: deposit confirmed email (only when the split actually landed)
+      try {
+        const { emails } = await import('@/lib/email/service');
+        const { getRecipient } = await import('@/lib/email/recipient');
+        const recip = await getRecipient(deposit.user_id);
+        if (recip) {
+          emails.depositConfirmed(recip.email, {
+            name: recip.name,
+            amount,
+            tier: newTier.charAt(0).toUpperCase() + newTier.slice(1),
+            date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+          });
+        }
+      } catch (err: any) { console.error('[plisio-webhook] deposit email failed:', err.message); }
     }
 
     return NextResponse.json({ ok: true });
