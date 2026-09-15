@@ -22,6 +22,7 @@ const SECTIONS: NavSection[] = [
       { id: 'withdrawals', label: 'Withdrawals', icon: 'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9', badge: 0 },
       { id: 'users', label: 'Users', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197' },
       { id: 'pastors', label: 'Pastors', icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z', badge: 0 },
+      { id: 'creators', label: 'Creators', icon: 'M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z', badge: 0 },
     ],
   },
   {
@@ -59,17 +60,19 @@ export default function AdminPage() {
   const [annTitle, setAnnTitle] = useState('');
   const [annBody, setAnnBody] = useState('');
   const [userSearch, setUserSearch] = useState('');
+  const [creatorApps, setCreatorApps] = useState<any[]>([]);
   const [newCreds, setNewCreds] = useState<{ email: string; password: string; name: string } | null>(null);
 
   const flash = (t: string) => { setFlashMsg(t); setTimeout(() => setFlashMsg(''), 4000); };
 
   const loadData = useCallback(async () => {
     try {
-      const [wRes, princRes, refRes, dataRes, meRes] = await Promise.all([
+      const [wRes, princRes, refRes, dataRes, caRes, meRes] = await Promise.all([
         fetch('/api/wallets/balances', { credentials: 'include' }),
         fetch('/api/admin/principal-approvals', { credentials: 'include' }),
         fetch('/api/admin/referral-approvals', { credentials: 'include' }),
-        fetch('/api/admin/data', { credentials: 'include', cache: 'no-store' }),
+        fetch("/api/admin/data", { credentials: 'include', cache: 'no-store' }),
+        fetch("/api/admin/creator-approvals", { credentials: 'include' }),
         fetch('/api/auth/me', { credentials: 'include' }),
       ]);
       if (wRes.status === 401 || meRes.status === 401) { router.push('/login'); return; }
@@ -78,6 +81,7 @@ export default function AdminPage() {
       if (princRes.ok) setPrincipalQueue((await princRes.json()).withdrawals || []);
       if (refRes.ok) setReferralQueue((await refRes.json()).withdrawals || []);
       if (dataRes.ok) setData(await dataRes.json());
+      if (caRes.ok) setCreatorApps((await caRes.json()).applications || []);
       if (meRes.ok) {
         const meData = await meRes.json();
         setMe(meData);
@@ -147,6 +151,21 @@ export default function AdminPage() {
     setBusy(null);
   }
 
+  async function decideCreator(id: string, action: 'approve' | 'reject') {
+    setBusy(`creator-${id}`);
+    try {
+      const res = await fetch('/api/admin/creator-approvals', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+        body: JSON.stringify({ application_id: id, action }),
+      });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) flash(d.error || 'Action failed.');
+      else flash(`Creator application ${action === 'approve' ? 'approved — creator dashboard unlocked.' : 'rejected.'}`);
+      loadData();
+    } catch { flash('Network error.'); }
+    setBusy(null);
+  }
+
   async function postAnnouncement() {
     if (!annTitle.trim()) { flash('Title is required.'); return; }
     setBusy('ann-post');
@@ -201,6 +220,7 @@ export default function AdminPage() {
     items: s.items.map((it) =>
       it.id === 'withdrawals' ? { ...it, badge: pendingCount }
       : it.id === 'pastors' ? { ...it, badge: pendingApps }
+      : it.id === 'creators' ? { ...it, badge: creatorApps.filter((a: any) => a.status === 'pending').length }
       : it),
   }));
 
@@ -472,6 +492,55 @@ export default function AdminPage() {
                         { key: 'referrals', header: 'Flock', align: 'right', render: (r: any) => r.referrals ?? 0 },
                         { key: 'earnedTotal', header: 'Earned', align: 'right', render: (r: any) => `$${money(Number(r.earnedTotal ?? r.earned_total ?? 0))}` },
                         { key: 'shareRate', header: 'Share', align: 'right', render: (r: any) => `${r.shareRate ?? 5}%` },
+                      ]}
+                    />
+                  </div>
+                </DataCard>
+              </div>
+            </>
+          )}
+
+          {/* ═══ CREATORS (Phase F) ═══ */}
+          {tab === 'creators' && (
+            <>
+              <PageHeader crumbs={['Admin', 'Creators']} title="Creator management" description="Review applications and manage approved creators." />
+              <div className="mt-6">
+                <DataCard title="Pending creator applications" padded={false}>
+                  <div className="px-2 pb-2">
+                    <DataTable
+                      rows={creatorApps.filter((a: any) => a.status === 'pending')}
+                      emptyText="No pending applications."
+                      columns={[
+                        { key: 'created_at', header: 'Applied', render: (r: any) => r.created_at ? new Date(r.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—' },
+                        { key: 'name', header: 'Name', render: (r: any) => r.profiles?.name || r.name },
+                        { key: 'brand_name', header: 'Brand', render: (r: any) => r.brand_name || '—' },
+                        { key: 'platform', header: 'Platform', render: (r: any) => r.platform?.charAt(0).toUpperCase() + r.platform?.slice(1) },
+                        { key: 'platform_handle', header: 'Handle', render: (r: any) => `@${r.platform_handle}` },
+                        { key: 'follower_count', header: 'Followers', align: 'right', render: (r: any) => Number(r.follower_count || 0).toLocaleString() },
+                        { key: 'act', header: '', align: 'right', render: (r: any) => (
+                          <span className="inline-flex gap-1.5">
+                            <Button variant="primary" size="sm" disabled={busy === `creator-${r.id}`} onClick={() => decideCreator(r.id, 'approve')}>Approve</Button>
+                            <Button variant="danger" size="sm" disabled={busy === `creator-${r.id}`} onClick={() => decideCreator(r.id, 'reject')}>Reject</Button>
+                          </span>
+                        ) },
+                      ]}
+                    />
+                  </div>
+                </DataCard>
+              </div>
+              <div className="mt-6">
+                <DataCard title="Approved creators" padded={false}>
+                  <div className="px-2 pb-2">
+                    <DataTable
+                      rows={creatorApps.filter((a: any) => a.status === 'approved')}
+                      emptyText="No approved creators yet."
+                      columns={[
+                        { key: 'name', header: 'Creator', render: (r: any) => r.profiles?.name || r.name },
+                        { key: 'brand_name', header: 'Brand', render: (r: any) => r.brand_name || '—' },
+                        { key: 'platform', header: 'Platform', render: (r: any) => `${(r.platform || 'other').charAt(0).toUpperCase() + (r.platform || '').slice(1)} @${r.platform_handle}` },
+                        { key: 'follower_count', header: 'Followers', align: 'right', render: (r: any) => Number(r.follower_count || 0).toLocaleString() },
+                        { key: 'reviewed_at', header: 'Approved', align: 'right', render: (r: any) => (r.reviewed_at ? new Date(r.reviewed_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—') },
+                        { key: 'status', header: 'Status', align: 'right', render: () => <StatusPill tone="green">Approved</StatusPill> },
                       ]}
                     />
                   </div>

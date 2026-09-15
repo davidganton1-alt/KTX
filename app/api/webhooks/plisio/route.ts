@@ -90,10 +90,10 @@ export async function POST(req: NextRequest) {
       if (deposit.is_first_deposit && deposit.referred_by) {
         const { data: refProfile } = await supabaseAdmin
           .from('profiles')
-          .select('is_pastor, role')
+          .select('is_pastor, is_creator, role')
           .eq('id', deposit.referred_by)
           .maybeSingle();
-        referralRate = refProfile?.is_pastor || refProfile?.role === 'admin' ? 5 : 2.5;
+        referralRate = refProfile?.is_pastor || refProfile?.is_creator || refProfile?.role === 'admin' ? 5 : 2.5;
       }
 
       const split = await processDepositSplit(

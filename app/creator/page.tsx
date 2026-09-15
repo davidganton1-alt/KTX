@@ -9,20 +9,23 @@ import { ReferralWithdrawModal } from '@/components/ReferralWithdrawModal';
 import { TradingAgreementModal } from '@/components/TradingAgreementModal';
 import { ReviewInvitationModal } from '@/components/ReviewInvitationModal';
 
-// TODO Phase F: add 'creator' role; currently shares pastor economics per spec
-// (the pastor roster is the gate) and identical 5% + 0.1% referral math.
-const CREATOR = {
+// Phase F: creators now have their own identity (profiles.is_creator /
+// role='creator' via creator_applications). Economics identical to pastors
+// (5% first-deposit + 0.1% lifetime, wired through referred_by + the
+// is_creator check in the deposit webhook).
+
+const BASE_CREATOR = {
   brandSub: 'Creator',
   roleSection: 'Network',
   peopleLabel: 'Community',
   name: 'Creator',
-  org: 'Brand',
+  org: 'My Brand',
   orgField: 'Brand',
 };
 
 export default function CreatorPage() {
   const router = useRouter();
-  const [pastor, setPastor] = useState<any>(null);
+  const [creator, setCreator] = useState<any>(null);
   const [wallet, setWallet] = useState<any>(null);
   const [deposits, setDeposits] = useState<any[]>([]);
   const [referral, setReferral] = useState<any>(null);
@@ -38,10 +41,10 @@ export default function CreatorPage() {
 
   const loadData = useCallback(async () => {
     try {
-      const pRes = await fetch('/api/pastor/me', { cache: 'no-store', credentials: 'include' });
-      if (pRes.status === 401) { router.push('/login'); return; }
-      if (pRes.status === 403) { router.push('/console'); return; }
-      if (pRes.ok) setPastor(await pRes.json());
+      const cRes = await fetch('/api/creator/me', { cache: 'no-store', credentials: 'include' });
+      if (cRes.status === 401) { router.push('/login'); return; }
+      if (cRes.status === 403) { router.push('/console'); return; }
+      if (cRes.ok) setCreator(await cRes.json());
 
       const [wRes, dRes, rRes, meRes] = await Promise.all([
         fetch('/api/wallet/state', { credentials: 'include' }),
@@ -76,7 +79,7 @@ export default function CreatorPage() {
     router.push('/login');
   }
 
-  if (loading || !wallet || !pastor) {
+  if (loading || !wallet || !creator) {
     return <div className="flex min-h-screen items-center justify-center"><p className="text-[var(--muted)]">Loading...</p></div>;
   }
 
@@ -84,13 +87,26 @@ export default function CreatorPage() {
   const availableProfit = Number(wallet.availableProfit || 0);
   const tier = wallet.tier || 'faithful';
 
-  const persona = { ...CREATOR, name: wallet.name ?? pastor.name ?? 'Creator', org: pastor.ministry ?? CREATOR.org };
+  const persona = {
+    ...BASE_CREATOR,
+    name: creator?.name || wallet.name || 'Creator',
+    org: creator?.brandName || 'My Brand',
+  };
+
+  // RoleDashboard expects `pastor` shaped data for flock + invite link;
+  // creator/me returns the same shape (referrals[], inviteLink, ministry=null).
+  const roleData = {
+    ...(creator || {}),
+    ministry: creator?.brandName || null,
+    earnedTotal: referral?.totalEarned ?? 0,
+    available: referral?.availableBalance ?? 0,
+  };
 
   return (
     <>
       <RoleDashboard
         persona={persona}
-        data={{ wallet, deposits, referral, pastor, me }}
+        data={{ wallet, deposits, referral, pastor: roleData, me }}
         handlers={{
           onDeposit: () => setShowDeposit(true),
           onWithdrawProfit: () => setShowProfitWithdraw(true),
