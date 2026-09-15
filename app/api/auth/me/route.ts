@@ -17,15 +17,19 @@ export async function GET() {
     const { db } = await import('@/lib/store');
     const legacy = db.findById(legacyIdFor(session.id));
 
-    // isPastor is authoritative in profiles after Prompt 1 seeding
+    // isPastor/isCreator are authoritative in profiles after Prompt 1 seeding
     let isPastor = session.isPastor || legacy?.isPastor || false;
-    if (!isPastor) {
+    let isCreator = false;
+    {
       const { data: profile } = await supabaseAdmin
         .from('profiles')
-        .select('is_pastor')
+        .select('is_pastor, is_creator, role')
         .eq('id', session.id)
         .maybeSingle();
-      isPastor = !!profile?.is_pastor;
+      if (profile) {
+        isPastor = isPastor || !!profile.is_pastor;
+        isCreator = !!profile.is_creator || profile.role === 'creator';
+      }
     }
 
     return NextResponse.json({
@@ -33,6 +37,7 @@ export async function GET() {
       role: session.role,
       name: session.name,
       isPastor,
+      isCreator,
       hasSeenTour: legacy?.hasSeenTour ?? false,
       hasSignedAgreement: legacy?.hasSignedAgreement ?? session.hasSignedAgreement ?? false,
       // new nested shape
@@ -42,6 +47,7 @@ export async function GET() {
         name: session.name,
         role: session.role,
         isPastor,
+        isCreator,
         hasSignedAgreement: legacy?.hasSignedAgreement ?? session.hasSignedAgreement ?? false,
       },
     });

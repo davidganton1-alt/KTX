@@ -49,6 +49,8 @@ export default function LoginPage() {
         router.push("/admin");
       } else if (meData?.isPastor) {
         router.push("/pastor");
+      } else if (meData?.isCreator || meData?.role === "creator") {
+        router.push("/creator");
       } else {
         router.push("/console");
       }

@@ -20,6 +20,7 @@ const publicLinks = [
 export function Navbar() {
   const pathname = usePathname();
   const [role, setRole] = useState<string | null>(null);
+  const [me, setMe] = useState<any>(null);
   const [menu, setMenu] = useState(false);
 
   // The AI Trade Engine is a full-screen terminal; hide the site chrome there.
@@ -29,7 +30,7 @@ export function Navbar() {
   useEffect(() => {
     fetch("/api/auth/me")
       .then((r) => (r.ok ? r.json() : null))
-      .then((d) => setRole(d?.role ?? null))
+      .then((d) => { setRole(d?.role ?? null); setMe(d); })
       .catch(() => setRole(null));
   }, [pathname]);
 
@@ -75,7 +76,7 @@ export function Navbar() {
           {role ? (
             <>
               <Link
-                href={role === "admin" ? "/admin" : "/console"}
+                href={role === "admin" ? "/admin" : me?.isPastor ? "/pastor" : (me?.isCreator || role === "creator") ? "/creator" : "/console"}
                 className="btn-ghost hidden px-4 py-1.5 text-sm sm:inline-flex"
               >
                 {role === "admin" ? "Admin" : "Dashboard"}
