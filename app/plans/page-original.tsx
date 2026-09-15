@@ -179,7 +179,7 @@ export default function PlansPage() {
                 never the principal.
               </p>
               <div className="mt-5 flex flex-wrap gap-3">
-                <Link href="/faq" className="btn-ghost">Read the FAQ</Link>
+                <Link href="/help-center" className="btn-ghost">Read the FAQ</Link>
                 <Link href="/register" className="btn-primary">Open an account</Link>
               </div>
             </div>

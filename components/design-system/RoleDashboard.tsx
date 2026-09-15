@@ -18,6 +18,7 @@ import { DataCard } from './DataCard';
 import { DataTable, StatusPill } from './DataTable';
 import { Button } from './Button';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { ChangePasswordModal } from '@/components/ChangePasswordModal';
 
 export type RolePersona = {
   brandSub: string; // "Pastor" | "Creator"
@@ -620,6 +621,7 @@ function InviteTab({ p, s }: any) {
 }
 
 function SettingsTab({ p, s, h }: any) {
+  const [showChangePw, setShowChangePw] = useState(false);
   return (
     <>
       <PageHeader crumbs={['Settings']} title="Settings" description="Profile, security and payout preferences." />
@@ -639,11 +641,13 @@ function SettingsTab({ p, s, h }: any) {
         </DataCard>
         <DataCard title="Security & payouts">
           <div className="space-y-4">
+            <div className="flex items-center justify-between"><div><p className="text-[14px] text-[var(--fg)]">Password</p><p className="text-[12px] text-[var(--muted)]">Update the password for this account</p></div><Button variant="secondary" size="sm" onClick={() => setShowChangePw(true)}>Change</Button></div>
             <div className="flex items-center justify-between"><div><p className="text-[14px] text-[var(--fg)]">Two-factor authentication</p><p className="text-[12px] text-[var(--muted)]">{s.twoFA ? 'Enabled' : 'Add an extra layer of security'}</p></div><Toggle on={s.twoFA} /></div>
             <div className="flex items-center justify-between"><div><p className="text-[14px] text-[var(--fg)]">Trading Agreement</p><p className="text-[12px] text-[var(--muted)]">{s.agreementSigned ? 'Signed' : 'Signature required'}</p></div><Button variant="secondary" size="sm" onClick={h?.onViewAgreement}>View</Button></div>
             <div className="flex items-center justify-between"><div><p className="text-[14px] text-[var(--fg)]">Trustpilot review</p><p className="text-[12px] text-[var(--muted)]">Share your experience</p></div><Button variant="ghost" size="sm" onClick={h?.onReview}>Leave review</Button></div>
             <div className="flex items-center justify-between"><div><p className="text-[14px] text-[var(--fg)]">Default payout network</p><p className="text-[12px] text-[var(--muted)]">USDT · TRC20</p></div><Toggle on={false} /></div>
           </div>
+          {showChangePw && <ChangePasswordModal open onClose={() => setShowChangePw(false)} />}
         </DataCard>
       </div>
     </>

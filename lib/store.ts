@@ -276,6 +276,16 @@ export const db = {
     if (!u) return undefined;
     return verify(password, u.password) ? u : undefined;
   },
+  // Phase I: keep the JSON operational mirror's scrypt hash in sync when the
+  // authoritative credential (Supabase Auth) is reset/changed.
+  setPasswordByEmail(email: string, password: string): User | undefined {
+    const users = read();
+    const u = users.find((x) => x.email === email);
+    if (!u) return undefined;
+    u.password = hash(password);
+    write(users);
+    return u;
+  },
   update(id: string, patch: Partial<User>): User {
     const users = read();
     const i = users.findIndex((u) => u.id === id);

@@ -343,7 +343,7 @@ export default function Home() {
             ))}
           </div>
           <div className="mt-6 text-center">
-            <a href="/faq" className="text-sm text-[var(--gold)] hover:underline">
+            <a href="/help-center" className="text-sm text-[var(--gold)] hover:underline">
               See all questions
             </a>
           </div>

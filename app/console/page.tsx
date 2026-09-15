@@ -15,6 +15,7 @@ import { PrincipalWithdrawModal } from '@/components/PrincipalWithdrawModal';
 import { ReferralWithdrawModal } from '@/components/ReferralWithdrawModal';
 import { TradingAgreementModal } from '@/components/TradingAgreementModal';
 import { ReviewInvitationModal } from '@/components/ReviewInvitationModal';
+import { ChangePasswordModal } from '@/components/ChangePasswordModal';
 import { ShareGate } from '@/components/ShareGate';
 import { SOCIAL_URLS } from '@/lib/social';
 import { SpotlightTour } from '@/components/SpotlightTour';
@@ -56,6 +57,7 @@ export default function ConsolePage() {
   const [showPrincipalWithdraw, setShowPrincipalWithdraw] = useState(false);
   const [showReferralWithdraw, setShowReferralWithdraw] = useState(false);
   const [showAgreement, setShowAgreement] = useState(false);
+  const [showChangePw, setShowChangePw] = useState(false);
   const [showReview, setShowReview] = useState(false);
   const [reviewTrigger, setReviewTrigger] = useState<'firstWithdrawal' | 'activeUser30Days' | 'thirdWithdrawal'>('firstWithdrawal');
   const [tourStep, setTourStep] = useState(0);
@@ -439,6 +441,10 @@ export default function ConsolePage() {
                 <DataCard title="Security & agreements">
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
+                      <span className="text-sm text-[var(--fg)]">Password</span>
+                      <Button variant="secondary" size="sm" onClick={() => setShowChangePw(true)}>Change</Button>
+                    </div>
+                    <div className="flex items-center justify-between">
                       <span className="text-sm text-[var(--fg)]">Two-factor authentication</span>
                       <Button variant="secondary" size="sm" disabled>{wallet.twoFactorEnabled ? 'Enabled' : 'Enable'}</Button>
                     </div>
@@ -482,6 +488,7 @@ export default function ConsolePage() {
       <ProfitWithdrawModal open={showProfitWithdraw} onClose={() => setShowProfitWithdraw(false)} availableProfit={availableProfit} onDone={loadData} />
       <PrincipalWithdrawModal open={showPrincipalWithdraw} onClose={() => setShowPrincipalWithdraw(false)} principal={principal} tier={tier} depositAt={wallet.depositAt} onDone={loadData} />
       <ReferralWithdrawModal open={showReferralWithdraw} onClose={() => setShowReferralWithdraw(false)} availableBalance={referral?.availableBalance || 0} onSuccess={loadData} />
+      {showChangePw && <ChangePasswordModal open onClose={() => setShowChangePw(false)} />}
       {showAgreement && <TradingAgreementModal userName={wallet.name} onAgree={() => { setShowAgreement(false); setMe((m: any) => (m ? { ...m, hasSignedAgreement: true } : m)); }} />}
       <ShareGate
         open={showWithdrawShare}
