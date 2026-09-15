@@ -175,7 +175,7 @@ export default function AdminPage() {
   }
 
   if (loading) {
-    return <div className="flex min-h-screen items-center justify-center bg-[var(--bg)]"><p className="text-[var(--muted)]">Loading...</p></div>;
+    return <div className="flex min-h-screen items-center justify-center"><p className="text-[var(--muted)]">Loading...</p></div>;
   }
 
   const totalCustody = wallets.reduce((s, w) => s + Number(w.balance || 0), 0);
@@ -210,7 +210,7 @@ export default function AdminPage() {
   );
 
   return (
-    <div className="flex min-h-screen bg-[var(--bg)]">
+    <div className="flex min-h-screen">
       {/* desktop rail */}
       <div id="tour-sidebar" className="hidden lg:block">{sidebar}</div>
       {/* mobile drawer */}

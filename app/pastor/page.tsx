@@ -75,7 +75,7 @@ export default function PastorPage() {
   }
 
   if (loading || !wallet || !pastor) {
-    return <div className="flex min-h-screen items-center justify-center bg-[var(--bg)]"><p className="text-[var(--muted)]">Loading...</p></div>;
+    return <div className="flex min-h-screen items-center justify-center"><p className="text-[var(--muted)]">Loading...</p></div>;
   }
 
   const principal = Number(wallet.deposited || 0);

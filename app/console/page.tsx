@@ -120,7 +120,7 @@ export default function ConsolePage() {
 
   if (loading || !wallet) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[var(--bg)]">
+      <div className="flex min-h-screen items-center justify-center">
         <p className="text-[var(--muted)]">Loading...</p>
       </div>
     );
@@ -135,7 +135,7 @@ export default function ConsolePage() {
   const txnDate = (r: any) => r.createdAt ?? r.created_at ?? r.requestedAt ?? r.date ?? 0;
 
   return (
-    <div className="flex min-h-screen bg-[var(--bg)]">
+    <div className="flex min-h-screen">
       <div className={`${sidebarOpen ? 'block' : 'hidden'} lg:block`}>
         <Sidebar
           brand="KingdomTradeX"
