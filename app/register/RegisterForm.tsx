@@ -282,6 +282,12 @@ export function RegisterForm() {
                 </p>
               )}
               <p className="mt-4 text-center text-xs text-[var(--muted)]">🔒 No spam. No hidden fees. Your data stays private.</p>
+              <p className="mx-auto mt-2 max-w-sm text-center text-[11px] leading-relaxed text-[var(--muted)]">
+                By creating an account you agree to our{' '}
+                <a href="/terms" className="text-[var(--gold)] hover:underline">Terms of Service</a>,{' '}
+                <a href="/privacy" className="text-[var(--gold)] hover:underline">Privacy Policy</a>, and the{' '}
+                <a href="/trading-agreement" className="text-[var(--gold)] hover:underline">Trading Agreement &amp; Risk Disclosure</a> (holding periods and withdrawal fees apply).
+              </p>
               <p className="mt-3 text-center text-sm text-[var(--muted)]">
                 Already have an account? <a href="/login" className="text-[var(--gold)] hover:underline">Sign in</a>
               </p>

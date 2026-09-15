@@ -1,173 +1,146 @@
 import type { Metadata } from 'next';
-import { SectionIcon } from "@/components/SectionIcon";
-import { Reveal } from "@/components/Reveal";
-import Link from "next/link";
+import { LegalLayout, type LegalSection } from '@/components/LegalLayout';
 
 export const metadata: Metadata = {
   title: 'Privacy Policy | KingdomTradeX',
-  description: 'Read how KingdomTradeX protects your data. No selling, no third-party tracking, just biblical stewardship applied to digital privacy.',
+  description: 'What we collect, what we never touch, and who we share with. No dark patterns, no data sales.',
   openGraph: {
     title: 'Privacy Policy | KingdomTradeX',
-    description: 'Read how KingdomTradeX protects your data.',
+    description: 'Honest data practices for KingdomTradeX.',
     type: 'website',
   },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Privacy Policy | KingdomTradeX',
-    description: 'Read how KingdomTradeX protects your data.',
-  },
-  alternates: {
-    canonical: '/privacy',
-  },
+  alternates: { canonical: '/privacy' },
 };
 
-const sections = [
+const sections: LegalSection[] = [
   {
-    id: "overview",
-    h: "1. Overview",
-    p: "KingdomTradeX (\"we\", \"our\", or \"us\") respects your privacy and is committed to protecting the personal information you share with us. This Privacy Policy describes how we collect, use, store, and safeguard information when you use our website and trading platform. By creating an account or using the platform, you agree to the practices described in this policy.",
-  },
-  {
-    id: "collect",
-    h: "2. Information We Collect",
-    p: "We collect only the information needed to operate your account and provide the platform. This includes:",
-    list: [
-      "Account data: your name, email address, and a hashed password.",
-      "Financial data: deposit records, withdrawal records, profit accruals, and the plan tier you have selected.",
-      "Referral data: if you were invited by a pastor or member, the name or referral code that brought you to the platform.",
-      "Technical data: your IP address, browser type, device type, and session information for security and fraud prevention.",
-      "Pastor data (for approved pastors): ministry information, phone number (optional), and referral activity.",
+    id: 'overview',
+    title: '1. Overview',
+    paras: [
+      'KingdomTradeX ("we", "our", or "us") respects your privacy. This policy describes exactly what we collect, why, and who sees it. By creating an account you agree to these practices.',
     ],
   },
   {
-    id: "use",
-    h: "3. How We Use Your Information",
-    p: "Your information is used strictly to operate the platform and serve you. Specifically:",
-    list: [
-      "To create and secure your account.",
-      "To credit your account with deposits, accrue daily profit, and process withdrawals.",
-      "To verify your email and protect against fraud.",
-      "To attribute referral bonuses to the pastor or member who invited you.",
-      "To contact you about account security, platform updates, or legal notices.",
-      "To comply with our regulatory obligations under our MSB license.",
+    id: 'collect',
+    title: '2. Information We Collect',
+    paras: ['Only what an account and a regulated financial platform genuinely need:'],
+    bullets: [
+      'Account data: your name, email address, and a hashed password.',
+      'Wallet addresses you give us for payouts, and on-chain transaction hashes of deposits/withdrawals we send you.',
+      'Financial records: deposits, withdrawals, profit accruals, and your plan tier.',
+      'Referral data: the pastor, creator, or member code that invited you.',
+      'Technical data: IP address, browser/device type, and session information — used for security and fraud prevention only.',
+      'Partner data (approved pastors/creators): ministry or brand details, platform handle, and referral activity.',
     ],
   },
   {
-    id: "no-sell",
-    h: "4. We Do Not Sell Your Data",
-    p: "We never sell, rent, or trade your personal information to advertisers, data brokers, or third parties. Your data is not our product. You are our steward, and your information is held in trust.",
-  },
-  {
-    id: "sharing",
-    h: "5. Limited Sharing with Trusted Partners",
-    p: "We may share minimal information with:",
-    list: [
-      "Payment processors: only the transaction details required to process your deposit or withdrawal.",
-      "Regulatory authorities: when required by law, subpoena, or our MSB compliance obligations.",
-      "Cloud infrastructure providers: partners who are contractually bound to protect data and do not use it for their own purposes.",
+    id: 'never-collect',
+    title: '3. What We Never Collect',
+    bullets: [
+      'Private keys or seed phrases — ever. If anyone claiming to be KingdomTradeX asks for one, it is a scam.',
+      'Passwords in plain text (they are one-way hashed before storage).',
+      'Government ID unless a specific transaction legally requires it under our MSB compliance obligations.',
+      'Tracking or advertising cookies; no third-party analytics that profile you across the web.',
     ],
   },
   {
-    id: "security",
-    h: "6. Security of Your Information",
-    p: "We protect your data with industry-standard safeguards: passwords are hashed with strong one-way encryption before storage, all connections are encrypted in transit, and administrative access to user data is restricted to authorized personnel. No system is perfectly secure, but we continuously harden ours against known attack patterns.",
+    id: 'use',
+    title: '4. How We Use Your Information',
+    bullets: [
+      'To create, secure, and operate your account.',
+      'To credit deposits, accrue daily profit, and process withdrawals.',
+      'To verify email and defend against fraud, duplicate accounts, and referral abuse.',
+      'To attribute referral commissions to the person who invited you.',
+      'To contact you about security, account status, or legal notices.',
+      'To comply with our MSB license and applicable law.',
+    ],
   },
   {
-    id: "email-verification",
-    h: "7. Email Verification",
-    p: "Every new account must be verified by clicking a link sent to the registered email address. This step is required. It protects you from unauthorized account creation and ensures only you can access your funds. Unverified accounts cannot log in or transact.",
+    id: 'no-sell',
+    title: '5. We Do Not Sell Your Data',
+    paras: [
+      'We never sell, rent, or trade personal information to advertisers, data brokers, or anyone else. Your data is not our product. ("Do not sell" under CCPA/CPRA: we do not sell or share for cross-context behavioral advertising.)',
+    ],
   },
   {
-    id: "retention",
-    h: "8. Data Retention",
-    p: "We retain your account data for as long as your account is active, plus the period required by our MSB obligations and tax regulations. Transaction records are kept for a minimum of five years to comply with financial regulations.",
+    id: 'sharing',
+    title: '6. Who We Share With',
+    paras: ['Only the processors needed to run the service, each bound by contract to protect the data:'],
+    bullets: [
+      'Plisio — our crypto payment processor. Receives only the transaction details required to confirm a deposit or execute a payout.',
+      'Supabase — our hosting/database provider (United States). Holds account and ledger data under contractual security obligations.',
+      'Regulatory authorities — only when required by law, subpoena, or our MSB compliance duties.',
+      'We do not share your data for any other purpose.',
+    ],
   },
   {
-    id: "deletion",
-    h: "9. Your Right to Deletion",
-    p: "You may request the deletion of your account and associated data at any time by contacting support@kingdomtradex.com. We will process your request within 30 days, subject to any data we are legally required to retain (such as transaction records for regulatory purposes).",
+    id: 'security',
+    title: '7. Data Security',
+    paras: [
+      'Passwords are hashed with strong one-way encryption before storage. All connections are encrypted in transit (TLS). Administrative access to user data is restricted to authorized personnel. No system is perfectly secure — we continuously harden ours and would rather tell you that honestly than promise perfection.',
+    ],
   },
   {
-    id: "cookies",
-    h: "10. Cookies and Local Storage",
-    p: "We use essential cookies and local storage to keep you logged in, remember your theme preference, and protect your session. We do not use tracking cookies, advertising cookies, or third-party analytics that profile you across the web.",
+    id: 'retention',
+    title: '8. Data Retention',
+    paras: [
+      'Account data is kept while your account is active plus the period required by our MSB obligations and tax law. Transaction records are retained for a minimum of five years as financial regulations require.',
+    ],
   },
   {
-    id: "children",
-    h: "11. Children's Privacy",
-    p: "The platform is not intended for users under the age of 18. We do not knowingly collect information from minors. If we learn we have collected such data, we will delete it promptly.",
+    id: 'rights',
+    title: '9. Your Rights (Access, Export, Deletion)',
+    bullets: [
+      'Access & export: request a copy of your personal data at any time; we provide it in a machine-readable format within 30 days.',
+      'Deletion: request account and data deletion at support@kingdomtradex.com; we process within 30 days, except records we are legally required to keep (transaction logs under MSB rules).',
+      'Correction: update name, email, and payout preferences yourself in Settings, or ask us.',
+      'EU/UK users: you also hold rectification, restriction, objection, and complaint rights under GDPR; nothing here limits them.',
+    ],
   },
   {
-    id: "msb",
-    h: "12. MSB and Regulatory Compliance",
-    p: "As a licensed Money Services Business, we may be required to collect additional identity verification information (such as government-issued ID) for certain transactions. This information is collected solely to comply with law and is protected with the same standards as the rest of your data.",
+    id: 'cookies',
+    title: '10. Cookies and Local Storage',
+    paras: [
+      'Essential cookies and local storage only: session login, theme preference, security. No tracking, advertising, or third-party analytics cookies.',
+    ],
   },
   {
-    id: "international",
-    h: "13. International Users",
-    p: "If you access the platform from outside the United States, your data may be transferred to and processed in the United States. By using the platform, you consent to this transfer and to the application of U.S. law to your data.",
+    id: 'children',
+    title: "11. Children's Privacy",
+    paras: [
+      'The platform is not intended for anyone under 18. We do not knowingly collect data from minors and will delete it promptly if discovered.',
+    ],
   },
   {
-    id: "changes",
-    h: "14. Changes to This Policy",
-    p: "We may update this Privacy Policy from time to time. When we make material changes, we will notify you through the platform and post the updated policy with a new \"last updated\" date. Your continued use of the platform after changes take effect constitutes your acceptance.",
+    id: 'international',
+    title: '12. International Users',
+    paras: [
+      'Data is processed in the United States. Using the platform means you consent to that transfer and to U.S. law applying to your data.',
+    ],
   },
   {
-    id: "contact",
-    h: "15. Contact Us",
-    p: "For privacy-related questions, data access requests, or deletion requests, please contact us at support@kingdomtradex.com or through the support form on this website.",
+    id: 'changes',
+    title: '13. Changes to This Policy',
+    paras: [
+      'Material updates are announced through the platform and posted with a new "last updated" date.',
+    ],
+  },
+  {
+    id: 'contact',
+    title: '14. Contact',
+    paras: [
+      'Privacy questions, access requests, deletion requests: support@kingdomtradex.com. Registered MSB and LLC; state of registration available on request.',
+    ],
   },
 ];
 
 export default function PrivacyPage() {
   return (
-    <main className="container-page py-16">
-      <div className="text-center">
-        <div className="mx-auto mb-4 flex w-fit justify-center"><SectionIcon name="shield" size={56} /></div>
-        <p className="eyebrow">Legal</p>
-        <h1 className="section-title mt-2 text-4xl md:text-5xl">Privacy <span className="gradient-text">Policy</span></h1>
-        <p className="mt-3 text-sm text-[var(--muted)]">Last updated: September 2026</p>
-      </div>
-
-      <div className="mx-auto mt-12 grid gap-8 lg:grid-cols-[220px_1fr]">
-        {/* TOC */}
-        <aside className="hidden lg:block">
-          <div className="sticky top-24 rounded-2xl border border-[var(--border)] bg-[var(--bg-soft)] p-5">
-            <p className="mb-3 text-xs font-bold uppercase tracking-widest text-[var(--gold)]">Contents</p>
-            <nav className="space-y-1.5 text-sm">
-              {sections.map((s) => (
-                <a key={s.id} href={`#${s.id}`} className="block text-[var(--muted)] transition hover:text-[var(--gold)]">{s.h}</a>
-              ))}
-            </nav>
-          </div>
-        </aside>
-
-        {/* Body */}
-        <div className="space-y-5">
-          {sections.map((s, i) => (
-            <Reveal key={s.id} variant="up" index={i} as="section" id={s.id} className="card p-6 md:p-7">
-              <h2 className="text-xl font-semibold text-[var(--fg)]">{s.h}</h2>
-              <p className="mt-3 leading-relaxed text-[var(--muted)]">{s.p}</p>
-              {s.list && (
-                <ul className="mt-3 space-y-2">
-                  {s.list.map((item, j) => (
-                    <li key={j} className="flex items-start gap-2 text-[var(--muted)]">
-                      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--gold)]" />
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </Reveal>
-          ))}
-
-          <div className="card-grad mt-10 p-8 text-center">
-            <h3 className="section-title text-2xl">Questions about your <span className="gradient-text">privacy</span>?</h3>
-            <p className="mt-2 text-[var(--muted)]">We&rsquo;re here to help. Reach out anytime.</p>
-            <Link href="/support" className="btn-primary mt-5 inline-flex">Contact Support</Link>
-          </div>
-        </div>
-      </div>
-    </main>
+    <LegalLayout
+      title="Privacy Policy"
+      description="What we collect, what we refuse to collect, and every party your data touches. No dark patterns."
+      lastUpdated="September 15, 2026"
+      sections={sections}
+    />
   );
 }

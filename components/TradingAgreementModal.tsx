@@ -2,46 +2,39 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 
-const AGREEMENT_SECTIONS = [
+// Trading Agreement signing modal (Phase H): a condensed summary of the full
+// Trading Agreement & Risk Disclosure at /trading-agreement (opens in a new
+// tab). Signature requires scrolling the summary AND checking the box; the
+// binding POST is unchanged (/api/user/agreement -> has_signed_agreement).
+
+const SUMMARY = [
   {
-    title: "1. Welcome to KingdomTradeX",
-    body: "KingdomTradeX is a faith-driven investment platform. When you deposit funds, you entrust them to our AI trading engine, which trades across cryptocurrencies, U.S. stocks, and commodities on your behalf. You choose your plan and tier, and the engine handles the trading. You never place individual trades yourself.",
+    t: "1. What this is",
+    b: "AI-assisted algorithmic trading. The engine allocates your deposit across crypto, US stocks, and commodities and trades autonomously. You never place trades yourself.",
   },
   {
-    title: "2. How the AI Engine Works",
-    body: "The engine watches live prices, volume, and order flow, then runs them through forecasting models and a volatility filter before every trade. Each position is sized against strict drawdown limits, so no single move can undo your plan. You can watch every decision live in your dashboard.",
+    t: "2. Real risk, said plainly",
+    b: "Markets are volatile. Losses are possible, including the loss of some or all of your principal. Guardrails reduce risk; they do not remove it. Past performance (e.g., a 71.4% win rate) does not guarantee future results.",
   },
   {
-    title: "3. Your Plan, Holding Period, and Withdrawals",
-    body: "Each tier has a holding period: 6 months for Faithful, 9 months for Steward, and 12 months for Ambassador. During this time your principal stays active in the engine. Your accrued profit is withdrawable at any time. If you withdraw your principal before the holding period ends, a 25% deduction applies to cover engine rebalancing.",
+    t: "3. Rates are targets, not promises",
+    b: "0.25% / 0.50% / 0.75% per day by tier are design targets. They are not interest and not guaranteed.",
   },
   {
-    title: "4. Your Free $50 Welcome Credit",
-    body: "Where offered, the free $50 welcome credit is a gift that trades alongside your deposit under the same engine rules. It is not withdrawable as principal. Any profit it earns becomes withdrawable once you activate your own deposit.",
+    t: "4. Holding periods & the 50% fee",
+    b: "Principal is held 6/9/12 months by tier (Faithful/Steward/Ambassador). After the hold, withdraw 100% fee-free. Before the hold, an early exit pays you 50%: a liquidated-damages fee compensating the engine's real cost of unwinding long-term positions and refilling liquidity pools. Profit is never penalized and stays withdrawable throughout.",
   },
   {
-    title: "5. Trading Involves Real Risk",
-    body: "We want to be straight with you: trading financial markets carries a real risk of loss, including the possibility of losing some or all of your deposited principal. Markets are volatile and hard to predict. Even a well-designed strategy can lose money. Please only invest money you can afford to put at risk.",
+    t: "5. The $50 platform credit",
+    b: "Promotional and non-withdrawable. It earns daily profit alongside your principal; only its profit is yours to withdraw.",
   },
   {
-    title: "6. Profits Are Not Guaranteed",
-    body: "No profit is guaranteed, ever. The daily rates and projected returns you see on the platform are targets and illustrations, not promises. Past performance does not predict future results. Your actual returns may be higher, lower, or negative.",
+    t: "6. Profit withdrawals",
+    b: "Automatic, no admin approval, no platform fee — you pay only the blockchain network fee shown at confirmation. Profit accrues daily at UTC midnight on (principal + credit) × tier rate.",
   },
   {
-    title: "7. You Trade at Your Own Risk",
-    body: "By using the platform, you confirm that you understand the risks and that you trade at your own risk. You are responsible for your decision to deposit funds and for any losses that may occur. KingdomTradeX does not guarantee the safety of your principal.",
-  },
-  {
-    title: "8. This Is Not Investment Advice",
-    body: "Nothing on this platform counts as financial, investment, legal, or tax advice. We provide a technology and stewardship framework, not personalized guidance. You are responsible for your own investment decisions, and we encourage you to speak with an independent advisor if you need one.",
-  },
-  {
-    title: "9. This Is the Only Official Website",
-    body: "This is the only official KingdomTradeX website. No other person, page, channel, or group is allowed to act for us or collect money in our name. Always check that you are on this site before you log in or deposit. If someone else claims to represent us, do not send them money, and report it to us right away.",
-  },
-  {
-    title: "10. Your Acknowledgment",
-    body: "By checking the box below and clicking Continue, you confirm that you have read this whole agreement. You understand that trading carries real risk, that profits are not guaranteed, and that you trade at your own risk. You accept our Terms of Service and Privacy Policy, and you are ready to begin.",
+    t: "7. Referral economics",
+    b: "5% (pastors/creators) or 2.5% (members) of a referral's first deposit plus 0.1% of their daily profit for life, funded by the platform, unlocked after a 7-day anti-fraud hold.",
   },
 ];
 
@@ -61,6 +54,8 @@ export function TradingAgreementModal({ onAgree, userName }: { onAgree: () => vo
       if (atBottom) setScrolled(true);
     }
     el.addEventListener("scroll", check);
+    // short summaries may already fit: allow signing without scroll gymnastics
+    if (el.scrollHeight <= el.clientHeight + 40) setScrolled(true);
     return () => el.removeEventListener("scroll", check);
   }, []);
 
@@ -90,33 +85,38 @@ export function TradingAgreementModal({ onAgree, userName }: { onAgree: () => vo
       <motion.div
         initial={{ scale: 0.96, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        className="w-full max-w-3xl rounded-2xl border border-[var(--gold)]/30 bg-[var(--bg-soft)] shadow-2xl"
+        className="w-full max-w-2xl rounded-2xl border border-[var(--gold)]/30 bg-[var(--bg-soft)] shadow-2xl"
       >
         <div className="border-b border-[var(--border)] p-6">
           <p className="eyebrow">Required before you continue</p>
           <h2 className="section-title mt-2 text-2xl md:text-3xl">
-            Trading <span className="gradient-text">Agreement</span>
+            Trading Agreement <span className="gradient-text">Summary</span>
           </h2>
-          {userName && <p className="mt-2 text-xs text-[var(--muted)]">Welcome, <b className="text-[var(--fg)]">{userName}</b>. Please read this agreement carefully before you begin.</p>}
+          {userName && <p className="mt-2 text-xs text-[var(--muted)]">Welcome, <b className="text-[var(--fg)]">{userName}</b>. Here is the short version — the full text is one click away.</p>}
         </div>
 
-        <div
-          ref={scrollRef}
-          className="max-h-[55vh] overflow-y-auto px-6 py-5 space-y-5"
-        >
-          {AGREEMENT_SECTIONS.map((s, i) => (
-            <div key={i} className="rounded-xl border border-[var(--border)] bg-[var(--bg)] p-5">
-              <h3 className="text-base font-bold text-[var(--fg)]">{s.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">{s.body}</p>
+        <div ref={scrollRef} className="max-h-[46vh] overflow-y-auto px-6 py-5 space-y-4">
+          {SUMMARY.map((s, i) => (
+            <div key={i} className="rounded-xl border border-[var(--border)] bg-[var(--bg)] p-4">
+              <h3 className="text-sm font-semibold text-[var(--fg)]">{s.t}</h3>
+              <p className="mt-1.5 text-[13px] leading-relaxed text-[var(--muted)]">{s.b}</p>
             </div>
           ))}
-          <div className="pt-2 text-center text-xs text-[var(--muted)]">End of Trading Agreement</div>
+          <a
+            href="/trading-agreement"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block rounded-xl border border-[var(--gold)]/40 bg-[var(--gold)]/5 px-4 py-3 text-center text-sm font-medium text-[var(--gold)] no-underline transition hover:bg-[var(--gold)]/10"
+          >
+            Read the full Trading Agreement &amp; Risk Disclosure →
+          </a>
+          <div className="pt-1 text-center text-[11px] text-[var(--muted)]">End of summary · full agreement opens in a new tab</div>
         </div>
 
         <div className="border-t border-[var(--border)] p-6">
           {!scrolled && (
             <p className="mb-3 text-center text-xs text-amber-500">
-              Please scroll to the bottom of the agreement to enable your signature.
+              Please scroll to the bottom of the summary to enable your signature.
             </p>
           )}
 
@@ -129,7 +129,8 @@ export function TradingAgreementModal({ onAgree, userName }: { onAgree: () => vo
               className="mt-1 h-4 w-4 accent-[var(--gold)]"
             />
             <span className="text-sm leading-relaxed text-[var(--fg)]">
-              <b>I have read the full Trading Agreement above.</b> I understand that trading carries real risk, that profits are <b>not guaranteed</b>, and that I trade at my own risk. I accept the Terms of Service and Privacy Policy.
+              <b>I have read the full agreement and accept the holding period and risk disclosures.</b>{" "}
+              I understand profits are not guaranteed, that early principal withdrawal costs 50%, and that I invest at my own risk. I accept the Terms of Service and Privacy Policy.
             </span>
           </label>
 
@@ -137,16 +138,13 @@ export function TradingAgreementModal({ onAgree, userName }: { onAgree: () => vo
 
           <button
             onClick={handleSubmit}
-            disabled={!agreed || loading}
-            className="btn-gold mt-4 w-full disabled:opacity-50"
+            disabled={!agreed || !scrolled || loading}
+            className="mt-4 w-full rounded-xl bg-gradient-to-r from-[var(--gold)] to-amber-500 py-3 text-sm font-bold text-black transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
           >
-            {loading ? "Saving your agreement..." : "I Agree and Enter Dashboard"}
+            {loading ? "Saving…" : "Sign & Agree"}
           </button>
-
           <p className="mt-3 text-center text-[11px] text-[var(--muted)]">
-            You can re-read the full{" "}
-            <a href="/terms" target="_blank" className="text-[var(--gold)] hover:underline">Terms of Service</a> and{" "}
-            <a href="/privacy" target="_blank" className="text-[var(--gold)] hover:underline">Privacy Policy</a> anytime.
+            Signing records your acceptance against your account. Links: <a className="underline" href="/terms" target="_blank" rel="noopener noreferrer">Terms</a> · <a className="underline" href="/privacy" target="_blank" rel="noopener noreferrer">Privacy</a>
           </p>
         </div>
       </motion.div>

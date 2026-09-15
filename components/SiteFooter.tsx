@@ -47,6 +47,7 @@ export function SiteFooter() {
           <div className="mt-3 flex flex-col gap-2 text-sm text-[var(--muted)]">
             <Link href="/privacy" className="hover:text-[var(--fg)]">Privacy</Link>
             <Link href="/terms" className="hover:text-[var(--fg)]">Terms</Link>
+            <Link href="/trading-agreement" className="hover:text-[var(--fg)]">Trading Agreement</Link>
           </div>
         </div>
       </div>
