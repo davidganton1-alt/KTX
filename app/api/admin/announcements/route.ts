@@ -32,6 +32,19 @@ export async function POST(req: NextRequest) {
   } catch (e: any) {
     console.error("[announcements] sb insert failed:", e.message);
   }
+  // Phase G.5: broadcast the announcement to all account holders (queued,
+  // batched; fire-and-forget so publishing never blocks on email).
+  try {
+    const { supabaseAdmin } = await import("@/lib/supabase");
+    const { emails } = await import("@/lib/email/service");
+    const { data: subs } = await supabaseAdmin.from("profiles").select("email").not("email", "is", null).limit(5000);
+    for (const s of subs ?? []) {
+      if (s.email) emails.platformAnnouncement(s.email, { title: a.title, body: a.body || "", actionUrl: "https://kingdomtradex.com/console", actionLabel: "Open my dashboard" });
+    }
+  } catch (e) {
+    console.error("[announcements] broadcast failed", e);
+  }
+
   return NextResponse.json({ ok: true, announcement: a });
 }
 

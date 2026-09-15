@@ -18,6 +18,14 @@ import {
   WeeklySummaryEmail,
   PasswordResetEmail,
   AgreementReminderEmail,
+  PastorApplicationReceivedEmail,
+  PastorApplicationRejectedEmail,
+  PlatformAnnouncementEmail,
+  NewLoginAlertEmail,
+  PasswordChangedEmail,
+  AccountRestrictedEmail,
+  FirstDepositReminderEmail,
+  SupportTicketReplyEmail,
 } from './templates';
 
 // ── rendering ────────────────────────────────────────────────────────────
@@ -180,4 +188,28 @@ export const emails = {
 
   agreementReminder: (to: string, p: { name: string }) =>
     el(React.createElement(AgreementReminderEmail, p), to, 'One quick step left on your account'),
+
+  pastorApplicationReceived: (to: string, p: { name: string; ministryName: string }) =>
+    el(React.createElement(PastorApplicationReceivedEmail, p), to, 'Your pastor application is under review'),
+
+  pastorApplicationRejected: (to: string, p: { name: string; reason?: string }) =>
+    el(React.createElement(PastorApplicationRejectedEmail, p), to, 'Update on your pastor application'),
+
+  platformAnnouncement: (to: string, p: { title: string; body: string; actionUrl?: string; actionLabel?: string }) =>
+    el(React.createElement(PlatformAnnouncementEmail, p), to, p.title, true),
+
+  newLoginAlert: (to: string, p: { name: string; ipAddress: string; device: string; location: string; loginTime: string }) =>
+    el(React.createElement(NewLoginAlertEmail, p), to, 'New sign-in to your KingdomTradeX account'),
+
+  passwordChanged: (to: string, p: { name: string; changedAt: string }) =>
+    el(React.createElement(PasswordChangedEmail, p), to, 'Your password was changed'),
+
+  accountRestricted: (to: string, p: { name: string; reason: string }) =>
+    el(React.createElement(AccountRestrictedEmail, p), to, 'Your account is under security review'),
+
+  firstDepositReminder: (to: string, p: { name: string; platformCredit: number }) =>
+    el(React.createElement(FirstDepositReminderEmail, p), to, `Your $${p.platformCredit.toFixed(0)} platform credit is waiting`, true),
+
+  supportTicketReply: (to: string, p: { name: string; ticketId: string; subject: string }) =>
+    el(React.createElement(SupportTicketReplyEmail, p), to, `We received your message: ${p.subject}`),
 };

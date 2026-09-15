@@ -68,6 +68,13 @@ export async function POST(req: NextRequest) {
 
     const p = pastorsDb.createApplication({ name, email, phone, ministry, message });
     const sbId = await mirrorApplication(p);
+
+    // Phase G.5: receipt confirmation (queued, never blocks the application)
+    try {
+      const { emails } = await import('@/lib/email/service');
+      emails.pastorApplicationReceived(String(email), { name: String(name), ministryName: String(ministry || '') });
+    } catch (e: any) { console.error('[pastors/apply] receipt email failed:', e.message); }
+
     return NextResponse.json({ ok: true, id: p.id, supabaseId: sbId, status: p.status });
   } catch (e: any) {
     return NextResponse.json({ error: e.message || "Application failed." }, { status: 400 });

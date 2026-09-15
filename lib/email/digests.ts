@@ -17,7 +17,7 @@ const DAY = 24 * 3600 * 1000;
 export async function runEmailDigests(): Promise<{ weekly: number; reminders: number; skipped: string }> {
   const now = Date.now();
   const today = new Date().toISOString().slice(0, 10);
-  const out = { weekly: 0, reminders: 0, skipped: '' };
+  const out = { weekly: 0, reminders: 0, first: 0, skipped: ''};
 
   // ── weekly summaries (Mondays only) ──
   if (new Date().getUTCDay() === 1) {
@@ -76,6 +76,35 @@ export async function runEmailDigests(): Promise<{ weekly: number; reminders: nu
     }
   } catch (e: any) {
     console.error('[digests] reminders failed:', e.message);
+  }
+
+  // ── first-deposit reminders: signed up >3 days ago, $50 credit idle ──
+  try {
+    const { data: idle } = await supabaseAdmin
+      .from('profiles')
+      .select('id, name, email, created_at, wallets(principal)')
+      .eq('platform_credit', 50)
+      .gt('created_at', new Date(now - 60 * DAY).toISOString())
+      .lt('created_at', new Date(now - 3 * DAY).toISOString())
+      .limit(200);
+    for (const p of idle ?? []) {
+      try {
+        const w = Array.isArray((p as any).wallets) ? (p as any).wallets[0] : (p as any).wallets;
+        if (Number(w?.principal || 0) > 0) continue;
+        const lid = legacyIdFor(p.id);
+        const ju = db.findById(lid);
+        const email = ju?.email || p.email;
+        if (!email) continue;
+        const marker = `Your $50 platform credit is still waiting (${today}).`;
+        if (ju && (ju.notifications || []).some((n: any) => typeof n.text === 'string' && n.text === marker)) continue;
+        emails.firstDepositReminder(email, { name: ju?.name || p.name || 'there', platformCredit: 50 });
+        if (lid && ju) db.notify(lid, marker, 'system');
+        out.first = (out as any).first ?? 0;
+        (out as any).first++;
+      } catch {}
+    }
+  } catch (e: any) {
+    console.error('[digests] first-deposit reminders failed:', e.message);
   }
 
   return out;

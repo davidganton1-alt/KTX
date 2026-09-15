@@ -14,3 +14,11 @@ export { ReferralWithdrawalDecisionEmail } from './referral-withdrawal-decision'
 export { WeeklySummaryEmail } from './weekly-summary';
 export { PasswordResetEmail } from './password-reset';
 export { AgreementReminderEmail } from './agreement-reminder';
+export { PastorApplicationReceivedEmail } from './pastor-application-received';
+export { PastorApplicationRejectedEmail } from './pastor-application-rejected';
+export { PlatformAnnouncementEmail } from './platform-announcement';
+export { NewLoginAlertEmail } from './new-login-alert';
+export { PasswordChangedEmail } from './password-changed';
+export { AccountRestrictedEmail } from './account-restricted';
+export { FirstDepositReminderEmail } from './first-deposit-reminder';
+export { SupportTicketReplyEmail } from './support-ticket-reply';

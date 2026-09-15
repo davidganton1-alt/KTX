@@ -46,5 +46,12 @@ export async function POST(req: NextRequest) {
   } catch (e) {
     console.error("support write failed", e);
   }
+  // Phase G.5: auto-acknowledge the ticket (queued; never blocks the form)
+  try {
+    const { emails } = await import("@/lib/email/service");
+    emails.supportTicketReply(entry.email, { name: "there", ticketId: "KTX-" + entry.id, subject: entry.subject });
+  } catch (e) {
+    console.error("support auto-reply failed", e);
+  }
   return NextResponse.json({ ok: true });
 }

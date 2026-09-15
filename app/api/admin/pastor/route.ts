@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
   if (!admin) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   if (admin.role !== "admin") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   try {
-    const { id, status, shareRate, name, email, action, payoutId, ids } = await req.json();
+    const { id, status, shareRate, name, email, action, payoutId, ids, adminNotes } = await req.json();
 
     // Bulk approve/reject pastor applications
     if (action === "bulk-review") {
@@ -76,9 +76,8 @@ export async function POST(req: NextRequest) {
         } else if (status === 'rejected') {
           await mirrorApplication(p as any, "rejected");
           try {
-            const msg = pastorRejectionEmail({ name: p.name });
-            msg.to = p.email;
-            await sendEmail(msg);
+            const { emails } = await import("@/lib/email/service");
+            emails.pastorApplicationRejected(p.email, { name: p.name, reason: adminNotes || (p as any).adminNotes || undefined });
           } catch (emailErr) {
             console.error(`[EMAIL] Failed to send rejection to ${p.email}:`, emailErr);
           }
@@ -139,9 +138,12 @@ export async function POST(req: NextRequest) {
       if (status === "approved" && effectiveCreds) {
         await sendEmail(pastorApprovalEmail({ name: p.name, email: effectiveCreds.email, password: effectiveCreds.password }));
       } else if (status === "rejected") {
-        const msg = pastorRejectionEmail({ name: p.name });
-        msg.to = p.email;
-        await sendEmail(msg);
+        try {
+          const { emails } = await import("@/lib/email/service");
+          emails.pastorApplicationRejected(p.email, { name: p.name, reason: adminNotes || undefined });
+        } catch (emailErr) {
+          console.error(`[EMAIL] Failed to send rejection to ${p.email}:`, emailErr);
+        }
       }
     } catch (emailErr) {
       console.error(`[EMAIL] Failed to send to ${p.email}:`, emailErr);

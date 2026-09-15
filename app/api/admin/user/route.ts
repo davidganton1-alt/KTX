@@ -24,6 +24,24 @@ export async function POST(req: NextRequest) {
     case "reactivate": {
       const u = db.setSuspended(id, action === "suspend");
       if (!u) return NextResponse.json({ error: "User not found." }, { status: 404 });
+      // Phase G.5: notify a suspended user (reactivation stays quiet; they see
+      // the restored dashboard anyway). Queued email, never blocks admin action.
+      if (action === "suspend") {
+        try {
+          const { emails } = await import("@/lib/email/service");
+          const { supabaseIdFor } = await import("@/lib/auth");
+          const { supabaseAdmin } = await import("@/lib/supabase");
+          const sid = supabaseIdFor(id);
+          let email = u.email;
+          if (sid) {
+            const { data: prof } = await supabaseAdmin.from('profiles').select('email').eq('id', sid).maybeSingle();
+            if (prof?.email) email = prof.email;
+          }
+          emails.accountRestricted(email, { name: u.name || 'there', reason: 'Security review by the KingdomTradeX team. Contact support@kingdomtradex.com for details.' });
+        } catch (e: any) {
+          console.error('[admin/user] restriction email failed:', e.message);
+        }
+      }
       return NextResponse.json({ ok: true, user: { id: u.id, suspended: u.suspended } });
     }
     case "set-tier": {
