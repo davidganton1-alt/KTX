@@ -39,7 +39,7 @@ export function SiteFooter() {
             <Link href="/team" className="hover:text-[var(--fg)]">Team</Link>
             <Link href="/become-pastor" className="hover:text-[var(--fg)]">Serve as a Pastor</Link>
             <Link href="/pastor-application-status" className="hover:text-[var(--fg)]">Check Application Status</Link>
-            <Link href="/support" className="hover:text-[var(--fg)]">Support</Link>
+            <Link href="/help-center" className="hover:text-[var(--fg)]">Support</Link>
           </div>
         </div>
         <div>

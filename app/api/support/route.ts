@@ -53,5 +53,5 @@ export async function POST(req: NextRequest) {
   } catch (e) {
     console.error("support auto-reply failed", e);
   }
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, id: entry.id });
 }
