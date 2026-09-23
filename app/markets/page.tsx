@@ -1,22 +1,24 @@
 import type { Metadata } from 'next';
-import { MarketsBoard } from '@/components/MarketsBoard';
+import MarketsClient from './MarketsClient';
 
 export const metadata: Metadata = {
-  title: 'Markets | KingdomTradeX',
-  description: 'What the KingdomTradeX AI Engine trades — crypto, US stocks, commodities, and forex — with a calm snapshot of the current book. Not a live ticker: a overview of the disciplined whole.',
+  title: 'Live Markets | KingdomTradeX',
+  description: 'Real-time prices and AI analysis across crypto, US stocks, and commodities. Watch the markets through the lens of disciplined stewardship.',
   openGraph: {
-    title: 'Markets | KingdomTradeX',
-    description: 'What the AI Engine trades, in a calm snapshot.',
+    title: 'Live Markets | KingdomTradeX',
+    description: 'Real-time prices and AI analysis across crypto, US stocks, and commodities.',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Markets | KingdomTradeX',
-    description: 'What the AI Engine trades, in a calm snapshot.',
+    title: 'Live Markets | KingdomTradeX',
+    description: 'Real-time prices and AI analysis.',
   },
-  alternates: { canonical: '/markets' },
+  alternates: {
+    canonical: '/markets',
+  },
 };
 
 export default function MarketsPage() {
-  return <MarketsBoard />;
+  return <MarketsClient />;
 }

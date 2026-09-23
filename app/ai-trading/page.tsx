@@ -1,8 +1,22 @@
-import { redirect } from 'next/navigation';
+import type { Metadata } from 'next';
+import AiTradingClient from './AiTradingClient';
 
-// Phase K: the simulated "live terminal" demo page is retired. Its tape was
-// generated data wearing a "Live" label, and the console now owns engine
-// views. Deep links keep working by landing on the calm markets overview.
+export const metadata: Metadata = {
+  title: 'Live AI Trading Terminal | KingdomTradeX',
+  description: 'Watch the KingdomTradeX AI engine execute trades in real time. A public demonstration of disciplined algorithmic trading.',
+  openGraph: {
+    title: 'Live AI Trading Terminal | KingdomTradeX',
+    description: 'Watch the KingdomTradeX AI engine execute trades in real time.',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Live AI Trading Terminal | KingdomTradeX',
+    description: 'Watch the KingdomTradeX AI engine execute trades in real time.',
+  },
+  alternates: { canonical: '/ai-trading' },
+};
+
 export default function AiTradingPage() {
-  redirect('/markets');
+  return <AiTradingClient />;
 }

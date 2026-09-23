@@ -226,7 +226,7 @@ export function SectionIcon({
   name,
   size = 56,
   accent = G,
-  animate = false,
+  animate = true,
   className,
 }: {
   name: IconName;

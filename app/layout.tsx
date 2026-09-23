@@ -3,6 +3,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Navbar } from "@/components/Navbar";
 import { SiteFooter } from "@/components/SiteFooter";
+import { PriceTicker } from "@/components/PriceTicker";
 import Link from "next/link";
 import { SiteBackground } from "@/components/SiteBackground";
 import { ScrollProgress } from "@/components/ScrollProgress";
@@ -44,6 +45,7 @@ export default function RootLayout({
           <SiteBackground />
           <ScrollProgress />
           <ParallaxOrbs />
+          <PriceTicker />
           <Navbar />
           {children}
           <SiteFooter />

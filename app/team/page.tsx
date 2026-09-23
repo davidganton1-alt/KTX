@@ -41,7 +41,7 @@ export default function AboutPage() {
       {/* ── HERO ── */}
       <section className="container-wide pt-16 text-center md:pt-24">
         <p className="eyebrow">About KingdomTradeX</p>
-        <h1 className="text-[32px] font-semibold leading-[1.1] tracking-[-0.02em] text-[var(--fg)] mt-3">Built on <span className="gradient-text">faith</span>, run with <span className="gradient-text">integrity</span></h1>
+        <h1 className="section-title mt-3 text-4xl md:text-6xl">Built on <span className="gradient-text">faith</span>, run with <span className="gradient-text">integrity</span></h1>
         <p className="mx-auto mt-4 max-w-3xl text-[var(--muted)]">
           KingdomTradeX is a licensed, faith-driven investment platform. We combine disciplined AI trading with
           biblical stewardship, and we hold ourselves to a standard higher than the market&rsquo;s. Transparency
@@ -54,7 +54,7 @@ export default function AboutPage() {
         <Reveal variant="up">
           <div className="rounded-2xl border border-[var(--gold)]/40 bg-[var(--gold)]/[0.05] p-8 text-center md:p-10">
             <span className="text-3xl">🛡️</span>
-            <h2 className="text-[20px] font-medium text-[var(--fg)] mt-3">This is the <span className="gradient-text">ONLY official website</span></h2>
+            <h2 className="section-title mt-3 text-2xl md:text-4xl">This is the <span className="gradient-text">ONLY official website</span></h2>
             <p className="mx-auto mt-4 max-w-3xl leading-relaxed text-[var(--muted)]">
               KingdomTradeX operates exclusively through this domain. <b className="text-[var(--fg)]">No other person, website, group, or
               channel is authorized to act on our behalf or collect funds in our name.</b> Always verify you are on this
@@ -70,7 +70,7 @@ export default function AboutPage() {
         <div className="text-center">
           <div className="mx-auto mb-4 flex w-fit justify-center"><SectionIcon name="shield" size={56} /></div>
           <p className="eyebrow">Licensed &amp; compliant</p>
-          <h2 className="text-[24px] font-semibold leading-tight text-[var(--fg)] mt-2">Our <span className="gradient-text">credentials</span></h2>
+          <h2 className="section-title mt-2 text-3xl md:text-5xl">Our <span className="gradient-text">credentials</span></h2>
           <p className="mx-auto mt-3 max-w-2xl text-[var(--muted)]">
             We are a registered, compliant business. Every member can verify our standing.
           </p>
@@ -113,7 +113,7 @@ export default function AboutPage() {
       <section className="container-wide mt-20">
         <div className="text-center">
           <p className="eyebrow">Our story</p>
-          <h2 className="text-[24px] font-semibold leading-tight text-[var(--fg)] mt-2">From a verse to a <span className="gradient-text">vision</span></h2>
+          <h2 className="section-title mt-2 text-3xl md:text-5xl">From a verse to a <span className="gradient-text">vision</span></h2>
         </div>
         <div className="relative mt-12 grid gap-8 md:grid-cols-3">
           <div className="absolute left-0 right-0 top-7 hidden h-px bg-gradient-to-r from-gold-light via-cyan-light to-profit md:block" />
@@ -134,7 +134,7 @@ export default function AboutPage() {
         <div className="text-center">
           <div className="mx-auto mb-4 flex w-fit justify-center"><SectionIcon name="compass" size={56} /></div>
           <p className="eyebrow">The Body, mapped in light</p>
-          <h2 className="text-[24px] font-semibold leading-tight text-[var(--fg)] mt-2">Every star is <span className="gradient-text">called by name</span></h2>
+          <h2 className="section-title mt-2 text-3xl md:text-4xl">Every star is <span className="gradient-text">called by name</span></h2>
         </div>
 
         {/* mobile list */}
@@ -181,7 +181,7 @@ export default function AboutPage() {
       {/* ── JOIN CTA ── */}
       <section className="container-wide py-20 text-center">
         <Reveal variant="blur">
-          <h2 className="text-[24px] font-semibold leading-tight text-[var(--fg)]">Join a platform built on <span className="gradient-text">trust</span></h2>
+          <h2 className="section-title text-3xl md:text-5xl">Join a platform built on <span className="gradient-text">trust</span></h2>
           <p className="mx-auto mt-4 max-w-xl text-[var(--muted)]">Licensed, transparent, and rooted in stewardship. Your journey starts here.</p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Link href="/register" className="btn-primary inline-flex">Create an account</Link>
