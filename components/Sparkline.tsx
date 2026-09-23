@@ -95,12 +95,13 @@ export function Sparkline({
             r={2}
             fill={color}
             initial={{ opacity: 0, scale: 0.4 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 1.3, duration: 0.5, ease: "easeOut" }}
-            style={{ transformOrigin: `${W}px ${lastY}px` }}
-          >
-            <animate attributeName="opacity" values="1;0.45;1" dur="3s" repeatCount="indefinite" />
-          </motion.circle>
+            animate={{ opacity: [1, 0.5, 1], scale: 1 }}
+            transition={{
+              opacity: { delay: 1.8, duration: 3, repeat: Infinity, ease: "easeInOut" },
+              scale: { delay: 1.3, duration: 0.5, ease: "easeOut" },
+            }}
+            style={{ transformOrigin: `${W}px ${lastY}px`, filter: `drop-shadow(0 0 4px ${color})` }}
+          />
         )}
       </svg>
       <AnimatePresence>
