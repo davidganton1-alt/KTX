@@ -123,7 +123,7 @@ function AssetCard({ a, hist, flash }: { a: Asset; hist: Record<string, number[]
         ${fmt(a.price)}
       </p>
       <p className="text-[11px] text-[var(--muted)]">Mcap {fmtCap(a.marketCap)}</p>
-      <div className="mt-3"><Sparkline points={hist[a.id] || [a.price]} up={up} /></div>
+      <div className="mt-3"><Sparkline points={hist[a.id] || [a.price]} up={up} smooth liveDot label={`${a.symbol} · $${fmt(a.price)}`} /></div>
       <RangeBar price={a.price} change={a.change24h} />
     </GlowCard>
   );
@@ -285,7 +285,7 @@ export default function MarketsPage() {
                 </div>
                 <div>
                   <div className="h-28 md:h-32">
-                    <Sparkline points={hist[featured.id] || [featured.price]} up={featured.change24h >= 0} />
+                    <Sparkline points={hist[featured.id] || [featured.price]} up={featured.change24h >= 0} smooth liveDot label={`${featured.symbol} · $${fmt(featured.price)}`} />
                   </div>
                   <div className="mt-6">
                     <div className="flex items-center justify-between text-xs text-[var(--muted)]">
