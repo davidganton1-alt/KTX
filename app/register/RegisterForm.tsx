@@ -124,7 +124,7 @@ export function RegisterForm() {
             <motion.div key={`head-${role}`} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }} transition={{ duration: 0.35 }}>
               <motion.div style={{ y: y1 }} className="relative z-10">
                 <p className="eyebrow">{role === "member" ? "Your stewardship begins" : "Your calling begins"}</p>
-                <h1 className="text-[32px] font-semibold leading-[1.1] tracking-[-0.02em] text-[var(--fg)] mt-3">
+                <h1 className="section-title mt-3 text-5xl xl:text-6xl">
                   {role === "member" ? (
                     <>Plant with <span className="gradient-text">intention</span>.<br />Harvest with <span className="gradient-text">peace</span>.</>
                   ) : (
@@ -164,7 +164,7 @@ export function RegisterForm() {
           {/* mobile heading */}
           <div className="mb-8 text-center lg:hidden">
             <p className="eyebrow">Join KingdomTradeX</p>
-            <h1 className="text-[24px] font-semibold leading-tight text-[var(--fg)] mt-2">
+            <h1 className="section-title mt-2 text-3xl">
               {role === "member" ? <>Claim your <span className="gradient-text">$50 gift</span></> : <>List as a <span className="gradient-text">pastor</span></>}
             </h1>
           </div>
@@ -192,7 +192,7 @@ export function RegisterForm() {
             <GlowCard className="p-6 md:p-8">
               <div className="mb-6">
                 <p className="eyebrow">Begin your journey</p>
-                <h2 className="text-[24px] font-semibold leading-tight text-[var(--fg)] mt-2">
+                <h2 className="section-title mt-2 text-2xl md:text-3xl">
                   {role === "member" ? <>Start with <span className="gradient-text">$50 free</span></> : <>Walk with <span className="gradient-text">this work</span></>}
                 </h2>
               </div>
