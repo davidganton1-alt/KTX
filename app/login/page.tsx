@@ -79,7 +79,7 @@ export default function LoginPage() {
             className="relative z-10"
           >
             <p className="eyebrow">Welcome back, steward</p>
-            <h1 className="section-title mt-3 text-5xl xl:text-6xl">
+            <h1 className="text-[32px] font-semibold leading-[1.1] tracking-[-0.02em] text-[var(--fg)] mt-3">
               The harvest <span className="gradient-text">awaits</span>.
             </h1>
           </motion.div>
@@ -116,7 +116,7 @@ export default function LoginPage() {
           {/* mobile heading */}
           <div className="mb-8 text-center lg:hidden">
             <p className="eyebrow">Welcome back</p>
-            <h1 className="section-title mt-2 text-3xl">
+            <h1 className="text-[24px] font-semibold leading-tight text-[var(--fg)] mt-2">
               The harvest <span className="gradient-text">awaits</span>.
             </h1>
           </div>
@@ -124,7 +124,7 @@ export default function LoginPage() {
           <GlowCard className="p-6 md:p-8">
             <div className="mb-6">
               <p className="eyebrow">Sign in</p>
-              <h2 className="section-title mt-2 text-2xl md:text-3xl">
+              <h2 className="text-[24px] font-semibold leading-tight text-[var(--fg)] mt-2">
                 Access your <span className="gradient-text">console</span>
               </h2>
               <p className="mt-2 text-sm text-[var(--muted)]">Enter your credentials to continue your stewardship.</p>
