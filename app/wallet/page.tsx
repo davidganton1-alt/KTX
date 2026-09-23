@@ -65,7 +65,7 @@ export default function WalletPage() {
     <Reveal as="main" variant="scale" className="container-page py-16">
       <div>
         <p className="eyebrow">Your treasury</p>
-        <h1 className="mt-2 text-3xl font-bold md:text-4xl">
+        <h1 className="mt-2 text-[24px] font-semibold leading-tight text-[var(--fg)]">
           Your <span className="gradient-text">wallet</span>
         </h1>
         <p className="mt-3 max-w-2xl text-[var(--muted)]">

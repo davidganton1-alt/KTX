@@ -116,7 +116,7 @@ export default function DashboardPage() {
     <div className="container-wide px-6 py-12">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Welcome, {w.name.split(" ")[0]}</h1>
+          <h1 className="text-[24px] font-semibold leading-tight">Welcome, {w.name.split(" ")[0]}</h1>
           <p className="mt-1 text-sm text-[var(--muted)]">
             Signed in as <span className="text-[var(--gold)]">{w.role}</span> ·{" "}
             {tierLabel[w.tier as keyof typeof tierLabel]}
@@ -179,7 +179,7 @@ export default function DashboardPage() {
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">AI trading live</h2>
           <span className="flex items-center gap-2 text-xs text-[var(--muted)]">
-            <span className="h-2 w-2 animate-pulse rounded-full bg-profit" /> live
+            <span className="h-2 w-2 rounded-full bg-[var(--profit)]" /> live
           </span>
         </div>
         <p className="mt-1 text-sm text-[var(--muted)]">
