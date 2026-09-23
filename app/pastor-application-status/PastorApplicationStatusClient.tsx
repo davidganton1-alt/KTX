@@ -65,17 +65,17 @@ export default function PastorApplicationStatusClient() {
   };
 
   return (
-    <main className="min-h-screen bg-[var(--bg)] text-[var(--fg)]">
+    <main className="min-h-screen text-[var(--fg)]">
       <section className="container-wide py-16 md:py-24">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-12">
             <span className="inline-block px-4 py-1.5 mb-4 rounded-full border text-xs font-bold uppercase tracking-widest" style={{ borderColor: 'var(--border)', color: 'var(--gold)', backgroundColor: 'var(--card)' }}>
               Application Status
             </span>
-            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">
+            <h1 className="text-[32px] font-semibold leading-[1.1] tracking-[-0.02em] text-[var(--fg)] mb-4">
               Check Your <span style={{ color: 'var(--gold)' }}>Application</span>
             </h1>
-            <p className="text-lg text-[var(--muted)]">
+            <p className="text-[15px] text-[var(--muted)]">
               Enter the email address you used when applying to check your current status.
             </p>
           </div>

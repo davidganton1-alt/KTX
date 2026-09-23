@@ -31,7 +31,7 @@ export default function WaitlistClient() {
     fetch('/api/waitlist')
       .then((r) => r.json())
       .then((d) => setCount(d.count || 0))
-      .catch(() => setCount(1242));
+      .catch(() => setCount(0));
   }, []);
 
   useEffect(() => {
@@ -142,7 +142,7 @@ export default function WaitlistClient() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.1 }}
-          className="max-w-4xl text-5xl font-extrabold leading-tight tracking-tight md:text-7xl"
+          className="max-w-4xl text-[32px] font-semibold leading-[1.15] tracking-[-0.02em]"
         >
           Faith Driven Trading.
           <br />
@@ -195,7 +195,7 @@ export default function WaitlistClient() {
               className="flex w-20 flex-col items-center rounded-2xl border py-4 md:w-24"
               style={{ borderColor: 'var(--border)', backgroundColor: 'var(--card)' }}
             >
-              <span className="text-3xl font-extrabold tabular-nums md:text-4xl" style={{ color: 'var(--fg)' }}>
+              <span className="text-[20px] font-medium tabular-nums" style={{ color: 'var(--fg)' }}>
                 {String(u.value).padStart(2, '0')}
               </span>
               <span className="mt-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--muted)' }}>

@@ -1,9 +1,12 @@
 import type { Metadata } from 'next';
-import { SectionIcon } from "@/components/SectionIcon";
-import { Reveal } from "@/components/Reveal";
-import { FAQS } from "@/lib/faqs";
-import Link from "next/link";
-import { TrustBox } from "@/components/TrustBox";
+import Link from 'next/link';
+import { PageHeader } from '@/components/design-system/PageHeader';
+import { DataCard } from '@/components/design-system/DataCard';
+import { StatCard } from '@/components/design-system/StatCard';
+import { Button } from '@/components/design-system/Button';
+import { Label, Num, Body, Small } from '@/components/design-system/Typography';
+import { Reveal } from '@/components/Reveal';
+import { FAQS } from '@/lib/faqs';
 
 export const metadata: Metadata = {
   title: 'Plans & Tiers | KingdomTradeX',
@@ -18,362 +21,204 @@ export const metadata: Metadata = {
     title: 'Plans & Tiers | KingdomTradeX',
     description: 'Choose your path of faithful stewardship.',
   },
-  alternates: {
-    canonical: '/plans',
-  },
+  alternates: { canonical: '/plans' },
 };
 
 const lineup = [
   {
-    name: "Faithful", rate: "0.25%", min: "$100 – $999", hold: "6-month hold", hl: false,
-    bullets: ["Crypto, US stocks & commodities", "Starter AI desk", "Daily profit, withdraw anytime"],
-    verse: "Be faithful with the little things. Luke 16:10",
+    name: 'Faithful', rate: '0.25%', min: '$100 – $999', hold: '6-month hold', hl: false,
+    bullets: ['Crypto, US stocks & commodities', 'Starter AI desk', 'Daily profit, withdraw anytime'],
+    verse: 'Be faithful with the little things. Luke 16:10',
   },
   {
-    name: "Steward", rate: "0.50%", min: "$1,000 – $4,999", hold: "9-month hold", hl: true,
-    bullets: ["All markets unlocked", "Advanced AI + priority rebalancing", "Profit-only withdrawals"],
-    verse: "Stewards of the manifold grace of God. 1 Peter 4:10",
+    name: 'Steward', rate: '0.50%', min: '$1,000 – $4,999', hold: '9-month hold', hl: true,
+    bullets: ['All markets unlocked', 'Advanced AI + priority rebalancing', 'Profit-only withdrawals'],
+    verse: 'Stewards of the manifold grace of God. 1 Peter 4:10',
   },
   {
-    name: "Ambassador", rate: "0.75%", min: "$5,000 – $15,000", hold: "12-month hold", hl: false,
-    bullets: ["Elite AI desk", "Dedicated risk guardrails", "Largest daily target"],
-    verse: "Honour the Lord with your wealth. Proverbs 3:9",
+    name: 'Ambassador', rate: '0.75%', min: '$5,000 – $15,000', hold: '12-month hold', hl: false,
+    bullets: ['Elite AI desk', 'Dedicated risk guardrails', 'Largest daily target'],
+    verse: 'Honour the Lord with your wealth. Proverbs 3:9',
   },
 ];
 
 const groups = [
   {
-    name: "The seed",
+    name: 'The seed',
     rows: [
-      { label: "Deposit range", v: ["$100 – $999", "$1,000 – $4,999", "$5,000 – $15,000"] },
-      { label: "Hold period", v: ["6 months", "9 months", "12 months"] },
-      { label: "Early deposit withdrawal", v: ["50% fee", "50% fee", "50% fee"] },
+      { id: 's1', label: 'Deposit range', a: '$100 – $999', b: '$1,000 – $4,999', c: '$5,000 – $15,000' },
+      { id: 's2', label: 'Hold period', a: '6 months', b: '9 months', c: '12 months' },
+      { id: 's3', label: 'Early deposit withdrawal', a: '50% fee', b: '50% fee', c: '50% fee' },
     ],
   },
   {
-    name: "The engine",
+    name: 'The engine',
     rows: [
-      { label: "AI desk", v: ["Starter AI", "Advanced AI", "Elite AI desk"] },
-      { label: "Markets", v: ["Crypto · Stocks · Commodities", "All markets", "All markets"] },
-      { label: "Rebalancing", v: ["Daily", "Priority", "Dedicated"] },
-      { label: "Risk guardrails", v: ["Standard", "Advanced", "Dedicated"] },
+      { id: 'e1', label: 'AI desk', a: 'Starter AI', b: 'Advanced AI', c: 'Elite AI desk' },
+      { id: 'e2', label: 'Markets', a: 'Crypto · Stocks · Commodities', b: 'All markets', c: 'All markets' },
+      { id: 'e3', label: 'Rebalancing', a: 'Daily', b: 'Priority', c: 'Dedicated' },
+      { id: 'e4', label: 'Risk guardrails', a: 'Standard', b: 'Advanced', c: 'Dedicated' },
     ],
   },
   {
-    name: "The harvest",
+    name: 'The harvest',
     rows: [
-      { label: "Target daily profit", v: ["0.25%", "0.50%", "0.75%"] },
-      { label: "Profit withdrawals", v: ["Anytime", "Anytime", "Anytime"] },
-      { label: "Trade transparency", v: ["Full ledger", "Full ledger", "Full ledger"] },
+      { id: 'h1', label: 'Target daily profit', a: '0.25%', b: '0.50%', c: '0.75%' },
+      { id: 'h2', label: 'Profit withdrawals', a: 'Anytime', b: 'Anytime', c: 'Anytime' },
+      { id: 'h3', label: 'Trade transparency', a: 'Full ledger', b: 'Full ledger', c: 'Full ledger' },
     ],
   },
 ];
 
 const holdChapters = [
-  { n: "I", t: "Planted", d: "Day zero. Your seed goes into the soil. The AI desk opens and begins trading with guardrails on." },
-  { n: "II", t: "Harvest daily", d: "Every day, profit accrues and is withdrawable. The hold never touches your harvest, only the seed." },
-  { n: "III", t: "Released", d: "When the hold ends, your full deposit unlocks. Withdraw everything: no fee, no friction." },
+  { n: 'I', t: 'Planted', d: 'Day zero. Your seed goes into the soil. The AI desk opens and begins trading with guardrails on.' },
+  { n: 'II', t: 'Harvest daily', d: 'Every day, profit accrues and is withdrawable. The hold never touches your harvest, only the seed.' },
+  { n: 'III', t: 'Released', d: 'When the hold ends, your full deposit unlocks. Withdraw everything: no fee, no friction.' },
 ];
+
+// Static markup (server page): DataTable's render fns can't cross the
+// server/client boundary, and a 10-row comparison needs no interactivity.
+function TierTable({ rows }: { rows: any[] }) {
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full border-collapse text-left">
+        <thead>
+          <tr className="border-b border-[var(--border)]">
+            {['Feature', 'Faithful', 'Steward', 'Ambassador'].map((h, i) => (
+              <th key={h} className={`px-4 py-2.5 text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--muted)] ${i > 0 ? 'text-center' : ''}`}>{h}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row, idx) => (
+            <tr key={row.id} className={idx % 2 === 1 ? 'bg-[var(--card)]/30' : ''}>
+              <td className="px-4 py-2.5 text-[14px] font-medium text-[var(--fg)]">{row.label}</td>
+              <td className="px-4 py-2.5 text-center text-[14px] text-[var(--muted)]">{row.a}</td>
+              <td className="px-4 py-2.5 text-center text-[14px] font-medium text-[var(--fg)]">{row.b}</td>
+              <td className="px-4 py-2.5 text-center text-[14px] text-[var(--muted)]">{row.c}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
 
 export default function PlansPage() {
   return (
-    <main>
-      {/* ── HERO ── */}
-      <section className="container-wide pt-16 text-center md:pt-24">
-        <p className="eyebrow">Plans</p>
-        <h1 className="section-title mt-3 text-5xl md:text-7xl">How much will you <span className="gradient-text">plant</span>?</h1>
-        <p className="mx-auto mt-5 max-w-2xl text-[var(--muted)]">
-          Same AI. Same honesty. Three sizes of seed, each with its own daily target and harvest rhythm.
-        </p>
-        <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-          <span className="pill">0.25% – 0.75% daily targets</span>
-          <span className="pill">Profit-only withdrawals</span>
-          <span className="pill">Transparent ledger</span>
-        </div>
-      </section>
+    <main className="min-h-screen">
+      <div className="mx-auto max-w-[1180px] px-6 py-12 lg:py-16">
+        <PageHeader
+          crumbs={['Platform', 'Plans']}
+          title="How much will you plant?"
+          description="Same AI. Same honesty. Three sizes of seed, each with its own daily target and harvest rhythm."
+          actions={
+            <Link href="/register" className="no-underline"><Button>Start with $50 free</Button></Link>
+          }
+        />
 
-      <div className="container-wide">
-        <TrustBox template="carousel" className="my-12" />
-      </div>
-
-      {/* ── LINEUP PILLARS (giant rates) ── */}
-      <section className="container-wide py-14">
-        <div className="grid items-stretch gap-5 md:grid-cols-3">
+        {/* ── tier pillars ── */}
+        <div className="mt-8 grid gap-5 md:grid-cols-3">
           {lineup.map((p, i) => (
             <Reveal key={p.name} variant="up" index={i}>
-              <div className={`relative flex h-full flex-col rounded-3xl border p-7 text-center transition ${p.hl ? "border-[var(--gold)] bg-gradient-to-b from-[var(--gold)]/[0.12] to-transparent shadow-gold md:-translate-y-4" : "border-[var(--border)] bg-[var(--card)] hover:-translate-y-1 hover:border-[var(--gold)]/60"}`}>
-                {p.hl && <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-gold-light to-royal-violet px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-[#0a0e27]">Most chosen</span>}
-                <div className="flex min-h-[210px] flex-col items-center justify-start">
-                  <p className="eyebrow">{p.name}</p>
-                  <p className={`mt-5 text-6xl font-extrabold tracking-tight md:text-7xl ${p.hl ? "gradient-text" : ""}`}>{p.rate}</p>
-                  <p className="mt-2 text-[11px] uppercase tracking-[0.25em] text-[var(--muted)]">target / day</p>
-                  <p className="mt-3 text-sm text-[var(--muted)]">{p.min}</p>
-                  <div className="my-6 h-px w-full bg-gradient-to-r from-transparent via-[var(--border)] to-transparent" />
-                </div>
-                <ul className="flex-1 space-y-2 text-left text-sm text-[var(--muted)]">
-                  {p.bullets.map((b) => <li key={b} className="flex gap-2.5"><span className="text-[var(--gold)]">✦</span>{b}</li>)}
+              <div className={`relative flex h-full flex-col rounded-2xl p-6 ds-card ${p.hl ? 'border border-[var(--gold)]/50' : ''}`}>
+                {p.hl && <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-[var(--gold)] px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-[#0a0e27]">Most chosen</span>}
+                <Label>{p.name}</Label>
+                <div className="mt-3"><Num size="hero" className={p.hl ? 'text-[var(--gold)]' : ''}>{p.rate}</Num><span className="ml-2 text-[12px] text-[var(--muted)]">target / day</span></div>
+                <p className="mt-2 text-[13px] text-[var(--muted)]">{p.min}</p>
+                <p className="mt-1 text-[12px] text-[var(--muted)]">{p.hold} · 50% early exit fee</p>
+                <ul className="mt-5 flex-1 space-y-2">
+                  {p.bullets.map((b) => <li key={b} className="flex gap-2.5 text-[13px] leading-[1.5] text-[var(--muted)]"><span className="text-[var(--gold)]">✦</span>{b}</li>)}
                 </ul>
-                <div className="mt-auto flex flex-col gap-3 pt-5">
-                  <p className="text-xs italic leading-relaxed text-[var(--gold)]">{p.verse}</p>
-                  <p className="text-xs text-[var(--muted)]">{p.hold} · 50% early fee</p>
-                  <Link
-                    href="/register"
-                    className={`mt-auto block w-full rounded-2xl px-6 py-4 text-center text-base font-bold transition-all duration-300 ${
-                      p.hl
-                        ? 'bg-gradient-to-r from-[var(--gold)] to-amber-500 text-black shadow-lg shadow-[var(--gold)]/25 hover:shadow-xl hover:shadow-[var(--gold)]/40 hover:scale-[1.02]'
-                        : 'border-2 border-[var(--border)] bg-[var(--card)] text-[var(--fg)] hover:border-[var(--gold)] hover:text-[var(--gold)] hover:scale-[1.02]'
-                    }`}
-                  >
-                    {p.hl ? 'Start with Steward' : `Start with ${p.name}`}
-                  </Link>
-                </div>
+                <p className="mt-5 border-t border-[var(--border)] pt-4 text-[12px] italic leading-[1.5] text-[var(--gold)]">{p.verse}</p>
+                <Link href="/register" className="mt-4 no-underline"><Button variant={p.hl ? 'primary' : 'secondary'} size="sm" className="w-full">Start with {p.name}</Button></Link>
               </div>
             </Reveal>
           ))}
         </div>
-      </section>
 
-      {/* ── COMPARISON TABLE ── */}
-      <section className="container-wide mt-20 hidden md:block" id="compare">
-        <div className="text-center">
-          <p className="eyebrow">Feature comparison</p>
-          <h2 className="section-title mt-2 text-3xl md:text-5xl">
-            Same AI, <span className="gradient-text">three paths</span>
-          </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-[var(--muted)]">
+        {/* ── quick mechanics ── */}
+        <div className="mt-8 grid gap-4 sm:grid-cols-3">
+          <StatCard label="Profit rate basis" value={<Num size="inline">(principal + credit) × tier rate</Num>} context="Accrued daily at 00:00 UTC" tone="default" />
+          <StatCard label="Profit withdrawals" value={<Num size="inline">Anytime, free</Num>} context="Network gas fee only, shown upfront" tone="profit" />
+          <StatCard label="Early principal exit" value={<Num size="inline">50% LP fee</Num>} context="A liquidity provision term, not a penalty" tone="warning" />
+        </div>
+
+        {/* ── comparison ── */}
+        <section className="mt-16 scroll-mt-24" id="compare">
+          <Label>Feature comparison</Label>
+          <div className="mt-1 text-[24px] font-semibold leading-tight text-[var(--fg)]">Same AI, three paths</div>
+          <p className="mt-2 max-w-2xl text-[14px] leading-[1.6] text-[var(--muted)]">
             Every plan runs on the same honest engine. Here is exactly what you get at each tier.
           </p>
-        </div>
-
-        <div className="mt-12">
-          {/* ═══ STICKY TIER BAR ═══ */}
-          <div className="sticky top-16 z-30 rounded-t-2xl border border-[var(--border)] bg-[var(--bg-soft)]/90 shadow-lg shadow-black/10 backdrop-blur-xl">
-            <div className="grid grid-cols-[1.2fr_1fr_1fr_1fr] gap-0">
-              {/* Label column */}
-              <div className="flex items-center border-r border-[var(--border)] px-6 py-4">
-                <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[var(--muted)]">The plans</p>
-              </div>
-
-              {/* Faithful */}
-              <div className="flex flex-col items-center justify-center gap-2 border-r border-[var(--border)] px-4 py-4">
-                <p className="text-sm font-bold text-[var(--fg)]">
-                  Faithful <span className="text-[var(--gold)]">· 0.25%</span>
-                </p>
-                <a
-                  href="/register"
-                  className="rounded-full border border-[var(--border)] px-5 py-1.5 text-xs font-semibold text-[var(--fg)] transition-all duration-300 hover:border-[var(--gold)] hover:bg-[var(--gold)]/10 hover:text-[var(--gold)]"
-                >
-                  Start
-                </a>
-              </div>
-
-              {/* Steward (highlighted) */}
-              <div className="flex flex-col items-center justify-center gap-2 border-r border-[var(--border)] bg-[var(--gold)]/[0.08] px-4 py-4">
-                <p className="text-sm font-bold text-[var(--fg)]">
-                  Steward <span className="text-[var(--gold)]">· 0.50%</span>
-                </p>
-                <a
-                  href="/register"
-                  className="rounded-full bg-gradient-to-r from-[var(--gold)] to-amber-500 px-5 py-1.5 text-xs font-bold text-black shadow-md shadow-[var(--gold)]/25 transition-all duration-300 hover:shadow-lg hover:shadow-[var(--gold)]/40 hover:scale-105"
-                >
-                  Start
-                </a>
-              </div>
-
-              {/* Ambassador */}
-              <div className="flex flex-col items-center justify-center gap-2 px-4 py-4">
-                <p className="text-sm font-bold text-[var(--fg)]">
-                  Ambassador <span className="text-[var(--gold)]">· 0.75%</span>
-                </p>
-                <a
-                  href="/register"
-                  className="rounded-full border border-[var(--border)] px-5 py-1.5 text-xs font-semibold text-[var(--fg)] transition-all duration-300 hover:border-[var(--gold)] hover:bg-[var(--gold)]/10 hover:text-[var(--gold)]"
-                >
-                  Start
-                </a>
-              </div>
-            </div>
-          </div>
-
-          {/* ═══ TABLE BODY ═══ */}
-          <div className="rounded-b-2xl border border-t-0 border-[var(--border)] bg-[var(--bg-soft)]">
-            {groups.map((group) => (
-              <div key={group.name}>
-                {/* Group header */}
-                <div className="border-b border-[var(--border)] bg-[var(--card)] px-6 py-3">
-                  <p className="text-sm font-bold uppercase tracking-wider text-[var(--gold)]">{group.name}</p>
-                </div>
-
-                {/* Group rows */}
-                {group.rows.map((row, rowIdx) => (
-                  <div
-                    key={rowIdx}
-                    className={`grid grid-cols-[1.2fr_1fr_1fr_1fr] gap-0 border-b border-[var(--border)] last:border-b-0 ${
-                      rowIdx % 2 === 0 ? 'bg-[var(--bg-soft)]' : 'bg-[var(--card)]/30'
-                    }`}
-                  >
-                    {/* Label */}
-                    <div className="border-r border-[var(--border)] px-6 py-4">
-                      <p className="text-sm font-medium text-[var(--fg)]">{row.label}</p>
-                    </div>
-                    {/* Faithful */}
-                    <div className="border-r border-[var(--border)] px-6 py-4 text-center">
-                      <p className="text-sm text-[var(--muted)]">{row.v[0]}</p>
-                    </div>
-                    {/* Steward */}
-                    <div className="border-r border-[var(--border)] bg-[var(--gold)]/[0.05] px-6 py-4 text-center">
-                      <p className="text-sm font-semibold text-[var(--fg)]">{row.v[1]}</p>
-                    </div>
-                    {/* Ambassador */}
-                    <div className="px-6 py-4 text-center">
-                      <p className="text-sm text-[var(--muted)]">{row.v[2]}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+          <div className="mt-6 space-y-5">
+            {groups.map((g) => (
+              <DataCard key={g.name} title={g.name}>
+                <TierTable rows={g.rows} />
+              </DataCard>
             ))}
           </div>
-        </div>
-
-        {/* Early withdrawal notice */}
-        <div className="mx-auto mt-8 max-w-3xl rounded-2xl border border-[var(--gold)]/30 bg-[var(--gold)]/[0.05] p-6 text-center">
-          <p className="text-sm text-[var(--muted)]">
-            <span className="font-bold text-[var(--gold)]">Full honesty:</span> withdrawing your deposit before the hold ends carries a 50% fee. Early exits force the AI to unwind positions. Your daily profit is <span className="font-bold text-[var(--fg)]">never</span> affected.
-          </p>
-        </div>
-      </section>
-
-      {/* ── VERSE INTERLUDE (oversized) ── */}
-      <section className="py-20">
-        <div className="container-page text-center">
-          <Reveal variant="blur">
-            <p className="text-3xl font-light italic leading-snug text-[var(--fg)] md:text-5xl" style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}>
-              "Honour the Lord with your wealth, with the firstfruits of all your crops."
+          <div className="mt-6 rounded-xl border border-[var(--gold)]/40 bg-[var(--gold)]/10 p-5">
+            <p className="text-[14px] leading-[1.6] text-[var(--muted)]">
+              <span className="font-medium text-[var(--gold)]">Full honesty:</span> withdrawing your deposit before the hold ends carries a 50% Liquidity Provision Fee — early exits force the engine to unwind positions at unfavorable prices. Your daily profit is <span className="font-medium text-[var(--fg)]">never</span> affected. Read the legal justification in the <Link href="/trading-agreement" className="text-[var(--gold)] hover:underline">Trading Agreement</Link>.
             </p>
-            <p className="eyebrow mt-6">Proverbs 3:9</p>
-          </Reveal>
-        </div>
-      </section>
+          </div>
+        </section>
 
-      {/* ── THE HOLD IN THREE CHAPTERS ── */}
-      <section className="container-wide py-12">
-        <div className="text-center">
-          <p className="eyebrow">The hold, explained honestly</p>
-          <h2 className="section-title mt-2 text-3xl md:text-5xl">Planted seed, <span className="gradient-text">patient harvest</span></h2>
-        </div>
-        <div className="relative mt-12 grid gap-8 md:grid-cols-3">
-          <div className="absolute left-0 right-0 top-7 hidden h-px bg-gradient-to-r from-gold-light via-cyan-light to-profit md:block" />
-          {holdChapters.map((c, i) => (
-            <Reveal key={c.n} variant="up" index={i}>
-              <div className="relative text-center md:text-left">
-                <div className="relative z-10 mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--bg)] text-lg font-bold text-[var(--gold)] md:mx-0">
-                  {c.n}
-                </div>
-                <h3 className="mt-4 text-xl font-bold">{c.t}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">{c.d}</p>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-        <Reveal variant="up">
-          <div className="card mt-10 p-6 text-center text-sm text-[var(--muted)]">
-            <span className="text-[var(--gold)]">Full honesty:</span> withdrawing your deposit before the hold ends carries a 50% fee. Early exits force the AI to unwind positions. Your daily profit is <span className="text-[var(--fg)]">never</span> affected.
+        {/* ── verse (calm) ── */}
+        <section className="mt-16 text-center">
+          <p className="mx-auto max-w-xl text-[16px] italic leading-[1.6] text-[var(--fg)]">
+            "Honour the Lord with your wealth, with the firstfruits of all your crops."
+          </p>
+          <Small className="mt-2">Proverbs 3:9</Small>
+        </section>
+
+        {/* ── the hold in three chapters ── */}
+        <section className="mt-16">
+          <Label>The hold, explained honestly</Label>
+          <div className="mt-1 text-[20px] font-medium text-[var(--fg)]">Planted seed, patient harvest</div>
+          <div className="mt-6 grid gap-5 md:grid-cols-3">
+            {holdChapters.map((c, i) => (
+              <Reveal key={c.n} variant="up" index={i}>
+                <DataCard title={c.t} subtitle={`Chapter ${c.n}`}>
+                  <Body className="leading-[1.6] text-[var(--muted)]">{c.d}</Body>
+                </DataCard>
+              </Reveal>
+            ))}
+          </div>
+        </section>
+
+        {/* ── faq teaser ── */}
+        <Reveal as="section" variant="up" className="mt-16">
+          <div className="text-center">
+            <Label>Plan questions</Label>
+            <div className="mt-1 text-[20px] font-medium text-[var(--fg)]">Before you plant</div>
+          </div>
+          <div className="mx-auto mt-6 max-w-3xl space-y-2.5">
+            {FAQS.slice(0, 3).map((f, i) => (
+              <details key={i} className="group ds-card rounded-xl p-4 [&_summary]:cursor-pointer">
+                <summary className="flex items-center justify-between gap-4 text-[14px] font-medium text-[var(--fg)]">{f.q}<span className="text-[var(--gold)] transition group-open:rotate-45">+</span></summary>
+                <p className="mt-2.5 text-[14px] leading-[1.6] text-[var(--muted)]">{f.a}</p>
+              </details>
+            ))}
+            <p className="pt-1 text-center text-[13px] text-[var(--muted)]">
+              <a href="/help-center" className="text-[var(--gold)] hover:underline">See all questions</a>
+            </p>
           </div>
         </Reveal>
-      </section>
 
-      {/* ── CHOOSE YOUR PLAN ── */}
-      <section className="container-wide mt-20">
-        <div className="text-center">
-          <p className="eyebrow">Ready to begin?</p>
-          <h2 className="section-title mt-2 text-3xl md:text-5xl">
-            Choose your <span className="gradient-text">path</span>
-          </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-[var(--muted)]">
-            Same AI. Same honesty. Three sizes of seed. Pick the one that fits your journey and start harvesting today.
-          </p>
-        </div>
-
-        <div className="mx-auto mt-12 grid max-w-4xl gap-4 md:grid-cols-3">
-          {/* Faithful */}
-          <Link
-            href="/register"
-            className="group relative overflow-hidden rounded-2xl border-2 border-[var(--border)] bg-[var(--bg-soft)] p-8 text-center transition-all duration-300 hover:border-[var(--gold)] hover:shadow-xl hover:shadow-[var(--gold)]/10 hover:-translate-y-1"
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-            <p className="text-xs font-bold uppercase tracking-widest text-[var(--muted)]">Faithful</p>
-            <p className="mt-3 text-4xl font-extrabold text-[var(--fg)]">0.25%</p>
-            <p className="text-sm text-[var(--muted)]">per day</p>
-            <p className="mt-4 text-sm text-[var(--muted)]">Min. $100</p>
-            <div className="mt-6 rounded-xl bg-[var(--card)] px-4 py-3 text-sm font-bold text-[var(--fg)] transition-colors group-hover:bg-[var(--gold)] group-hover:text-black">
-              Plant My Seed
-            </div>
-          </Link>
-
-          {/* Steward (highlighted) */}
-          <Link
-            href="/register"
-            className="group relative overflow-hidden rounded-2xl border-2 border-[var(--gold)] bg-gradient-to-br from-[var(--gold)]/10 to-transparent p-8 text-center shadow-lg shadow-[var(--gold)]/20 transition-all duration-300 hover:shadow-2xl hover:shadow-[var(--gold)]/30 hover:-translate-y-2 md:scale-105"
-          >
-            <span className="absolute -top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--gold)] px-4 py-1 text-xs font-bold text-black">
-              Most Chosen
-            </span>
-            <p className="text-xs font-bold uppercase tracking-widest text-[var(--gold)]">Steward</p>
-            <p className="mt-3 text-4xl font-extrabold text-[var(--fg)]">0.50%</p>
-            <p className="text-sm text-[var(--muted)]">per day</p>
-            <p className="mt-4 text-sm text-[var(--muted)]">Min. $1,000</p>
-            <div className="mt-6 rounded-xl bg-[var(--gold)] px-4 py-3 text-sm font-bold text-black transition-transform group-hover:scale-105">
-              Plant My Seed
-            </div>
-          </Link>
-
-          {/* Ambassador */}
-          <Link
-            href="/register"
-            className="group relative overflow-hidden rounded-2xl border-2 border-[var(--border)] bg-[var(--bg-soft)] p-8 text-center transition-all duration-300 hover:border-[var(--gold)] hover:shadow-xl hover:shadow-[var(--gold)]/10 hover:-translate-y-1"
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-            <p className="text-xs font-bold uppercase tracking-widest text-[var(--muted)]">Ambassador</p>
-            <p className="mt-3 text-4xl font-extrabold text-[var(--fg)]">0.75%</p>
-            <p className="text-sm text-[var(--muted)]">per day</p>
-            <p className="mt-4 text-sm text-[var(--muted)]">Min. $5,000</p>
-            <div className="mt-6 rounded-xl bg-[var(--card)] px-4 py-3 text-sm font-bold text-[var(--fg)] transition-colors group-hover:bg-[var(--gold)] group-hover:text-black">
-              Plant My Seed
-            </div>
-          </Link>
-        </div>
-
-        <p className="mt-8 text-center text-sm text-[var(--muted)]">
-          All plans include the free $50 welcome credit, daily profit withdrawals, and full transparency.
-        </p>
-      </section>
-
-      {/* ── FAQ TEASER ── */}
-      <Reveal as="section" variant="up" className="container-page py-12">
-        <div className="text-center">
-          <div className="mx-auto mb-3 flex w-fit justify-center"><SectionIcon name="book" size={48} /></div>
-          <p className="eyebrow">Plan questions</p>
-          <h2 className="section-title mt-2 text-3xl md:text-5xl">Before you <span className="gradient-text">plant</span></h2>
-        </div>
-        <div className="mt-8 space-y-2">
-          {FAQS.slice(0, 3).map((f, i) => (
-            <details key={i} className="group card p-4 [&_summary]:cursor-pointer">
-              <summary className="flex items-center justify-between text-sm font-semibold">{f.q}<span className="text-[var(--muted)] transition group-open:rotate-45">+</span></summary>
-              <p className="mt-2 text-sm text-[var(--muted)]">{f.a}</p>
-            </details>
-          ))}
-        </div>
-        <div className="mt-6 text-center"><a href="/help-center" className="text-sm text-[var(--gold)] hover:underline">See all questions</a></div>
-      </Reveal>
-
-      {/* ── CTA ── */}
-      <Reveal as="section" variant="blur" className="container-wide py-12 text-center">
-        <div className="card-grad p-8">
-          <h2 className="text-3xl font-bold md:text-5xl">Choose your seed. <span className="gradient-text">Begin the harvest.</span></h2>
-          <p className="mx-auto mt-3 max-w-xl text-sm text-[var(--muted)]">Start with your free $50 credit, then plant when you're ready.</p>
-          <a href="/register" className="btn-primary mt-6 inline-flex">Get $50 free</a>
-        </div>
-      </Reveal>
+        {/* ── CTA ── */}
+        <Reveal as="section" variant="up" className="mt-16 pb-8 text-center">
+          <div className="ds-card mx-auto max-w-2xl rounded-2xl p-10">
+            <div className="text-[24px] font-semibold leading-tight text-[var(--fg)]">Choose your seed. Begin the harvest.</div>
+            <p className="mx-auto mt-3 max-w-md text-[14px] leading-[1.6] text-[var(--muted)]">Start with your free $50 credit, then plant when you're ready.</p>
+            <Link href="/register" className="mt-6 inline-flex no-underline"><Button>Get $50 free</Button></Link>
+            <p className="mt-6 text-[11px] leading-[1.6] text-[var(--muted)]">
+              Rates are design targets, not guarantees or interest. Trading involves risk. See the <Link href="/trading-agreement" className="text-[var(--gold)] hover:underline">Trading Agreement &amp; Risk Disclosure</Link>.
+            </p>
+          </div>
+        </Reveal>
+      </div>
     </main>
   );
 }

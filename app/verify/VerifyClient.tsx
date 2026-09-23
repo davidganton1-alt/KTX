@@ -45,21 +45,21 @@ export function VerifyClient() {
           {status === "loading" && (
             <>
               <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-[var(--gold)] border-t-transparent" />
-              <h2 className="text-xl font-bold">Verifying your email...</h2>
+              <h2 className="text-[16px] font-medium">Verifying your email...</h2>
               <p className="mt-2 text-sm text-[var(--muted)]">Please wait while we confirm your account.</p>
             </>
           )}
           {status === "success" && (
             <>
               <div className="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-full bg-profit/20 text-3xl text-profit">✓</div>
-              <h2 className="text-xl font-bold text-profit">{message}</h2>
+              <h2 className="text-[16px] font-medium text-[var(--profit)]">{message}</h2>
               <p className="mt-2 text-sm text-[var(--muted)]">Redirecting you to sign in...</p>
             </>
           )}
           {status === "error" && (
             <>
               <div className="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-full bg-loss/20 text-3xl text-loss">✕</div>
-              <h2 className="text-xl font-bold text-loss">{message}</h2>
+              <h2 className="text-[16px] font-medium text-[var(--loss)]">{message}</h2>
               <p className="mt-2 text-sm text-[var(--muted)]">Please try registering again or contact support.</p>
               <a href="/register" className="btn-gold mt-5 inline-flex">Back to register</a>
             </>

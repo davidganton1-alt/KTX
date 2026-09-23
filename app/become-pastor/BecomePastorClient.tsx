@@ -64,7 +64,7 @@ export default function BecomePastorPage() {
             <MemberEmblem name="Pastor Samuel Adeyemi" className="h-16 w-16" />
             <div>
               <p className="eyebrow">Serve the flock</p>
-              <h1 className="section-title mt-1 text-4xl xl:text-5xl">Shepherd the <span className="gradient-text">flock of God</span></h1>
+              <h1 className="text-[32px] font-semibold leading-[1.1] tracking-[-0.02em] text-[var(--fg)] mt-1">Shepherd the <span className="gradient-text">flock of God</span></h1>
             </div>
           </div>
           <p className="mt-6 max-w-xl text-sm italic leading-relaxed text-[var(--muted)]" style={{ fontFamily: "Georgia, serif" }}>
@@ -90,12 +90,12 @@ export default function BecomePastorPage() {
         <div className="w-full max-w-md">
           <div className="mb-8 text-center lg:hidden">
             <MemberEmblem name="Pastor Samuel Adeyemi" className="mx-auto h-14 w-14" />
-            <h1 className="section-title mt-3 text-3xl">List as a <span className="gradient-text">pastor</span></h1>
+            <h1 className="text-[24px] font-semibold leading-tight text-[var(--fg)] mt-3">List as a <span className="gradient-text">pastor</span></h1>
           </div>
 
           {ok ? (
             <GlowCard className="p-8 text-center">
-              <p className="text-3xl text-[var(--gold)]">✝</p>
+              <p className="text-[24px] text-[var(--gold)]">✝</p>
               <h2 className="mt-3 text-xl font-semibold text-[var(--gold)]">Application received</h2>
               <p className="mt-2 text-sm text-[var(--muted)]">
                 Thank you. The admin will review your application and approve it if you are a fit to shepherd this community. You will then appear on the pastors list and can refer members.

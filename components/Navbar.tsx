@@ -13,7 +13,6 @@ const publicLinks = [
   { href: "/research", label: "Research" },
   { href: "/team", label: "Team" },
   { href: "/help-center", label: "Help Center" },
-  { href: "/support", label: "Support" },
   { href: "/become-pastor", label: "Become a Pastor" },
 ];
 
@@ -100,12 +99,6 @@ export function Navbar() {
                 Sign in
               </Link>
               <Link
-                href="/waitlist"
-                className="hidden md:inline-flex items-center px-4 py-1.5 text-sm font-bold rounded-lg border border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-black transition"
-              >
-                Join Waitlist
-              </Link>
-              <Link
                 href="/register"
                 className="btn-primary px-4 py-1.5 text-sm"
               >
@@ -134,11 +127,11 @@ export function Navbar() {
               </Link>
             ))}
             <Link
-              href="/waitlist"
+              href="/register"
               onClick={() => setMenu(false)}
               className="block w-full text-center px-4 py-3 mt-2 rounded-lg bg-[var(--gold)] text-black font-bold hover:brightness-110 transition"
             >
-              Join Waitlist
+              Get $50 free
             </Link>
           </div>
         </div>
