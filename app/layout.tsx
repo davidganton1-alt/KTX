@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Montserrat } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Navbar } from "@/components/Navbar";
@@ -11,6 +12,13 @@ import { ParallaxOrbs } from "@/components/ParallaxOrbs";
 import { JsonLd } from "@/components/JsonLd";
 import { ScrollToBottom } from "@/components/ScrollToBottom";
 import Script from "next/script";
+
+const montserrat = Montserrat({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700', '800', '900'],
+  variable: '--font-montserrat',
+  display: 'swap',
+});
 import { ChatWidgetConditional } from "@/components/ChatWidget";
 
 export const metadata: Metadata = {
@@ -36,7 +44,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="theme-night" suppressHydrationWarning>
+    <html lang="en" className={`theme-night ${montserrat.variable}`} suppressHydrationWarning>
       <body>
         <JsonLd />
         <ScrollToBottom />

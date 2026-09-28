@@ -438,7 +438,7 @@ export default function MarketsPage() {
           </Reveal>
           <Reveal variant="right">
             <div className="card p-8 text-center md:p-10">
-              <p className="text-2xl font-light italic leading-snug md:text-3xl" style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}>
+              <p className="text-2xl font-light italic leading-snug md:text-3xl" style={{ fontFamily: "var(--font-montserrat), Montserrat, sans-serif" }}>
                 "More to be desired are they than gold, yea, than much fine gold."
               </p>
               <p className="eyebrow mt-5">Psalm 19:10</p>

@@ -56,7 +56,7 @@ body {
   background: var(--bg);
   color: var(--fg);
   transition: background 0.4s ease, color 0.4s ease;
-  font-family: Inter, system-ui, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--font-montserrat), Montserrat, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -877,7 +877,7 @@ a {
   font-size: 7rem;
   line-height: 1;
   color: color-mix(in srgb, var(--gold) 22%, transparent);
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-montserrat), Montserrat, sans-serif;
   pointer-events: none;
 }
 

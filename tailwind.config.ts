@@ -32,7 +32,9 @@ const config: Config = {
         loss: "#F87171",
       },
       fontFamily: {
-        sans: ["Inter", "system-ui", "Segoe UI", "Roboto", "sans-serif"],
+        sans: ["var(--font-montserrat)", "Montserrat", "system-ui", "Segoe UI", "sans-serif"],
+        inter: ["var(--font-montserrat)", "Montserrat", "system-ui", "sans-serif"],
+        mono: ["var(--font-montserrat)", "Montserrat", "ui-monospace", "monospace"],
       },
       boxShadow: {
         glow: "0 0 40px rgba(168,85,247,0.35)",

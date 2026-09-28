@@ -42,5 +42,5 @@ export function Num({ children, className = '', size = 'value' }: { children: Re
     : size === 'inline'
       ? 'text-[14px] leading-[1.5] font-medium'
       : 'text-[20px] leading-snug font-medium tracking-[-0.01em]';
-  return <span className={`font-inter tabular-nums text-[var(--fg)] ${s} ${className}`}>{children}</span>;
+  return <span className={`font-sans tabular-nums text-[var(--fg)] ${s} ${className}`}>{children}</span>;
 }
