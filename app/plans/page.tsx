@@ -247,7 +247,7 @@ export default function PlansPage() {
       <section className="py-20">
         <div className="container-page text-center">
           <Reveal variant="blur">
-            <p className="text-3xl font-light italic leading-snug text-[var(--fg)] md:text-5xl" style={{ fontFamily: "var(--font-montserrat), Montserrat, sans-serif" }}>
+            <p className="text-3xl font-light italic leading-snug text-[var(--fg)] md:text-5xl" style={{ fontFamily: "var(--font-inter), system-ui, sans-serif" }}>
               "Honour the Lord with your wealth, with the firstfruits of all your crops."
             </p>
             <p className="eyebrow mt-6">Proverbs 3:9</p>

@@ -32,9 +32,9 @@ const config: Config = {
         loss: "#F87171",
       },
       fontFamily: {
-        sans: ["var(--font-montserrat)", "Montserrat", "system-ui", "Segoe UI", "sans-serif"],
-        inter: ["var(--font-montserrat)", "Montserrat", "system-ui", "sans-serif"],
-        mono: ["var(--font-montserrat)", "Montserrat", "ui-monospace", "monospace"],
+        sans: ["var(--font-inter)", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"],
+        inter: ["var(--font-inter)", "system-ui", "sans-serif"],
+        mono: ["var(--font-mono)", "ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "monospace"],
       },
       boxShadow: {
         glow: "0 0 40px rgba(168,85,247,0.35)",

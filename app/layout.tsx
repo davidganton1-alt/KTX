@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Montserrat } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Navbar } from "@/components/Navbar";
@@ -13,10 +13,17 @@ import { JsonLd } from "@/components/JsonLd";
 import { ScrollToBottom } from "@/components/ScrollToBottom";
 import Script from "next/script";
 
-const montserrat = Montserrat({
+const inter = Inter({
   subsets: ['latin'],
   weight: ['300', '400', '500', '600', '700', '800', '900'],
-  variable: '--font-montserrat',
+  variable: '--font-inter',
+  display: 'swap',
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-mono',
   display: 'swap',
 });
 import { ChatWidgetConditional } from "@/components/ChatWidget";
@@ -44,7 +51,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`theme-night ${montserrat.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`theme-night ${inter.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
       <body>
         <JsonLd />
         <ScrollToBottom />

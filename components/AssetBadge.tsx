@@ -240,7 +240,7 @@ const STOCKS: Record<
     c2: "#131a26",
     mark: (
       <g>
-        <text x="24" y="26" textAnchor="middle" fontSize="19" fontWeight="800" fill="#fff" fontFamily="Montserrat, sans-serif">
+        <text x="24" y="26" textAnchor="middle" fontSize="19" fontWeight="800" fill="#fff" fontFamily="Inter, system-ui, sans-serif">
           a
         </text>
         <path d="M12 30.5c7.6 5.8 18 6 24.5.6" fill="none" stroke="#FF9900" strokeWidth="3" strokeLinecap="round" />

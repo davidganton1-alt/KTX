@@ -67,7 +67,7 @@ export default function BecomePastorPage() {
               <h1 className="section-title mt-1 text-4xl xl:text-5xl">Shepherd the <span className="gradient-text">flock of God</span></h1>
             </div>
           </div>
-          <p className="mt-6 max-w-xl text-sm italic leading-relaxed text-[var(--muted)]" style={{ fontFamily: "var(--font-montserrat), Montserrat, sans-serif" }}>
+          <p className="mt-6 max-w-xl text-sm italic leading-relaxed text-[var(--muted)]" style={{ fontFamily: "var(--font-inter), system-ui, sans-serif" }}>
             "Feed the flock of God which is among you, taking the oversight thereof, not by constraint, but willingly; not for filthy lucre, but of a ready mind."
             <span className="eyebrow mt-2 block not-italic">1 Peter 5:2</span>
           </p>
