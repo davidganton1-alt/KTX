@@ -92,10 +92,11 @@ const baseStyles = `
   }
   .ktx-electron:hover .ktx-tooltip { opacity: 1; }
 
-  @keyframes ktx-orbit-spin {
-    0% { transform: rotate(0deg) translateX(180px) rotate(0deg); }
-    100% { transform: rotate(360deg) translateX(180px) rotate(-360deg); }
-  }
+  /* L.1.6 fix: ktx-orbit-spin is generated per orbit (see dynamicStyles).
+     The orbit planes carry rotateY(tilt) for the ellipse, which previously
+     flattened every electron (and its tooltip) into a ~34% sliver; the
+     generated keyframes append rotateY(-tilt) rotateZ(-tilt) AFTER the
+     orbital translate so sprites stay on the ellipse but face the camera. */
   @keyframes ktx-zindex-swap {
     0%, 49.9% { z-index: 1; }
     50%, 100% { z-index: 3; }
@@ -119,16 +120,26 @@ export function AIEngineOrbit({ positions, isRunning }: AIEngineOrbitProps) {
   const dynamicStyles = useMemo(() => {
     return orbitsConfig.map((orbit, oIdx) => {
       const orbitPositions = positions.slice(oIdx * 4, (oIdx + 1) * 4);
-      return orbitPositions.map((pos, eIdx) => {
+      // Trailing constant counter-rotations don't move the sprite's origin
+      // (it stays on the translated elliptic path) but fully undo the
+      // plane's rotateZ/rotateY orientation => electrons face the viewer.
+      const keyframes = `
+        @keyframes ktx-orbit-spin-${oIdx} {
+          0% { transform: rotate(0deg) translateX(180px) rotate(0deg) rotateY(-${orbit.yRot}deg) rotateZ(-${orbit.tilt}deg); }
+          100% { transform: rotate(360deg) translateX(180px) rotate(-360deg) rotateY(-${orbit.yRot}deg) rotateZ(-${orbit.tilt}deg); }
+        }
+      `;
+      const electrons = orbitPositions.map((pos, eIdx) => {
         const delay = -(eIdx * (orbit.duration / 4));
         return `
           .ktx-electron-${pos.id} {
-            animation: ktx-orbit-spin ${orbit.duration}s linear infinite, ktx-zindex-swap ${orbit.duration}s linear infinite;
+            animation: ktx-orbit-spin-${oIdx} ${orbit.duration}s linear infinite, ktx-zindex-swap ${orbit.duration}s linear infinite;
             animation-delay: ${delay}s, ${delay}s;
             ${!isRunning ? 'animation-play-state: paused;' : ''}
           }
         `;
       }).join('\n');
+      return keyframes + electrons;
     }).join('\n');
   }, [positions, isRunning]);
 
