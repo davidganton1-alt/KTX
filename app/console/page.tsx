@@ -16,6 +16,7 @@ import { ReferralWithdrawModal } from '@/components/ReferralWithdrawModal';
 import { TradingAgreementModal } from '@/components/TradingAgreementModal';
 import { ReviewInvitationModal } from '@/components/ReviewInvitationModal';
 import { ChangePasswordModal } from '@/components/ChangePasswordModal';
+import { AIEngineDashboard } from '@/components/AIEngineDashboard';
 import { ShareGate } from '@/components/ShareGate';
 import { SOCIAL_URLS } from '@/lib/social';
 import { SpotlightTour } from '@/components/SpotlightTour';
@@ -322,36 +323,14 @@ export default function ConsolePage() {
 
           {tab === 'engine' && (
             <>
-              <PageHeader crumbs={['Member', 'AI Engine']} title="AI trading engine" description="Automated algorithmic trading performance." id="tour-engine" />
-
-              <div className="mt-6 grid gap-4 md:grid-cols-4">
-                <StatCard label="Win rate" value="71.4%" context="Last 30 days" />
-                <StatCard label="Open positions" value="14" context="$25,000 notional" />
-                <StatCard label="Today's P&L" value="+$1,240" tone="profit" context="Across all tiers" />
-                <StatCard label="Max drawdown" value="-4.2%" context="Guardrail active" />
-              </div>
-
+              <PageHeader crumbs={['Member', 'AI Engine']} title="AI Trading Engine" id="tour-engine" description="Autonomous algorithmic trading across crypto, stocks, commodities, and forex." />
               <div className="mt-6">
-                <DataCard title="Recent engine fills" padded={false}>
-                  <div className="px-2 pb-2">
-                    <DataTable
-                      rows={[
-                        { id: 'f1', time: '14:22', symbol: 'BTC', side: 'BUY', qty: 0.014, pnl: 12.4 },
-                        { id: 'f2', time: '13:58', symbol: 'NVDA', side: 'SELL', qty: 3.2, pnl: 8.1 },
-                        { id: 'f3', time: '12:31', symbol: 'ETH', side: 'BUY', qty: 0.22, pnl: -3.2 },
-                        { id: 'f4', time: '11:05', symbol: 'XAU', side: 'BUY', qty: 1.1, pnl: 5.9 },
-                        { id: 'f5', time: '09:44', symbol: 'AAPL', side: 'SELL', qty: 6.0, pnl: 4.3 },
-                      ]}
-                      columns={[
-                        { key: 'time', header: 'Time' },
-                        { key: 'symbol', header: 'Asset' },
-                        { key: 'side', header: 'Side', render: (r: any) => <span className={r.side === 'BUY' ? 'text-[var(--profit)]' : 'text-[var(--loss)]'}>{r.side}</span> },
-                        { key: 'qty', header: 'Quantity', align: 'right' },
-                        { key: 'pnl', header: 'P&L', align: 'right', render: (r: any) => <span className={r.pnl >= 0 ? 'text-[var(--profit)]' : 'text-[var(--loss)]'}>{r.pnl >= 0 ? '+' : '-'}${money(Math.abs(r.pnl))}</span> },
-                      ]}
-                    />
-                  </div>
-                </DataCard>
+                <AIEngineDashboard
+                  principal={principal}
+                  platformCredit={platformCredit}
+                  tierRate={tierRate}
+                  tier={tier}
+                />
               </div>
             </>
           )}

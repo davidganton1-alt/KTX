@@ -18,6 +18,7 @@ import { DataCard } from './DataCard';
 import { DataTable, StatusPill } from './DataTable';
 import { Button } from './Button';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { AIEngineDashboard } from '@/components/AIEngineDashboard';
 import { ChangePasswordModal } from '@/components/ChangePasswordModal';
 
 export type RolePersona = {
@@ -263,7 +264,7 @@ export function RoleDashboard({ persona, data, handlers, loading }: { persona: R
           {tab === 'dashboard' && <Overview p={persona} go={setTab} h={handlers} s={{ principal, accumulated, availProfit, credit, tier, dailyRate, todayProfit, flockCount, flockPrincipal, commissionTotal, commissionAvail, commissionPending, transactions, real }} />}
           {tab === 'wallet' && <WalletTab h={handlers} s={{ principal, availProfit, credit, deposits, transactions, holdMonths: real ? (w.holdMonths || 6) : 12, tier }} />}
           {tab === 'earnings' && <EarningsTab h={handlers} s={{ accumulated, availProfit, thisWeek, dailyRate, profitWeek, principal, credit, withdrawalRows, tier }} />}
-          {tab === 'engine' && <EngineTab />}
+          {tab === 'engine' && <EngineTab principal={principal} platformCredit={credit} tierRate={dailyRate} tier={tier} />}
           {tab === 'flock' && <PeopleTab p={persona} s={{ peopleRows, flockCount, flockPrincipal, flockDaily }} />}
           {tab === 'commissions' && <CommissionsTab s={{ commissionTotal, commissionAvail, commissionPending, commissionReview, bonusSum, profitSum, commissionRows }} h={handlers} />}
           {tab === 'invite' && <InviteTab p={persona} s={{ inviteLink, flockCount }} />}
@@ -472,35 +473,13 @@ function EarningsTab({ h, s }: any) {
   );
 }
 
-function EngineTab() {
-  // Placeholder per product decision — real telemetry deferred to a later phase.
+function EngineTab({ principal, platformCredit, tierRate, tier }: { principal: number; platformCredit: number; tierRate: number; tier: string }) {
+  // Phase L.1: orbital dashboard replaces the old static placeholder.
   return (
     <>
-      <PageHeader crumbs={['AI Engine']} title="AI Engine" description="Live execution on your allocated desk. Every fill is published to your ledger." />
-      <div className="mt-6 grid gap-4 md:grid-cols-4">
-        <StatCard label="Win rate (30d)" value="71%" tone="profit" context="1,204 closed trades" />
-        <StatCard label="Open positions" value="14" context="$25,000 notional" />
-        <StatCard label="Best class" value="US Tech" tone="gold" context="+18.4% this month" />
-        <StatCard label="Max drawdown" value="2.1%" context="Guardrail: 8%" />
-      </div>
+      <PageHeader crumbs={['AI Engine']} title="AI Trading Engine" description="Autonomous algorithmic trading across crypto, stocks, commodities, and forex." />
       <div className="mt-6">
-        <DataCard title="Today's fills" padded={false}>
-          <div className="px-2 pb-2">
-            <DataTable rows={[
-              { id: 'x1', time: '14:22', symbol: 'BTC', side: 'BUY', qty: 0.014, pnl: 12.4 },
-              { id: 'x2', time: '13:58', symbol: 'NVDA', side: 'SELL', qty: 3.2, pnl: 8.1 },
-              { id: 'x3', time: '12:31', symbol: 'ETH', side: 'BUY', qty: 0.22, pnl: -3.2 },
-              { id: 'x4', time: '11:05', symbol: 'XAU', side: 'BUY', qty: 1.1, pnl: 5.9 },
-              { id: 'x5', time: '09:44', symbol: 'AAPL', side: 'SELL', qty: 6.0, pnl: 4.3 },
-            ]} pageSize={5} columns={[
-              { key: 'time', header: 'Time', width: '70px' },
-              { key: 'symbol', header: 'Asset' },
-              { key: 'side', header: 'Side', render: (r: any) => <span className={r.side === 'BUY' ? 'text-[var(--profit)]' : 'text-[var(--gold)]'}>{r.side}</span> },
-              { key: 'qty', header: 'Qty', align: 'right' },
-              { key: 'pnl', header: 'P&L', align: 'right', render: (r: any) => <span className={r.pnl >= 0 ? 'text-[var(--profit)]' : 'text-[#F87171]'}>{r.pnl >= 0 ? '+' : '−'}${money(Math.abs(r.pnl))}</span> },
-            ]} />
-          </div>
-        </DataCard>
+        <AIEngineDashboard principal={principal} platformCredit={platformCredit} tierRate={tierRate} tier={tier} />
       </div>
     </>
   );
