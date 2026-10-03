@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { DataCard } from '@/components/design-system/DataCard';
 import { StatCard } from '@/components/design-system/StatCard';
@@ -76,20 +76,42 @@ export function AIEngineDashboard({ principal, platformCredit, tierRate, tier }:
     setTotalPnl(initialPositions.reduce((sum, p) => sum + p.pnl, 0));
   }, []);
 
-  // Simulate trades to accumulate toward daily target
+  // Phase L.1 fix: the paste's per-trade RNG made "Today's P&L" hover at
+  // ~45% of the daily target (E[pnl per trade] = 0.55 x target/24), which
+  // violates the hard requirement that net P&L after 24 trades EQUALS
+  // basis x tierRate exactly. Instead we pre-plan one day: 24 trades with
+  // the same realistic win/loss variance, scaled so their sum is exactly
+  // the daily target (last trade absorbs rounding residue). The day then
+  // rolls over. Positions still drift visually as in the original.
+  const planRef = useRef<{ pnl: number }[]>([]);
+
   useEffect(() => {
     if (!isRunning) return;
+    // Re-plan whenever the target changes (tier upgrade) or plan is empty.
+    planRef.current = makeDayPlan(dailyTarget);
+    setTrades([]);
+    setTotalPnl(0);
     const interval = setInterval(() => {
       setTrades((prevTrades) => {
-        const newTrade = generateTrade(dailyTarget, prevTrades.length);
-        const updatedTrades = [...prevTrades, newTrade].slice(-20); // Keep last 20
-
-        // Update total P&L to approach daily target
-        setTotalPnl(updatedTrades.reduce((sum, t) => sum + t.pnl, 0));
-
-        return updatedTrades;
+        let next = planRef.current.shift();
+        let dayStart: Trade[];
+        let freshDay = false;
+        if (next === undefined) {
+          // day complete at exactly the target -> roll to a new day
+          planRef.current = makeDayPlan(dailyTarget);
+          next = planRef.current.shift();
+          dayStart = [];
+          freshDay = true;
+        } else {
+          dayStart = prevTrades;
+        }
+        const trade = emitTrade(next!.pnl, dayStart.length);
+        const updated = [...dayStart, trade].slice(-20); // display window
+        const running = freshDay ? trade.pnl : dayStart.reduce((a, t) => a + t.pnl, 0) + trade.pnl;
+        setTotalPnl(parseFloat(running.toFixed(4)));
+        return updated;
       });
-      // Update position prices slightly
+      // Update position prices slightly (visual drift, same as paste)
       setPositions((prev) =>
         prev.map((pos) => {
           const priceChange = (Math.random() - 0.48) * 0.001;
@@ -103,24 +125,39 @@ export function AIEngineDashboard({ principal, platformCredit, tierRate, tier }:
           };
         })
       );
-    }, 3000); // New trade every 3 seconds
+    }, 3000);
     return () => clearInterval(interval);
   }, [isRunning, dailyTarget]);
 
-  function generateTrade(target: number, tradeCount: number): Trade {
+  function makeDayPlan(target: number): { pnl: number }[] {
+    const n = 24;
+    let raw: number[] = [];
+    for (let attempt = 0; attempt < 50; attempt++) {
+      raw = Array.from({ length: n }, () => {
+        const isWin = Math.random() > 0.35; // ~65% win rate
+        const variance = 0.5 + Math.random() * 1.5;
+        return isWin ? variance : -variance * 0.6; // losses smaller than wins
+      });
+      const s = raw.reduce((a, b) => a + b, 0);
+      if (s > 0) {
+        const scaled = raw.map((r) => (r / s) * target);
+        let acc = 0;
+        for (let i = 0; i < n - 1; i++) {
+          scaled[i] = Math.round(scaled[i] * 1e4) / 1e4;
+          acc = parseFloat((acc + scaled[i]).toFixed(4));
+        }
+        scaled[n - 1] = Math.round((target - acc) * 1e4) / 1e4; // absorbs residue
+        return scaled.map((pnl) => ({ pnl }));
+      }
+    }
+    // fallback: flat day (never reached in practice)
+    const flat = Math.round((target / n) * 1e4) / 1e4;
+    return Array.from({ length: n }, (_, i) => ({ pnl: i === n - 1 ? Math.round((target - flat * (n - 1)) * 1e4) / 1e4 : flat }));
+  }
+
+  function emitTrade(pnl: number, tradeCount: number): Trade {
     const symbols = ['BTC', 'ETH', 'NVDA', 'AAPL', 'XAU', 'EUR/USD', 'SOL', 'TSLA'];
     const assetClasses = ['crypto', 'stocks', 'commodities', 'forex'];
-
-    // Distribute target across ~24 trades per day
-    const tradesPerDay = 24;
-    const baseAmount = target / tradesPerDay;
-
-    // Add variance: some trades win big, some lose small
-    const isWin = Math.random() > 0.35; // 65% win rate
-    const variance = 0.5 + Math.random() * 1.5;
-    const pnl = isWin
-      ? baseAmount * variance
-      : -baseAmount * variance * 0.6; // Losses are smaller than wins
     return {
       id: `trade-${Date.now()}-${tradeCount}`,
       time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
