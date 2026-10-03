@@ -3,7 +3,7 @@
 # Usage: .\start-ktx-docker.ps1 [start|stop|restart|status|build]
 
 $ErrorActionPreference = "Stop"
-$ComposeFile = "C:\Users\hp\KingdomTradeX\dockercompose-all.yml"
+$ComposeFile = "C:\Users\hp\KingdomTradeX-GitHub-Site\dockercompose-all.yml"
 
 function Get-DockerState {
     try {
@@ -87,7 +87,7 @@ function Show-Status {
     
     # Show container logs summary
     Write-Host "Recent container logs (last 5 lines each):" -ForegroundColor Yellow
-    foreach ($name in @("kingdomtradex-main", "kingdomtradex-preview")) {
+    foreach ($name in @("kingdomtradex-preview")) {
         Write-Host "--- $name ---" -ForegroundColor Gray
         docker logs --tail 5 $name 2>&1 | Select-Object -Last 5
         Write-Host ""

@@ -1,29 +1,10 @@
-# KX Docker Compose — Full Setup (Main 3000 + Preview 3001)
+# KX Docker Compose — Preview site (Port 3001)
 # ============================================
+# The legacy "main" container (port 3000, C:/Users/hp/KingdomTradeX) was
+# decommissioned 2026-09: code lives on GitHub (KTX), data in Supabase,
+# operational JSON mirror under KingdomTradeX-GitHub-Site/data.
 
 services:
-  # ---------------------------------------------------------------
-  # Main container — Port 3000 (Production, your working copy)
-  # ---------------------------------------------------------------
-  kingdomtradex:
-    build:
-      context: C:/Users/hp/KingdomTradeX
-      dockerfile: Dockerfile
-    container_name: kingdomtradex-main
-    restart: always
-    ports:
-      - "3000:3000"
-    environment:
-      - NODE_ENV=production
-    volumes:
-      - C:/Users/hp/KingdomTradeX/data:/app/data
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-
   # ---------------------------------------------------------------
   # Preview container — Port 3001 (GitHub clone, auto-pull on start)
   # Self-contained: Linux node_modules baked into image.
@@ -72,7 +53,10 @@ volumes:
 #   docker compose -f dockercompose-all.yml logs -f main  # Main logs
 #   docker compose -f dockercompose-all.yml logs -f preview # Preview logs
 #
-# Autostart: Windows Scheduled Task "KTX-Docker" runs:
+# Autostart: (the old "KingdomTradeX" logon task pointing at the deleted
+# folder was removed; preview is brought up by hermes-boot/start scripts)
+# Compose up: docker compose -f dockercompose-all.yml up -d kingdomtradex-preview
+# Legacy note: Windows Scheduled Task formerly ran:
 #   docker compose -f "C:\Users\hp\KingdomTradeX\dockercompose-all.yml" up -d
 #   at Windows logon
 #
