@@ -193,7 +193,9 @@ export function AIEngineDashboard({ principal, platformCredit, tierRate, tier }:
       {/* Orbital Visualization + Market Allocation */}
       <div className="grid gap-6 lg:grid-cols-2">
         <DataCard title="AI Engine Orbital View" subtitle="Live positions across asset classes">
-          <AIEngineOrbit positions={positions} isRunning={isRunning} />
+          <div style={{ minHeight: '500px' }}>
+            <AIEngineOrbit positions={positions} isRunning={isRunning} />
+          </div>
         </DataCard>
         <DataCard title="Market Allocation" subtitle="Capital distribution by asset class">
           <div className="space-y-4">
