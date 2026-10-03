@@ -41,22 +41,49 @@ const baseStyles = `
   }
   
   .ktx-nucleus {
-    position: absolute; top: 50%; left: 50%; width: 80px; height: 80px; margin: -40px 0 0 -40px;
+    position: absolute; top: 50%; left: 50%; width: 90px; height: 90px; margin: -45px 0 0 -45px;
     border-radius: 50%;
-    background: radial-gradient(circle at 30% 30%, #fbbf24, #d97706, #92400e);
-    box-shadow: 0 0 40px 10px rgba(251, 191, 36, 0.6), 0 0 80px 20px rgba(251, 191, 36, 0.3);
+    background: radial-gradient(circle at 35% 35%, #ffffff, #e0f2fe, #7dd3fc);
+    box-shadow: 
+      0 0 20px 5px rgba(255, 255, 255, 0.9),
+      0 0 40px 10px rgba(125, 211, 252, 0.7),
+      0 0 80px 25px rgba(125, 211, 252, 0.4),
+      0 0 120px 40px rgba(56, 189, 248, 0.2);
     z-index: 2;
     animation: ktx-nucleus-pulse 3s ease-in-out infinite;
   }
+
   @keyframes ktx-nucleus-pulse {
-    0%, 100% { transform: scale(1); box-shadow: 0 0 40px 10px rgba(251, 191, 36, 0.6), 0 0 80px 20px rgba(251, 191, 36, 0.3); }
-    50% { transform: scale(1.08); box-shadow: 0 0 60px 15px rgba(251, 191, 36, 0.9), 0 0 120px 30px rgba(251, 191, 36, 0.5); }
+    0%, 100% { 
+      transform: scale(1);
+      box-shadow: 
+        0 0 20px 5px rgba(255, 255, 255, 0.9),
+        0 0 40px 10px rgba(125, 211, 252, 0.7),
+        0 0 80px 25px rgba(125, 211, 252, 0.4),
+        0 0 120px 40px rgba(56, 189, 248, 0.2);
+    }
+    50% { 
+      transform: scale(1.1);
+      box-shadow: 
+        0 0 30px 8px rgba(255, 255, 255, 1),
+        0 0 60px 15px rgba(125, 211, 252, 0.9),
+        0 0 100px 35px rgba(125, 211, 252, 0.5),
+        0 0 150px 50px rgba(56, 189, 248, 0.3);
+    }
   }
 
   .ktx-orbit {
     position: absolute; top: 50%; left: 50%; width: 360px; height: 360px; margin: -180px 0 0 -180px;
-    border: 1px solid rgba(168, 118, 10, 0.25); border-radius: 50%;
+    border: 1.5px solid rgba(125, 211, 252, 0.3); 
+    border-radius: 50%;
     transform-style: preserve-3d;
+    box-shadow: 0 0 15px rgba(125, 211, 252, 0.1);
+    animation: ktx-orbit-shimmer 4s ease-in-out infinite;
+  }
+
+  @keyframes ktx-orbit-shimmer {
+    0%, 100% { border-color: rgba(125, 211, 252, 0.3); box-shadow: 0 0 15px rgba(125, 211, 252, 0.1); }
+    50% { border-color: rgba(125, 211, 252, 0.5); box-shadow: 0 0 25px rgba(125, 211, 252, 0.2); }
   }
 
   .ktx-electron-wrapper {
@@ -65,38 +92,35 @@ const baseStyles = `
   }
 
   .ktx-electron {
-    position: absolute; width: 20px; height: 20px; margin: -10px 0 0 -10px;
+    position: absolute; width: 22px; height: 22px; margin: -11px 0 0 -11px;
     border-radius: 50%; cursor: pointer; transition: transform 0.2s;
     transform-style: preserve-3d;
   }
   .ktx-electron:hover { transform: scale(1.8); z-index: 10 !important; }
 
   .ktx-electron-glow {
-    position: absolute; top: -10px; left: -10px; width: 40px; height: 40px; border-radius: 50%;
-    opacity: 0.5; filter: blur(6px); pointer-events: none;
+    position: absolute; top: -12px; left: -12px; width: 46px; height: 46px; border-radius: 50%;
+    opacity: 0.7; filter: blur(8px); pointer-events: none;
   }
   .ktx-electron-core {
-    position: absolute; top: 0; left: 0; width: 20px; height: 20px; border-radius: 50%;
-    border: 2px solid rgba(255, 255, 255, 0.6);
-    box-shadow: inset 0 0 5px rgba(255,255,255,0.5);
+    position: absolute; top: 0; left: 0; width: 22px; height: 22px; border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 
+      inset 0 0 8px rgba(255,255,255,0.6),
+      0 0 12px currentColor;
   }
 
   .ktx-tooltip {
-    position: absolute; bottom: 35px; left: 50%; transform: translateX(-50%);
+    position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
     background: rgba(10, 14, 39, 0.95); color: #eef2ff; padding: 8px 14px;
     border-radius: 8px; font-size: 12px; white-space: nowrap;
     opacity: 0; pointer-events: none; transition: opacity 0.2s;
-    border: 1px solid rgba(168, 118, 10, 0.4); box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+    border: 1px solid rgba(125, 211, 252, 0.4); box-shadow: 0 8px 24px rgba(0,0,0,0.6);
     font-family: var(--font-inter), sans-serif;
     z-index: 20;
   }
   .ktx-electron:hover .ktx-tooltip { opacity: 1; }
 
-  /* L.1.6 fix: ktx-orbit-spin is generated per orbit (see dynamicStyles).
-     The orbit planes carry rotateY(tilt) for the ellipse, which previously
-     flattened every electron (and its tooltip) into a ~34% sliver; the
-     generated keyframes append rotateY(-tilt) rotateZ(-tilt) AFTER the
-     orbital translate so sprites stay on the ellipse but face the camera. */
   @keyframes ktx-zindex-swap {
     0%, 49.9% { z-index: 1; }
     50%, 100% { z-index: 3; }
@@ -105,10 +129,10 @@ const baseStyles = `
 
 export function AIEngineOrbit({ positions, isRunning }: AIEngineOrbitProps) {
   const assetClassColors: Record<OrbitPosition['assetClass'], string> = {
-    crypto: '#a855f7',
-    stocks: '#3b82f6',
-    commodities: '#f59e0b',
-    forex: '#10b981',
+    crypto: '#c084fc',
+    stocks: '#60a5fa',
+    commodities: '#fbbf24',
+    forex: '#34d399',
   };
 
   const orbitsConfig = [
@@ -120,26 +144,27 @@ export function AIEngineOrbit({ positions, isRunning }: AIEngineOrbitProps) {
   const dynamicStyles = useMemo(() => {
     return orbitsConfig.map((orbit, oIdx) => {
       const orbitPositions = positions.slice(oIdx * 4, (oIdx + 1) * 4);
-      // Trailing constant counter-rotations don't move the sprite's origin
-      // (it stays on the translated elliptic path) but fully undo the
-      // plane's rotateZ/rotateY orientation => electrons face the viewer.
-      const keyframes = `
-        @keyframes ktx-orbit-spin-${oIdx} {
+      
+      const keyframeName = `ktx-orbit-spin-${oIdx}`;
+      const orbitKeyframe = `
+        @keyframes ${keyframeName} {
           0% { transform: rotate(0deg) translateX(180px) rotate(0deg) rotateY(-${orbit.yRot}deg) rotateZ(-${orbit.tilt}deg); }
           100% { transform: rotate(360deg) translateX(180px) rotate(-360deg) rotateY(-${orbit.yRot}deg) rotateZ(-${orbit.tilt}deg); }
         }
       `;
-      const electrons = orbitPositions.map((pos, eIdx) => {
+
+      const electronStyles = orbitPositions.map((pos, eIdx) => {
         const delay = -(eIdx * (orbit.duration / 4));
         return `
           .ktx-electron-${pos.id} {
-            animation: ktx-orbit-spin-${oIdx} ${orbit.duration}s linear infinite, ktx-zindex-swap ${orbit.duration}s linear infinite;
+            animation: ${keyframeName} ${orbit.duration}s linear infinite, ktx-zindex-swap ${orbit.duration}s linear infinite;
             animation-delay: ${delay}s, ${delay}s;
             ${!isRunning ? 'animation-play-state: paused;' : ''}
           }
         `;
       }).join('\n');
-      return keyframes + electrons;
+
+      return orbitKeyframe + electronStyles;
     }).join('\n');
   }, [positions, isRunning]);
 
@@ -166,7 +191,7 @@ export function AIEngineOrbit({ positions, isRunning }: AIEngineOrbitProps) {
                   <div key={pos.id} className="ktx-electron-wrapper">
                     <div
                       className={`ktx-electron ktx-electron-${pos.id}`}
-                      style={{ opacity: isWinning ? 1 : 0.5 }}
+                      style={{ opacity: isWinning ? 1 : 0.5, color: color }}
                     >
                       <div className="ktx-electron-glow" style={{ background: color }} />
                       <div className="ktx-electron-core" style={{ background: color }} />
