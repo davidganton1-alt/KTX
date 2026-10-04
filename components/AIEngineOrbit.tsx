@@ -98,9 +98,12 @@ const baseStyles = `
   }
   .ktx-electron:hover { transform: scale(1.8); z-index: 10 !important; }
 
+  /* Tighter halo: the old 46px/0.7 blur blob made passing electrons wash the
+     white nucleus purple when they crossed in front (z-swap 3). Smaller and
+     softer keeps electrons vibrant without tinting the orb. */
   .ktx-electron-glow {
-    position: absolute; top: -12px; left: -12px; width: 46px; height: 46px; border-radius: 50%;
-    opacity: 0.7; filter: blur(8px); pointer-events: none;
+    position: absolute; top: -5px; left: -5px; width: 32px; height: 32px; border-radius: 50%;
+    opacity: 0.4; filter: blur(5px); pointer-events: none;
   }
   .ktx-electron-core {
     position: absolute; top: 0; left: 0; width: 22px; height: 22px; border-radius: 50%;
