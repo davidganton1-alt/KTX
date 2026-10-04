@@ -150,7 +150,10 @@ export async function processProfitWithdrawal(
       },
     };
   } catch (payoutError: any) {
-    await creditWallet("payout", amt, "withdrawal", sessionId, withdrawal.id, `ROLLBACK payout failed: ${payoutError.message}`.slice(0, 200));
+    // NOTE: 5th arg is related_DEPOSIT_id (FK to deposits) — passing the
+    // withdrawal id here violated wallet_transactions_related_deposit_id_fkey
+    // and silently dropped the rollback audit row. Carry the withdrawal id in notes instead.
+    await creditWallet("payout", amt, "withdrawal", sessionId, undefined, `ROLLBACK payout failed (withdrawal ${withdrawal.id}): ${payoutError.message}`.slice(0, 200));
     await supabaseAdmin.from("withdrawals").update({ status: "failed" }).eq("id", withdrawal.id);
     return { ok: false, status: 502, error: "Payout creation failed: " + payoutError.message };
   }

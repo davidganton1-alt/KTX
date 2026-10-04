@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
     });
     if (profileError) {
       await supabaseAdmin.auth.admin.deleteUser(supaId);
-      return NextResponse.json({ error: 'Profile creation failed' }, { status: 500 });
+      return NextResponse.json({ error: 'Profile creation failed: ' + profileError.message }, { status: 500 });
     }
 
     // 5) Wallet with $50 free credit + audit transaction
