@@ -60,7 +60,19 @@ export async function POST(req: NextRequest) {
     if (isFirstDeposit) {
       if (user?.memberReferredBy) {
         referredBySupa = supabaseIdFor(user.memberReferredBy);
-        referralRate = 2.5; // regular user
+        referralRate = 2.5; // regular user by default
+        // Resolve the referrer's actual role so the displayed rate matches
+        // what the webhook will pay (webhook: pastor/creator/admin -> 5%).
+        // Before this, a creator/pastor referrer showed 2.5 here while the
+        // webhook credited 5 — a real display/payout inconsistency.
+        if (referredBySupa) {
+          const { data: refProf } = await supabaseAdmin
+            .from('profiles')
+            .select('is_pastor, is_creator, role')
+            .eq('id', referredBySupa)
+            .maybeSingle();
+          if (refProf?.is_pastor || refProf?.is_creator || refProf?.role === 'admin') referralRate = 5;
+        }
       } else if (user?.referredBy) {
         const pastor = pastorsDb.findById(user.referredBy);
         if (pastor) {

@@ -369,10 +369,12 @@ await stage('Stage 6: Cleanup + rollback', async () => {
   };
 
   // FK-safe order: rows referencing deposits must go before the deposits.
-  // 1) wallet_transactions (references deposits + withdrawals) created by this run
+  // 1) referral_earnings referencing this run's deposits (source_deposit_id FK)
+  for (const id of created.depositIds) await del(`refEarn by deposit ${id}`, () => sb.from('referral_earnings').delete().eq('source_deposit_id', id));
+  // 2) wallet_transactions (references deposits + withdrawals) created by this run
   const since0 = new Date(Date.now() - 40 * 60000).toISOString();
   await del('wallet_transactions', () => sb.from('wallet_transactions').delete().gte('created_at', since0));
-  // 2) this run's deposits by id
+  // 3) this run's deposits by id
   for (const id of created.depositIds) await del(`deposit ${id}`, () => sb.from('deposits').delete().eq('id', id));
 
   // 3) test users: child rows first, then profiles, then auth
