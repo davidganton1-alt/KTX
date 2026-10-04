@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase';
+import { supabaseAdmin, createUserAuthClient } from '@/lib/supabase';
 import { setSessionCookie } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
@@ -12,8 +12,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Email and password required' }, { status: 400 });
     }
 
-    // Authenticate with Supabase
-    const { data, error } = await supabaseAdmin.auth.signInWithPassword({
+    // Authenticate against Supabase on a THROWAWAY anon client (see
+    // createUserAuthClient comment in lib/supabase.ts — signing in on the
+    // admin singleton poisons its session store and breaks RLS-bypass for
+    // every later service-role write in the process).
+    const { data, error } = await createUserAuthClient().auth.signInWithPassword({
       email,
       password,
     });

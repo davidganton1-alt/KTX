@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
-import { supabaseAdmin } from '@/lib/supabase';
+import { supabaseAdmin, createUserAuthClient } from '@/lib/supabase';
 import { setSessionCookie, supabaseIdFor } from '@/lib/auth';
 import { db } from '@/lib/store';
 import { pastorsDb } from '@/lib/pastorStore';
@@ -143,8 +143,10 @@ export async function POST(req: NextRequest) {
     db.update(jsonUser.id, { verifyToken, emailVerified: false });
     const verifyLink = sendVerificationEmail(email, verifyToken);
 
-    // 10) Auto-login
-    const { data: signInData, error: signInError } = await supabaseAdmin.auth.signInWithPassword({
+    // 10) Auto-login (throwaway anon client — never signIn on the admin
+    // singleton; it stores the session and every later service-role write
+    // in the process then runs under this user's RLS context)
+    const { data: signInData, error: signInError } = await createUserAuthClient().auth.signInWithPassword({
       email,
       password,
     });

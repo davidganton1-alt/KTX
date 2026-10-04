@@ -10,6 +10,18 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 // Client for server-side code (uses service role key, bypasses RLS)
 export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey);
 
+// Ephemeral client for USER credential verification only (login, register
+// auto-login). NEVER call signInWithPassword on `supabaseAdmin`: GoTrue
+// stores the verified user's session in-memory on that singleton, and every
+// later service-role DB call from ANY request then rides that user's JWT,
+// so RLS starts rejecting writes that used to bypass it ("new row violates
+// row-level security policy"). Throwaway clients cannot poison the singleton.
+export function createUserAuthClient() {
+  return createClient(supabaseUrl, supabaseAnonKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+}
+
 // Type helpers
 export type Database = {
   public: {
