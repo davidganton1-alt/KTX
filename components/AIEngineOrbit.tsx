@@ -22,63 +22,116 @@ interface AIEngineOrbitProps {
   isRunning: boolean;
 }
 
-const CX = 400;
-const CY = 250;
+const W = 800;
+const H = 500;
+const CX = W / 2;
+const CY = H / 2;
 
-const STREAMS: Record<
-  OrbitPosition['assetClass'],
-  { color: string; path: string; entry: { x: number; y: number } }
-> = {
-  crypto: { color: '#c084fc', path: 'M 70 70 C 210 90, 300 170, 400 250', entry: { x: 70, y: 70 } },
-  stocks: { color: '#60a5fa', path: 'M 730 70 C 590 90, 500 170, 400 250', entry: { x: 730, y: 70 } },
-  commodities: { color: '#fbbf24', path: 'M 730 430 C 590 410, 500 330, 400 250', entry: { x: 730, y: 430 } },
-  forex: { color: '#34d399', path: 'M 70 430 C 210 410, 300 330, 400 250', entry: { x: 70, y: 430 } },
+const ASSET_COLORS: Record<OrbitPosition['assetClass'], string> = {
+  crypto: '#c084fc',
+  stocks: '#60a5fa',
+  commodities: '#fbbf24',
+  forex: '#34d399',
 };
 
-const reactorStyles = `
-  .ds-container {
+const qpStyles = `
+  .qp-container {
     position: relative;
     width: 100%;
-    aspect-ratio: 800 / 500;
+    aspect-ratio: ${W} / ${H};
     max-width: 900px;
     margin: 0 auto;
     overflow: hidden;
   }
-  .ds-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-  .ds-core {
+  .qp-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .qp-ent { fill: none; stroke-width: 1; }
+  .qp-pulse { filter: drop-shadow(0 0 4px rgba(255,255,255,0.8)); }
+  .qp-qubit {
+    position: absolute;
+    width: 0;
+    height: 0;
+    z-index: 6;
+    perspective: 220px;
+    cursor: pointer;
+  }
+  .qp-qubit:hover { z-index: 20; }
+  .qp-core {
+    position: absolute;
+    left: -7px;
+    top: -7px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: currentColor;
+    border: 2px solid rgba(255,255,255,0.8);
+    box-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+    transition: transform 0.2s;
+  }
+  .qp-qubit:hover .qp-core { transform: scale(1.5); }
+  .qp-core--win { animation: qp-shimmer 2.2s ease-in-out infinite; }
+  @keyframes qp-shimmer {
+    0%, 100% { box-shadow: 0 0 10px currentColor, 0 0 20px currentColor; }
+    50% { box-shadow: 0 0 14px currentColor, 0 0 30px currentColor; }
+  }
+  .qp-ring {
+    position: absolute;
+    left: -19px;
+    top: -19px;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 1px solid currentColor;
+    opacity: 0.65;
+    pointer-events: none;
+  }
+  .qp-ring--1 { animation: qp-spin1 3.2s linear infinite; }
+  .qp-ring--2 { animation: qp-spin2 4.4s linear infinite; opacity: 0.45; }
+  @keyframes qp-spin1 {
+    from { transform: rotateX(65deg) rotateZ(0deg); }
+    to { transform: rotateX(65deg) rotateZ(360deg); }
+  }
+  @keyframes qp-spin2 {
+    from { transform: rotateX(-65deg) rotateZ(0deg); }
+    to { transform: rotateX(-65deg) rotateZ(-360deg); }
+  }
+  .qp-tooltip {
+    position: absolute;
+    bottom: 26px;
+    left: 0;
+    transform: translateX(-50%);
+    background: rgba(10, 14, 39, 0.95);
+    border: 1px solid rgba(192, 132, 252, 0.35);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 12px;
+    white-space: nowrap;
+    color: #eef2ff;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    z-index: 30;
+    font-family: var(--font-inter), sans-serif;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
+  }
+  .qp-qubit:hover .qp-tooltip { opacity: 1; }
+  .qp-center-core {
     position: absolute;
     left: 50%;
     top: 50%;
-    width: 84px;
-    height: 84px;
-    margin: -42px 0 0 -42px;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
     border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: radial-gradient(circle at 35% 35%, #ffffff, #fde68a, #f59e0b);
-    box-shadow:
-      0 0 20px 5px rgba(255, 255, 255, 0.85),
-      0 0 45px 12px rgba(251, 191, 36, 0.65),
-      0 0 90px 28px rgba(245, 158, 11, 0.35);
-    z-index: 6;
-    font-weight: 700;
-    font-size: 18px;
-    color: #78350f;
-    letter-spacing: 0.05em;
-    animation: ds-core-pulse 2.6s ease-in-out infinite;
+    background: radial-gradient(circle at 35% 35%, #ffffff, #bae6fd, #38bdf8);
+    box-shadow: 0 0 16px 4px rgba(255,255,255,0.8), 0 0 40px 12px rgba(125,211,252,0.5);
+    z-index: 5;
+    animation: qp-center-pulse 2.8s ease-in-out infinite;
   }
-  @keyframes ds-core-pulse {
+  @keyframes qp-center-pulse {
     0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.08); }
+    50% { transform: scale(1.2); }
   }
-  .ds-arc { transform-box: fill-box; transform-origin: center; }
-  .ds-arc--1 { animation: ds-rotate 9s linear infinite; }
-  .ds-arc--2 { animation: ds-rotate 14s linear infinite reverse; }
-  @keyframes ds-rotate { to { transform: rotate(360deg); } }
-  .ds-particle { cursor: pointer; }
-  .ds-particle:hover { filter: brightness(1.5); }
-  .ds-legend {
+  .qp-legend {
     position: absolute;
     bottom: 8px;
     left: 50%;
@@ -89,98 +142,150 @@ const reactorStyles = `
   }
 `;
 
+interface QNode extends OrbitPosition {
+  x: number;
+  y: number;
+}
+
 export function AIEngineOrbit({ positions, isRunning }: AIEngineOrbitProps) {
-  const grouped = useMemo(() => {
-    const g: Record<OrbitPosition['assetClass'], OrbitPosition[]> = {
-      crypto: [],
-      stocks: [],
-      commodities: [],
-      forex: [],
+  const { outer, inner } = useMemo(() => {
+    const mk = (pos: OrbitPosition, i: number, count: number, r: number, offset: number): QNode => {
+      const a = (i / count) * Math.PI * 2 - Math.PI / 2 + offset;
+      return { ...pos, x: CX + Math.cos(a) * r, y: CY + Math.sin(a) * r };
     };
-    positions.forEach((p) => {
-      if (g[p.assetClass]) g[p.assetClass].push(p);
-    });
-    return g;
+    const outer = positions.slice(0, 6).map((p, i) => mk(p, i, 6, 195, 0));
+    const inner = positions.slice(6, 12).map((p, i) => mk(p, i, 6, 105, Math.PI / 6));
+    return { outer, inner };
   }, [positions]);
 
-  return (
-    <div className="ds-container">
-      <style>{reactorStyles}</style>
+  const qubits = [...inner, ...outer];
 
-      <svg className="ds-svg" viewBox="0 0 800 500" preserveAspectRatio="none">
-        {/* ambient concentric field */}
-        {[90, 140, 190].map((r) => (
-          <circle key={r} cx={CX} cy={CY} r={r} fill="none" stroke="rgba(251,191,36,0.06)" strokeWidth="1" />
+  const connections = useMemo(() => {
+    const list: { a: QNode; b: QNode }[] = [];
+    for (let i = 0; i < 6; i++) list.push({ a: outer[i], b: outer[(i + 1) % 6] });
+    for (let i = 0; i < 6; i++) list.push({ a: inner[i], b: inner[(i + 1) % 6] });
+    for (let i = 0; i < 6; i++) list.push({ a: outer[i], b: inner[i] });
+    for (let i = 0; i < 6; i++) list.push({ a: inner[i], b: inner[(i + 2) % 6] });
+    return list;
+  }, [outer, inner]);
+
+  const curve = (a: QNode, b: QNode, bend = 12) => {
+    const mx = (a.x + b.x) / 2;
+    const my = (a.y + b.y) / 2;
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+    const len = Math.hypot(dx, dy) || 1;
+    return `M ${a.x} ${a.y} Q ${mx - (dy / len) * bend} ${my + (dx / len) * bend} ${b.x} ${b.y}`;
+  };
+
+  const dots = useMemo(() => {
+    const d: { x: number; y: number }[] = [];
+    for (let x = 25; x < W; x += 50) {
+      for (let y = 25; y < H; y += 50) {
+        d.push({ x, y });
+      }
+    }
+    return d;
+  }, []);
+
+  return (
+    <div className="qp-container">
+      <style>{qpStyles}</style>
+
+      <svg className="qp-svg" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none">
+        {/* processor dot grid */}
+        {dots.map((d, i) => (
+          <circle key={i} cx={d.x} cy={d.y} r="1" fill="rgba(34,211,238,0.08)" />
         ))}
 
-        {/* stream channels + particles */}
-        {(Object.keys(STREAMS) as OrbitPosition['assetClass'][]).map((asset) => {
-          const s = STREAMS[asset];
-          const parts = grouped[asset];
-          const dur = 3.6;
-          return (
-            <g key={asset}>
-              {/* soft under-glow of the channel */}
-              <path d={s.path} fill="none" stroke={s.color} strokeOpacity="0.12" strokeWidth="7" strokeLinecap="round" />
-              {/* crisp channel line */}
-              <path id={`stream-${asset}`} d={s.path} fill="none" stroke={s.color} strokeOpacity="0.4" strokeWidth="1.4" strokeLinecap="round" />
-              {/* entry source node */}
-              <circle cx={s.entry.x} cy={s.entry.y} r="6" fill={s.color} style={{ filter: `drop-shadow(0 0 8px ${s.color})` }} />
-
-              {/* particles flowing into the core */}
-              {parts.map((pos, i) => {
-                const win = pos.pnl >= 0;
-                const begin = -(i * (dur / Math.max(parts.length, 1)));
-                return (
-                  <circle
-                    key={pos.id}
-                    className="ds-particle"
-                    r="5"
-                    fill={s.color}
-                    opacity={win ? 1 : 0.5}
-                    style={{ filter: `drop-shadow(0 0 6px ${s.color})` }}
-                  >
-                    <title>{`${pos.symbol} ${pos.side} | P&L: ${win ? '+' : ''}$${pos.pnl.toFixed(4)}`}</title>
-                    {isRunning && (
-                      <animateMotion dur={`${dur}s`} begin={`${begin}s`} repeatCount="indefinite" rotate="0">
-                        <mpath href={`#stream-${asset}`} />
-                      </animateMotion>
-                    )}
-                  </circle>
-                );
-              })}
-            </g>
-          );
-        })}
-
-        {/* rotating containment arcs */}
-        <g className="ds-arc ds-arc--1" style={{ animationPlayState: isRunning ? 'running' : 'paused' }}>
-          <circle cx={CX} cy={CY} r="55" fill="none" stroke="rgba(251,191,36,0.7)" strokeWidth="2.5" strokeDasharray="60 55" strokeLinecap="round" />
-        </g>
-        <g className="ds-arc ds-arc--2" style={{ animationPlayState: isRunning ? 'running' : 'paused' }}>
-          <circle cx={CX} cy={CY} r="72" fill="none" stroke="rgba(34,211,238,0.5)" strokeWidth="1.6" strokeDasharray="70 80" strokeLinecap="round" />
-        </g>
-
-        {/* energy burst rings emitted by the core */}
+        {/* quantum wave ripples */}
         {isRunning &&
           [0, 1, 2].map((i) => (
-            <circle key={i} cx={CX} cy={CY} fill="none" stroke="rgba(34,211,238,0.5)" strokeWidth="1.5">
-              <animate attributeName="r" values="45;210" dur="3.2s" begin={`${i * 1.06}s`} repeatCount="indefinite" />
-              <animate attributeName="opacity" values="0.5;0" dur="3.2s" begin={`${i * 1.06}s`} repeatCount="indefinite" />
+            <circle key={i} cx={CX} cy={CY} fill="none" stroke="rgba(125,211,252,0.25)" strokeWidth="1">
+              <animate attributeName="r" values="20;240" dur="4.5s" begin={`${i * 1.5}s`} repeatCount="indefinite" />
+              <animate attributeName="opacity" values="0.4;0" dur="4.5s" begin={`${i * 1.5}s`} repeatCount="indefinite" />
             </circle>
           ))}
+
+        {/* entanglement web */}
+        {connections.map((c, i) => (
+          <path
+            key={`e-${i}`}
+            id={`qp-c-${i}`}
+            className="qp-ent"
+            d={curve(c.a, c.b)}
+            stroke="rgba(148, 163, 184, 0.18)"
+          />
+        ))}
+
+        {/* quantum pulses along the web */}
+        {isRunning &&
+          connections.map((c, i) => {
+            const color = ASSET_COLORS[c.a.assetClass];
+            const dur = 2.4 + (i % 5) * 0.35;
+            const reverse = i % 2 === 1;
+            return (
+              <circle key={`p-${i}`} className="qp-pulse" r="2.6" fill={color}>
+                <animateMotion
+                  dur={`${dur}s`}
+                  begin={`${(i % 7) * 0.3}s`}
+                  repeatCount="indefinite"
+                  keyPoints={reverse ? '1;0' : '0;1'}
+                  keyTimes="0;1"
+                  calcMode="linear"
+                >
+                  <mpath href={`#qp-c-${i}`} />
+                </animateMotion>
+              </circle>
+            );
+          })}
       </svg>
 
-      {/* reactor core */}
-      <div className="ds-core" style={{ animationPlayState: isRunning ? 'running' : 'paused' }}>
-        AI
-      </div>
+      {/* central processor core */}
+      <div className="qp-center-core" style={{ animationPlayState: isRunning ? 'running' : 'paused' }} />
+
+      {/* qubits */}
+      {qubits.map((q) => {
+        const color = ASSET_COLORS[q.assetClass];
+        const win = q.pnl >= 0;
+        return (
+          <div
+            key={q.id}
+            className="qp-qubit"
+            style={{
+              left: `${(q.x / W) * 100}%`,
+              top: `${(q.y / H) * 100}%`,
+              color,
+              opacity: win ? 1 : 0.5,
+            }}
+          >
+            {win && isRunning && (
+              <>
+                <span className="qp-ring qp-ring--1" />
+                <span className="qp-ring qp-ring--2" />
+              </>
+            )}
+            <span className={`qp-core ${win ? 'qp-core--win' : ''}`} />
+            <div className="qp-tooltip">
+              <div style={{ fontWeight: 600, color, marginBottom: 2 }}>
+                {q.symbol} <span style={{ color: '#9aa3c7', fontWeight: 400 }}>{q.side}</span>
+              </div>
+              <div style={{ fontSize: 11 }}>
+                P&L:{' '}
+                <span style={{ color: win ? '#34d399' : '#f87171', fontWeight: 600 }}>
+                  {win ? '+' : ''}${q.pnl.toFixed(4)}
+                </span>
+              </div>
+            </div>
+          </div>
+        );
+      })}
 
       {/* legend */}
-      <div className="ds-legend">
-        {Object.entries(STREAMS).map(([assetClass, s]) => (
+      <div className="qp-legend">
+        {Object.entries(ASSET_COLORS).map(([assetClass, color]) => (
           <div key={assetClass} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: s.color, boxShadow: `0 0 8px ${s.color}` }} />
+            <div style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: color, boxShadow: `0 0 8px ${color}` }} />
             <span style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--muted)', fontFamily: 'var(--font-inter), sans-serif' }}>
               {assetClass}
             </span>
