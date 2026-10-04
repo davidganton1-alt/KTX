@@ -33,6 +33,22 @@ const baseStyles = `
     justify-content: center; 
     overflow: visible; 
   }
+  /* L.1.7 fix 2: the site background paints a giant fixed purple glow blob
+     (site-bg-orb--purple) over the whole viewport, and the ds-card surface is
+     ~96% transparent — so that blob bled THROUGH the orbital view and read as
+     a purple orb behind the white nucleus. This layer sits directly behind the
+     atom (z-index 0, under nucleus z-2 / electrons z-1/3), masking exactly the
+     visualization area with the page's own deep-navy tone so nothing shows
+     through, while edges fade to nothing so the aurora elsewhere is untouched. */
+  .ktx-atom-container::before {
+    content: ""; 
+    position: absolute; left: 50%; top: 50%;
+    width: 640px; height: 640px; margin: -320px 0 0 -320px;
+    border-radius: 50%;
+    background: radial-gradient(circle, color-mix(in srgb, var(--bg) 96%, transparent) 0%, color-mix(in srgb, var(--bg) 85%, transparent) 55%, transparent 75%);
+    z-index: 0;
+    pointer-events: none;
+  }
   .ktx-atom { 
     position: relative; 
     width: 400px; 
