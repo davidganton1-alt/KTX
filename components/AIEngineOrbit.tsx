@@ -161,6 +161,10 @@ export function AIEngineOrbit({ positions, isRunning }: AIEngineOrbitProps) {
   const qubits = [...inner, ...outer];
 
   const connections = useMemo(() => {
+    // Guard: the parent populates `positions` in an effect, so first render has
+    // empty arrays. The fixed 6-loops would read outer[i]/inner[i] = undefined
+    // and crash curve() on a.x. Wait until both hexagons are complete.
+    if (outer.length < 6 || inner.length < 6) return [];
     const list: { a: QNode; b: QNode }[] = [];
     for (let i = 0; i < 6; i++) list.push({ a: outer[i], b: outer[(i + 1) % 6] });
     for (let i = 0; i < 6; i++) list.push({ a: inner[i], b: inner[(i + 1) % 6] });
