@@ -25,10 +25,11 @@ export async function POST(req: NextRequest) {
     if (!address || typeof address !== 'string') {
       return NextResponse.json({ error: 'Address required' }, { status: 400 });
     }
-    const validNetworks = ['trc20', 'bep20', 'erc20'];
+    // Phase M.5: USDT payouts TRC-20 / BEP-20 only
+    const validNetworks = ['trc20', 'bep20'];
     const net = String(network || 'trc20');
     if (!validNetworks.includes(net)) {
-      return NextResponse.json({ error: 'Invalid network (must be trc20, bep20, or erc20)' }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid network (USDT payouts support trc20 or bep20 only)' }, { status: 400 });
     }
     if (!isValidUSDTAddress(address.trim(), net)) {
       return NextResponse.json({ error: `Invalid ${net.toUpperCase()} USDT address format` }, { status: 400 });

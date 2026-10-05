@@ -1,6 +1,7 @@
 import { supabaseAdmin } from '@/lib/supabase';
 import { creditWallet, debitWallet, getWalletBalance } from '@/lib/walletService';
-import { createWithdrawal, isValidUSDTAddress, usdtTicker } from '@/lib/plisio';
+import { isValidUSDTAddress } from '@/lib/plisio';
+import { plisioWithdraw, plisioTickerFor } from '@/lib/plisioPayout';
 
 // Shared automatic profit-withdrawal core (Phase C.5).
 // Used by /api/profit/withdraw and (with address) the legacy /api/wallet/withdraw.
@@ -17,10 +18,12 @@ export async function processProfitWithdrawal(
   if (!address || typeof address !== "string" || !address.trim()) {
     return { ok: false, status: 400, error: "Address required" };
   }
-  const validNetworks = ["trc20", "bep20", "erc20"];
+  // Phase M.5: USDT payouts are TRC-20 / BEP-20 ONLY. erc20 is rejected at
+  // request time (never reaches a gateway) so no chain-ambiguous send is possible.
+  const validNetworks = ["trc20", "bep20"];
   const net = String(network || "trc20");
   if (!validNetworks.includes(net)) {
-    return { ok: false, status: 400, error: "Invalid network (must be trc20, bep20, or erc20)" };
+    return { ok: false, status: 400, error: "Invalid network (USDT payouts support trc20 or bep20 only)" };
   }
   const coin = "usdt" + net;
 
@@ -49,7 +52,7 @@ export async function processProfitWithdrawal(
   if (!isValidUSDTAddress(address.trim(), net)) {
     return { ok: false, status: 400, error: `Invalid ${net.toUpperCase()} USDT address format` };
   }
-  const ticker = usdtTicker(net as 'trc20' | 'bep20' | 'erc20');
+  const ticker = plisioTickerFor(net)!;
 
   const { data: withdrawal, error: withdrawalError } = await supabaseAdmin
     .from("withdrawals")
@@ -79,21 +82,17 @@ export async function processProfitWithdrawal(
   }
 
   try {
-    // NOTE: Plisio withdraws in the COIN unit (USDT quantity), not USD;
-    // with USDT we pass the USD figure 1:1 (fee deducted by Plisio on top).
-    const payout = await createWithdrawal({
-      currency: ticker,
-      to: address.trim(),
-      amount: amt,
-    });
-    const done = payout?.status === "finished" || payout?.status === "confirming";
+    // Phase M.5: shared payout helper hard-validates network/address match
+    // (TRC-20 must start T, BEP-20 must start 0x) before calling Plisio.
+    const payout = await plisioWithdraw({ currency: ticker, toAddress: address.trim(), amount: amt });
+    if (!payout.ok) throw new Error(payout.error || 'Payout failed');
 
     await supabaseAdmin
       .from("withdrawals")
       .update({
-        nowpayments_payout_id: String(payout.id || payout.txn_id || ""),
-        status: done ? "completed" : "processing",
-        completed_at: payout?.status === "finished" ? new Date().toISOString() : null,
+        nowpayments_payout_id: String(payout.txId || ""),
+        status: "completed",
+        completed_at: new Date().toISOString(),
       })
       .eq("id", withdrawal.id);
 
@@ -119,7 +118,7 @@ export async function processProfitWithdrawal(
       type: "withdrawal",
       amount: amt,
       status: "completed",
-      notes: `payout ${payout.id || payout.txn_id || "?"} ${net}`,
+      notes: `payout ${payout.txId || "?"} ${net}`,
     });
 
     // Phase G: profit withdrawal processed email (queued)
@@ -132,7 +131,7 @@ export async function processProfitWithdrawal(
           name: recip.name,
           amount: amt,
           network: net.toUpperCase(),
-          txHash: String(payout.id || payout.txn_id || "") || undefined,
+          txHash: payout.txId || undefined,
         });
       }
     } catch {}
@@ -142,7 +141,7 @@ export async function processProfitWithdrawal(
       data: {
         success: true,
         withdrawal_id: withdrawal.id,
-        payout_id: payout.id || payout.txn_id,
+        payout_id: payout.txId,
         amount: amt,
         network: net,
         address: address.trim(),

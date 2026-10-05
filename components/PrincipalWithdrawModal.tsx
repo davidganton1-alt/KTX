@@ -19,7 +19,7 @@ export function PrincipalWithdrawModal({
   onDone?: () => void;
 }) {
   const [amount, setAmount] = useState('');
-  const [network, setNetwork] = useState<'trc20' | 'bep20' | 'erc20'>('trc20');
+  const [network, setNetwork] = useState<'trc20' | 'bep20'>('trc20');
   const [address, setAddress] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -149,11 +149,11 @@ export function PrincipalWithdrawModal({
                 <div className="mt-4">
                   <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-[var(--muted)]">Network</label>
                   <div className="grid grid-cols-3 gap-2">
-                    {(['trc20', 'bep20', 'erc20'] as const).map((net) => (
+                    {(['trc20', 'bep20'] as const).map((net) => (
                       <button key={net} onClick={() => setNetwork(net)}
                         className={`rounded-xl border p-3 text-center transition ${network === net ? 'border-[var(--gold)] bg-[var(--gold)]/10 text-[var(--gold)]' : 'border-[var(--border)] text-[var(--muted)]'}`}>
                         <p className="text-xs font-bold">{net.toUpperCase()}</p>
-                        <p className="mt-1 text-[10px] opacity-80">{net === 'trc20' ? '~$1 fee' : net === 'bep20' ? '~$0.30 fee' : '~$3-8 fee'}</p>
+                        <p className="mt-1 text-[10px] opacity-80">{net === 'trc20' ? '~$1 fee' : '~$0.30 fee'}</p>
                       </button>
                     ))}
                   </div>

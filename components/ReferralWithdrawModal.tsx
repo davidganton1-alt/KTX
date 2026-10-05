@@ -20,7 +20,7 @@ export function ReferralWithdrawModal({
   title?: string;
 }) {
   const [amount, setAmount] = useState('');
-  const [network, setNetwork] = useState<'trc20' | 'bep20' | 'erc20'>('trc20');
+  const [network, setNetwork] = useState<'trc20' | 'bep20'>('trc20');
   const [address, setAddress] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -94,11 +94,11 @@ export function ReferralWithdrawModal({
                 <div className="mt-5">
                   <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-[var(--muted)]">Network</label>
                   <div className="grid grid-cols-3 gap-2">
-                    {(['trc20', 'bep20', 'erc20'] as const).map((n) => (
+                    {(['trc20', 'bep20'] as const).map((n) => (
                       <button key={n} onClick={() => setNetwork(n)}
                         className={`rounded-xl border p-3 text-center transition ${network === n ? 'border-[var(--gold)] bg-[var(--gold)]/10 text-[var(--gold)]' : 'border-[var(--border)] text-[var(--muted)]'}`}>
                         <p className="text-xs font-bold">{n.toUpperCase()}</p>
-                        <p className="mt-1 text-[10px] opacity-80">{n === 'trc20' ? '~$1 fee' : n === 'bep20' ? '~$0.30 fee' : '~$3-8 fee'}</p>
+                        <p className="mt-1 text-[10px] opacity-80">{n === 'trc20' ? '~$1 fee' : '~$0.30 fee'}</p>
                       </button>
                     ))}
                   </div>

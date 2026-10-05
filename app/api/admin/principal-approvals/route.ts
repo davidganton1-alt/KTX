@@ -3,6 +3,7 @@ import { getSession } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabase';
 import { creditWallet, debitWallet } from '@/lib/walletService';
 import { legacyIdFor } from '@/lib/auth';
+import { plisioWithdraw, plisioTickerFor } from '@/lib/plisioPayout';
 
 export const dynamic = 'force-dynamic';
 
@@ -153,13 +154,54 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Hot wallet insufficient - request failed and principal returned. Top up via Engine first.' }, { status: 503 });
     }
 
+    // Phase M.5: automatic payout attempt via Plisio (hot balance lives in
+    // Plisio, so USDT cash_out can settle directly). On success the request
+    // completes instantly; on failure it falls back to the existing manual
+    // awaiting_engine_transfer + mark_paid path (funds stay reserved/debited).
+    let payoutOk = false;
+    let payoutTxId = '';
+    let payoutErr = '';
+    try {
+      const ticker = plisioTickerFor(String(withdrawal.network || 'trc20'));
+      if (!ticker) throw new Error(`Unsupported payout network: ${withdrawal.network}`);
+      const payout = await plisioWithdraw({
+        currency: ticker,
+        toAddress: String(withdrawal.destination_address || ''),
+        amount: netAmt,
+      });
+      if (payout.ok) { payoutOk = true; payoutTxId = String(payout.txId || ''); }
+      else payoutErr = payout.error || 'Payout failed';
+    } catch (e: any) {
+      payoutErr = e.message;
+    }
+
+    if (payoutOk) {
+      await supabaseAdmin
+        .from('withdrawals')
+        .update({
+          status: 'completed',
+          nowpayments_payout_id: payoutTxId,
+          completed_at: new Date().toISOString(),
+          admin_approved_by: session.id,
+          admin_approved_at: new Date().toISOString(),
+          admin_notes: `Approved + auto-payout sent via Plisio (${withdrawal.network.toUpperCase()}).`,
+        })
+        .eq('id', withdrawal_id);
+      try {
+        const { db } = await import('@/lib/store');
+        db.notify(legacyIdFor(withdrawal.user_id), `Principal withdrawal of $${netAmt.toFixed(2)} approved and paid out (${String(withdrawal.network || 'trc20').toUpperCase()}).`, 'withdrawal');
+      } catch {}
+      return NextResponse.json({ success: true, message: 'Approved and paid out', payout_id: payoutTxId });
+    }
+
+    console.error('[principal-approvals] auto-payout failed, falling back to manual:', payoutErr);
     await supabaseAdmin
       .from('withdrawals')
       .update({
         status: 'awaiting_engine_transfer',
         admin_approved_by: session.id,
         admin_approved_at: new Date().toISOString(),
-        admin_notes: 'Approved. Awaiting Engine→Hot transfer (company manual action).',
+        admin_notes: `Approved. Auto-payout failed (${payoutErr.slice(0, 120)}); awaiting Engine→Hot manual transfer + Mark paid.`,
       })
       .eq('id', withdrawal_id);
 

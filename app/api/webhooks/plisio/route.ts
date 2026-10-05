@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyWebhookSignature } from '@/lib/plisio';
 import { processDepositSplit } from '@/lib/walletService';
+import { forwardEnginePortion } from '@/lib/engineForward';
 import { supabaseAdmin } from '@/lib/supabase';
 import { db, type Tier } from '@/lib/store';
 import { legacyIdFor } from '@/lib/auth';
@@ -179,6 +180,23 @@ export async function POST(req: NextRequest) {
       }
 
       console.log(`[plisio-webhook] Deposit processed: referral=$${split.referralCommission}, hot=$${split.hotWalletAmount}, engine=$${split.engineWalletAmount}`);
+
+      // Phase M.5: Instant Engine auto-forward (non-blocking for user crediting)
+      try {
+        const fwd = await forwardEnginePortion({
+          depositId: deposit.id,
+          currency: String(deposit.currency || ''),
+          engineAmount: Number(split.engineWalletAmount),
+        });
+        console.log('[engineForward]', deposit.currency, split.engineWalletAmount, fwd.ok ? 'OK' : 'FAIL', fwd.error || fwd.txId || '');
+        if (!fwd.ok && !fwd.skipped) {
+          // Forward failed — the engine_transfers row (status='failed') is the
+          // admin alert; Treasury shows it with a Retry button.
+          console.error(`[engineForward] RETRY NEEDED for deposit ${deposit.id}: ${fwd.error}`);
+        }
+      } catch (e) {
+        console.error('[engineForward] unexpected error', e);
+      }
 
       // Phase G: deposit confirmed email (only when the split actually landed)
       try {

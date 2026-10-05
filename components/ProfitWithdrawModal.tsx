@@ -3,12 +3,12 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-type Net = 'trc20' | 'bep20' | 'erc20';
+// Phase M.5: USDT payouts are TRC-20 / BEP-20 only (backend enforces).
+type Net = 'trc20' | 'bep20';
 
 const NETWORKS: { id: Net; label: string; fee: string; coin: string }[] = [
   { id: 'trc20', label: 'TRC20 (TRON)', fee: '~$1', coin: 'USDT' },
   { id: 'bep20', label: 'BEP20 (BSC)', fee: '~$0.30', coin: 'USDT' },
-  { id: 'erc20', label: 'ERC20 (Ethereum)', fee: '~$3-8', coin: 'USDT' },
 ];
 
 export function ProfitWithdrawModal({

@@ -62,17 +62,21 @@ export default function AdminPage() {
   const [userSearch, setUserSearch] = useState('');
   const [creatorApps, setCreatorApps] = useState<any[]>([]);
   const [newCreds, setNewCreds] = useState<{ email: string; password: string; name: string } | null>(null);
+  // Phase M.5: Engine auto-forward config + transfer history
+  const [engineCfg, setEngineCfg] = useState({ trc20: '', bep20: '' });
+  const [engineTransfers, setEngineTransfers] = useState<any[]>([]);
 
   const flash = (t: string) => { setFlashMsg(t); setTimeout(() => setFlashMsg(''), 4000); };
 
   const loadData = useCallback(async () => {
     try {
-      const [wRes, princRes, refRes, dataRes, caRes, meRes] = await Promise.all([
+      const [wRes, princRes, refRes, dataRes, caRes, etRes, meRes] = await Promise.all([
         fetch('/api/wallets/balances', { credentials: 'include' }),
         fetch('/api/admin/principal-approvals', { credentials: 'include' }),
         fetch('/api/admin/referral-approvals', { credentials: 'include' }),
         fetch("/api/admin/data", { credentials: 'include', cache: 'no-store' }),
-        fetch("/api/admin/creator-approvals", { credentials: 'include' }),
+        fetch('/api/admin/creator-approvals', { credentials: 'include' }),
+        fetch('/api/admin/engine-transfers', { credentials: 'include' }),
         fetch('/api/auth/me', { credentials: 'include' }),
       ]);
       if (wRes.status === 401 || meRes.status === 401) { router.push('/login'); return; }
@@ -82,6 +86,7 @@ export default function AdminPage() {
       if (refRes.ok) setReferralQueue((await refRes.json()).withdrawals || []);
       if (dataRes.ok) setData(await dataRes.json());
       if (caRes.ok) setCreatorApps((await caRes.json()).applications || []);
+      if (etRes.ok) { const et = await etRes.json(); setEngineCfg(et.config || { trc20: '', bep20: '' }); setEngineTransfers(et.transfers || []); }
       if (meRes.ok) {
         const meData = await meRes.json();
         setMe(meData);
@@ -130,6 +135,37 @@ export default function AdminPage() {
       const d = await res.json().catch(() => ({}));
       if (!res.ok) flash(d.error || 'Transfer failed.');
       else { flash('Engine → Hot transfer recorded.'); setTransferAmt(''); }
+      loadData();
+    } catch { flash('Network error.'); }
+    setBusy(null);
+  }
+
+  // Phase M.5: save Engine wallet addresses (validated server-side too)
+  async function saveEngineWallets() {
+    setBusy('engine-wallets');
+    try {
+      const res = await fetch('/api/admin/engine-transfers', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+        body: JSON.stringify({ action: 'save_config', engine_trc20_address: engineCfg.trc20.trim(), engine_bsc_address: engineCfg.bep20.trim() }),
+      });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) flash(d.error || 'Save failed.');
+      else flash('Engine wallet addresses saved.');
+      loadData();
+    } catch { flash('Network error.'); }
+    setBusy(null);
+  }
+
+  async function retryEngineTransfer(id: string) {
+    setBusy(`retry-${id}`);
+    try {
+      const res = await fetch('/api/admin/engine-transfers', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+        body: JSON.stringify({ action: 'retry', transfer_id: id }),
+      });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) flash(d.error || 'Retry failed.');
+      else flash('Engine transfer retried — completed.');
       loadData();
     } catch { flash('Network error.'); }
     setBusy(null);
@@ -360,6 +396,48 @@ export default function AdminPage() {
                     {busy === 'transfer' ? 'Recording…' : 'Record transfer'}
                   </Button>
                   <p className="mt-3 text-[11px] leading-[1.6] text-[var(--muted)]">Engine: ${money(engineBalance)} · Hot: ${money(hotBalance)}. The move updates both ledgers atomically.</p>
+                </DataCard>
+              </div>
+              <div className="mt-6 grid gap-6 lg:grid-cols-3">
+                <DataCard title="Engine Wallets (auto-forward)" subtitle="USDT Engine share forwards here instantly on deposit confirmation, matching the deposit network" interactive className="lg:col-span-1">
+                  <label className="block text-[11px] uppercase tracking-[0.08em] text-[var(--muted)]">Engine Wallet — TRC-20 (starts with T)</label>
+                  <input
+                    value={engineCfg.trc20}
+                    onChange={(e) => setEngineCfg((c) => ({ ...c, trc20: e.target.value }))}
+                    placeholder="T…"
+                    className="mt-1.5 w-full rounded-lg border border-[var(--border)] bg-[var(--bg)] px-3 py-2.5 font-mono text-[12px] text-[var(--fg)] outline-none focus:border-[var(--gold)]"
+                  />
+                  <label className="mt-3 block text-[11px] uppercase tracking-[0.08em] text-[var(--muted)]">Engine Wallet — BEP-20 (starts with 0x)</label>
+                  <input
+                    value={engineCfg.bep20}
+                    onChange={(e) => setEngineCfg((c) => ({ ...c, bep20: e.target.value }))}
+                    placeholder="0x…"
+                    className="mt-1.5 w-full rounded-lg border border-[var(--border)] bg-[var(--bg)] px-3 py-2.5 font-mono text-[12px] text-[var(--fg)] outline-none focus:border-[var(--gold)]"
+                  />
+                  <Button variant="primary" className="mt-3 w-full" disabled={busy === 'engine-wallets'} onClick={saveEngineWallets}>
+                    {busy === 'engine-wallets' ? 'Saving…' : 'Save Engine Wallets'}
+                  </Button>
+                  <p className="mt-3 text-[11px] leading-[1.6] text-[var(--muted)]">TRC-20 deposits forward only to the T-address; BEP-20 only to the 0x-address. The send is refused if the match fails.</p>
+                </DataCard>
+                <DataCard title="Engine Transfers" subtitle="Every auto-forward, with Plisio operation links" className="lg:col-span-2" padded={false}>
+                  <div className="px-2 pb-2">
+                    <DataTable rows={engineTransfers} emptyText="No engine transfers yet — they appear as deposits confirm." columns={[
+                      { key: 'created_at', header: 'Date', render: (r: any) => <span className="text-[12px] text-[var(--muted)]">{new Date(r.created_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span> },
+                      { key: 'currency', header: 'Network', render: (r: any) => <span className="font-mono text-[11px]">{r.currency} · {r.network}</span> },
+                      { key: 'amount', header: 'Amount', align: 'right', render: (r: any) => `$${money(Number(r.amount))}` },
+                      { key: 'status', header: 'Status', align: 'right', render: (r: any) => (
+                        r.status === 'completed' ? <StatusPill tone="green">Sent</StatusPill>
+                        : r.status === 'skipped_below_min' ? <StatusPill tone="muted">Below min</StatusPill>
+                        : <StatusPill tone="red">Failed</StatusPill>
+                      ) },
+                      { key: 'tx_url', header: 'Tx', align: 'right', render: (r: any) => r.tx_url ? (
+                        <a href={r.tx_url} target="_blank" rel="noreferrer" className="font-mono text-[11px] text-[var(--cyan)] underline-offset-2 hover:underline">{String(r.plisio_op_id || r.tx_url).slice(0, 10)}…</a>
+                      ) : <span className="text-[11px] text-[var(--muted)]">—</span> },
+                      { key: 'act', header: '', align: 'right', render: (r: any) => r.status !== 'completed' ? (
+                        <Button variant="secondary" size="sm" disabled={busy === `retry-${r.id}`} title={r.error || undefined} onClick={() => retryEngineTransfer(r.id)}>Retry</Button>
+                      ) : null },
+                    ]} />
+                  </div>
                 </DataCard>
               </div>
               {awaitingTransfer.length > 0 && (

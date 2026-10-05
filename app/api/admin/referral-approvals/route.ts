@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabase';
 import { creditWallet, debitWallet } from '@/lib/walletService';
-import { createWithdrawal, usdtTicker } from '@/lib/plisio';
+import { plisioWithdraw, plisioTickerFor } from '@/lib/plisioPayout';
 
 export const dynamic = 'force-dynamic';
 
@@ -96,16 +96,19 @@ export async function POST(req: NextRequest) {
     }
 
     try {
-      const payout = await createWithdrawal({
-        currency: usdtTicker(net as 'trc20' | 'bep20' | 'erc20'),
-        to: withdrawal.destination_address,
+      const ticker = plisioTickerFor(String(withdrawal.network || 'trc20'));
+      if (!ticker) throw new Error(`Unsupported payout network: ${withdrawal.network}`);
+      const payout = await plisioWithdraw({
+        currency: ticker,
+        toAddress: String(withdrawal.destination_address),
         amount: amt,
       });
+      if (!payout.ok) throw new Error(payout.error || 'Payout failed');
 
       await supabaseAdmin
         .from('withdrawals')
         .update({
-          nowpayments_payout_id: String(payout.id || payout.txn_id || ''),
+          nowpayments_payout_id: String(payout.txId || ''),
           status: 'completed',
           admin_approved_by: session.id,
           admin_approved_at: new Date().toISOString(),
@@ -130,11 +133,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         success: true,
         message: 'Withdrawal approved and sent',
-        payout_id: payout.id || payout.txn_id,
+        payout_id: payout.txId,
       });
     } catch (payoutError: any) {
       // Payout failed -> refund the referral wallet (credit, not negative debit)
-      await creditWallet('referral', amt, 'withdrawal', withdrawal.user_id, withdrawal.id, `ROLLBACK payout failed: ${payoutError.message}`.slice(0, 200));
+      await creditWallet('referral', amt, 'withdrawal', withdrawal.user_id, undefined, `ROLLBACK payout failed (withdrawal ${withdrawal.id}): ${payoutError.message}`.slice(0, 200));
       await supabaseAdmin
         .from('withdrawals')
         .update({ status: 'failed', admin_notes: `Payout failed: ${payoutError.message}`.slice(0, 200) })
