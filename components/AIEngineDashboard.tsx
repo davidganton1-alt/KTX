@@ -28,7 +28,7 @@ type OrderBookRow = { price: number; qty: number; total: number };
 type OrderBookData = { base: number; asks: OrderBookRow[]; bids: OrderBookRow[] };
 
 const CLASS_SYMBOLS: Record<string, string[]> = {
-  crypto: ['BTC', 'ETH', 'SOL', 'XMR'],
+  crypto: ['BTC', 'ETH', 'SOL', 'BNB'],
   stocks: ['NVDA', 'AAPL', 'TSLA', 'MSFT'],
   commodities: ['XAU', 'XAG', 'CL', 'NG'],
   forex: ['EUR/USD', 'GBP/USD', 'USD/JPY', 'AUD/USD'],

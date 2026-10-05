@@ -5,8 +5,9 @@ import { transferBetweenWallets } from '@/lib/walletService';
 export const dynamic = 'force-dynamic';
 
 // Admin: record an Engine->Hot custody transfer in the internal ledger.
-// Physical movement (XMR conversion -> USDT into the hot wallet) happens
-// out-of-band; this keeps platform_wallets honest about what's in custody.
+// Physical movement (transferring USDT out of the external Engine wallet
+// into the Plisio hot balance) happens out-of-band; this keeps
+// platform_wallets honest about what's in custody.
 export async function POST(req: NextRequest) {
   try {
     const session = await getSession();

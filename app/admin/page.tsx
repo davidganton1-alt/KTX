@@ -35,12 +35,13 @@ const SECTIONS: NavSection[] = [
   },
 ];
 
+// Phase M.6: roles describe the live USDT TRC-20/BEP-20 auto-forward architecture.
 const WALLET_ROLES: Record<string, string> = {
-  deposit: 'pass-through',
-  hot: 'payouts',
-  engine: 'XMR custody · manual',
-  payout: 'profit withdrawals',
-  referral: '7-day holds',
+  deposit: 'Pass-through — receives user deposits',
+  engine: 'USDT auto-forward — instant to Trust Wallet',
+  hot: 'Payout reserve — funds user withdrawals',
+  payout: 'Profit withdrawals — auto-sent via Plisio',
+  referral: 'Commission reserve — 5%/2.5% first-deposit',
 };
 
 export default function AdminPage() {
@@ -316,7 +317,7 @@ export default function AdminPage() {
                 <div className="mt-4 rounded-xl border border-[var(--gold)]/30 bg-[var(--gold)]/[0.06] px-5 py-3">
                   <p className="text-[12px] text-[var(--muted)]">
                     <span className="font-medium text-[var(--gold)]">Attention:</span>
-                    {awaitingTransfer.length > 0 && ` ${awaitingTransfer.length} principal withdrawal${awaitingTransfer.length > 1 ? 's' : ''} await the Engine → Hot custody transfer before payout.`}
+                    {awaitingTransfer.length > 0 && ` ${awaitingTransfer.length} principal withdrawal${awaitingTransfer.length > 1 ? 's' : ''} awaiting Engine → Hot funding before payout.`}
                     {awaitingTransfer.length > 0 && hotBalance < 1000 && ' '}
                     {hotBalance < 1000 && ' Hot wallet is below the $1,000 safety floor.'}
                   </p>
@@ -354,7 +355,7 @@ export default function AdminPage() {
                     <div className="space-y-2.5">
                       <StatInline label="In custody" value={`$${money(totalCustody)}`} />
                       <StatInline label="Hot wallet" value={`$${money(hotBalance)}`} tone={hotBalance < 1000 ? 'gold' : 'default'} />
-                      <StatInline label="Engine (XMR)" value={`$${money(engineBalance)}`} tone="gold" />
+                      <StatInline label="Engine (auto-forward)" value={`$${money(engineBalance)}`} tone="gold" />
                       <StatInline label="Payout wallet" value={`$${money(payoutBalance)}`} tone="profit" />
                       <StatInline label="Referral wallet" value={`$${money(referralBalance)}`} tone="profit" />
                     </div>
@@ -371,7 +372,7 @@ export default function AdminPage() {
           {/* ═══ TREASURY ═══ */}
           {tab === 'treasury' && (
             <>
-              <PageHeader crumbs={['Admin', 'Treasury']} title="Treasury" description="Ledger view of custody. Engine is external (XMR cold wallet) — record transfers here after they happen." />
+              <PageHeader crumbs={['Admin', 'Treasury']} title="Treasury" description="Live USDT ledger (TRC-20 / BEP-20). Engine deposits auto-forward to the external Trust Wallet; this panel mirrors custody and drives payouts." />
               <div className="mt-6 grid gap-4 md:grid-cols-5">
                 {wallets.map((w) => (
                   <StatCard key={w.wallet_type} label={w.wallet_type.charAt(0).toUpperCase() + w.wallet_type.slice(1)} value={`$${money(Number(w.balance || 0))}`} context={WALLET_ROLES[w.wallet_type] || '—'} tone={w.wallet_type === 'engine' ? 'gold' : 'default'} />
@@ -389,7 +390,7 @@ export default function AdminPage() {
                     ]} />
                   </div>
                 </DataCard>
-                <DataCard title="Record transfer" subtitle="Engine → Hot after XMR→USDT conversion" interactive>
+                <DataCard title="Record transfer" subtitle="Engine → Hot after funding the Hot wallet from the Engine wallet" interactive>
                   <input type="number" min="0" step="0.01" value={transferAmt} onChange={(e) => setTransferAmt(e.target.value)} placeholder="Amount (USDT)"
                     className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg)] px-4 py-3 text-[14px] text-[var(--fg)] outline-none focus:border-[var(--gold)]" />
                   <Button variant="primary" className="mt-3 w-full" disabled={busy === 'transfer' || !transferAmt} onClick={recordTransfer}>
@@ -442,7 +443,7 @@ export default function AdminPage() {
               </div>
               {awaitingTransfer.length > 0 && (
                 <div className="mt-6">
-                  <DataCard title="Awaiting the custody transfer" padded={false}>
+                  <DataCard title="Awaiting Engine → Hot funding" padded={false}>
                     <div className="px-2 pb-2">
                       <DataTable rows={awaitingTransfer} columns={[
                         { key: 'user_id', header: 'Member', render: (r: any) => r.profiles?.name || String(r.user_id).slice(0, 8) + '…' },

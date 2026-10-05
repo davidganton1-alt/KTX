@@ -35,7 +35,7 @@ const SECTIONS: NavSection[] = [
 const WALLETS = [
   { id: 'deposit', label: 'Deposit', note: 'pass-through', in: 128400, out: 128400, balance: 0 },
   { id: 'hot', label: 'Hot Wallet', note: 'payouts', in: 38520, out: 20099.5, balance: 18420.5 },
-  { id: 'engine', label: 'Engine', note: 'XMR custody · manual', in: 96000, out: 0, balance: 96000 },
+  { id: 'engine', label: 'Engine', note: 'USDT auto-forward · instant to Trust Wallet', in: 96000, out: 0, balance: 96000 },
   { id: 'payout', label: 'Payout', note: 'profit withdrawals', in: 4210.3, out: 2969.5, balance: 1240.8 },
   { id: 'referral', label: 'Referral', note: '7-day holds', in: 1980.4, out: 1168, balance: 812.4 },
 ];
@@ -147,7 +147,7 @@ function DashboardTab({ go }: { go: (t: string) => void }) {
 function TreasuryTab() {
   return (
     <>
-      <PageHeader crumbs={['Admin', 'Treasury']} title="Treasury" description="Ledger view of custody. Engine is external (XMR cold wallet) — record transfers here after they happen." />
+      <PageHeader crumbs={['Admin', 'Treasury']} title="Treasury" description="Live USDT ledger (TRC-20 / BEP-20). Engine deposits auto-forward to the external Trust Wallet; this panel mirrors custody and drives payouts." />
       <div className="mt-6 grid gap-4 md:grid-cols-5">
         {WALLETS.map((w) => (
           <StatCard key={w.id} label={w.label} value={`$${money(w.balance)}`} context={w.note} tone={w.id === 'engine' ? 'gold' : 'default'} />
@@ -165,7 +165,7 @@ function TreasuryTab() {
             ]} />
           </div>
         </DataCard>
-        <DataCard title="Record transfer" subtitle="Engine → Hot after XMR→USDT conversion" interactive>
+        <DataCard title="Record transfer" subtitle="Engine → Hot after funding the Hot wallet from the Engine wallet" interactive>
           <div className="rounded-lg border border-[var(--border)] bg-[var(--bg)] px-4 py-3 text-[14px] text-[var(--muted)]">Amount (USDT)</div>
           <Button variant="primary" className="mt-3 w-full">Record transfer</Button>
           <p className="mt-3 text-[11px] leading-[1.6] text-[var(--muted)]">Engine: ${money(96000)} · Hot: ${money(18420.5)}. The move updates both ledgers atomically.</p>

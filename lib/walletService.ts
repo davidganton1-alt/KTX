@@ -235,8 +235,9 @@ export async function processDepositSplit(
   // Credit hot wallet (30%)
   await creditWallet('hot', hotWalletAmount, 'deposit_split', userId, depositId, `30% of deposit ${depositId}`);
 
-  // Credit engine wallet (70%) — tracked only, actual transfer is manual
-  await creditWallet('engine', engineWalletAmount, 'deposit_split', userId, depositId, `70% of deposit ${depositId} (XMR)`);
+  // Credit engine wallet (70%) — ledger mirror; Phase M.5 auto-forwards this
+  // USDT share to the external Engine (Trust Wallet) via the webhook
+  await creditWallet('engine', engineWalletAmount, 'deposit_split', userId, depositId, `70% of deposit ${depositId}`);
 
   return {
     referralCommission,

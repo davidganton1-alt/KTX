@@ -8,9 +8,10 @@ import { plisioWithdraw, plisioTickerFor } from '@/lib/plisioPayout';
 export const dynamic = 'force-dynamic';
 
 // Admin: principal withdrawal approvals.
-// Approve = debit hot wallet (user's net after fee) + move the request to
-// 'awaiting_engine_transfer' (company then converts XMR->USDT and tops the
-// hot wallet manually; alert shown in the Financial panel).
+// Approve = debit hot wallet (user's net after fee) + attempt the automatic
+// Plisio payout (Phase M.5). If the send fails it falls back to
+// 'awaiting_engine_transfer' (company tops the hot balance manually, then
+// Mark paid).
 // Reject/failed = refund the reserved principal to the user's wallet.
 
 async function refundPrincipal(withdrawal: any, reason: string) {
