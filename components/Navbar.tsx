@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "./ThemeToggle";
 import { SocialIcons } from "@/components/SocialIcons";
@@ -10,7 +11,7 @@ const publicLinks = [
   { href: "/#how", label: "How it works" },
   { href: "/markets", label: "Markets" },
   { href: "/plans", label: "Plans" },
-  { href: "/research", label: "Research" },
+  { href: "/rnd", label: "R&D" },
   { href: "/team", label: "Team" },
   { href: "/help-center", label: "Help Center" },
   { href: "/support", label: "Support" },
@@ -38,9 +39,12 @@ export function Navbar() {
     <header className="sticky top-0 z-50 glass border-b border-[var(--border)]">
       <nav className="container-wide flex items-center justify-between py-3">
         <Link href="/" className="flex items-center gap-2.5">
-          <img
+          <Image
             src="/logo-128.png"
             alt="KingdomTradeX"
+            width={72}
+            height={72}
+            priority
             className="h-9 w-9 rounded-full object-contain"
           />
           <span className="text-lg font-bold tracking-tight">
