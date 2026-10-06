@@ -9,15 +9,25 @@ import { DataTable, StatusPill } from '@/components/design-system/DataTable';
 import { Button } from '@/components/design-system/Button';
 import { Label, Num } from '@/components/design-system/Typography';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { DepositModal } from '@/components/DepositModal';
-import { ProfitWithdrawModal } from '@/components/ProfitWithdrawModal';
-import { PrincipalWithdrawModal } from '@/components/PrincipalWithdrawModal';
-import { ReferralWithdrawModal } from '@/components/ReferralWithdrawModal';
-import { TradingAgreementModal } from '@/components/TradingAgreementModal';
-import { ReviewInvitationModal } from '@/components/ReviewInvitationModal';
-import { ChangePasswordModal } from '@/components/ChangePasswordModal';
-import { AIEngineDashboard } from '@/components/AIEngineDashboard';
-import { ShareGate } from '@/components/ShareGate';
+import dynamic from 'next/dynamic';
+import { SectionLoader } from '@/components/ui/SectionLoader';
+
+// Phase O.1: modal + engine panels all pull framer-motion or heavy state;
+// they mount conditionally, so lazy-load them off the console first paint.
+const DepositModal = dynamic(() => import('@/components/DepositModal').then((m) => ({ default: m.DepositModal })), { ssr: false });
+const ProfitWithdrawModal = dynamic(() => import('@/components/ProfitWithdrawModal').then((m) => ({ default: m.ProfitWithdrawModal })), { ssr: false });
+const PrincipalWithdrawModal = dynamic(() => import('@/components/PrincipalWithdrawModal').then((m) => ({ default: m.PrincipalWithdrawModal })), { ssr: false });
+const ReferralWithdrawModal = dynamic(() => import('@/components/ReferralWithdrawModal').then((m) => ({ default: m.ReferralWithdrawModal })), { ssr: false });
+const TradingAgreementModal = dynamic(() => import('@/components/TradingAgreementModal').then((m) => ({ default: m.TradingAgreementModal })), { ssr: false });
+const ReviewInvitationModal = dynamic(() => import('@/components/ReviewInvitationModal').then((m) => ({ default: m.ReviewInvitationModal })), { ssr: false });
+const ChangePasswordModal = dynamic(() => import('@/components/ChangePasswordModal').then((m) => ({ default: m.ChangePasswordModal })), { ssr: false });
+
+// heaviest panel: AI engine (framer-motion + SVG reactor + live simulation)
+const AIEngineDashboard = dynamic(
+  () => import('@/components/AIEngineDashboard').then((m) => ({ default: m.AIEngineDashboard })),
+  { loading: () => <SectionLoader label="Initializing AI Engine" />, ssr: false },
+);
+const ShareGate = dynamic(() => import('@/components/ShareGate').then((m) => ({ default: m.ShareGate })), { ssr: false });
 import { SOCIAL_URLS } from '@/lib/social';
 import { SpotlightTour } from '@/components/SpotlightTour';
 

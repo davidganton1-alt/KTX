@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import SupportClient from './SupportClient';
 
 export const metadata: Metadata = {
-  title: 'Contact Support | KingdomTradeX',
+  title: 'Contact Support',
   description: 'Need help? Reach out to the KingdomTradeX support team. We are here to assist you on your stewardship journey.',
   openGraph: {
     title: 'Contact Support | KingdomTradeX',

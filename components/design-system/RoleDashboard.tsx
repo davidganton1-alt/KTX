@@ -18,8 +18,16 @@ import { DataCard } from './DataCard';
 import { DataTable, StatusPill } from './DataTable';
 import { Button } from './Button';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { AIEngineDashboard } from '@/components/AIEngineDashboard';
-import { ChangePasswordModal } from '@/components/ChangePasswordModal';
+import dynamic from 'next/dynamic';
+import { SectionLoader } from '@/components/ui/SectionLoader';
+
+// Phase O.1: lazy engine (same rationale as the member console)
+const AIEngineDashboard = dynamic(
+  () => import('@/components/AIEngineDashboard').then((m) => ({ default: m.AIEngineDashboard })),
+  { loading: () => <SectionLoader label="Initializing AI Engine" />, ssr: false },
+);
+// Phase O.1: settings modal (framer-powered) mounts only when opened
+const ChangePasswordModal = dynamic(() => import('@/components/ChangePasswordModal').then((m) => ({ default: m.ChangePasswordModal })), { ssr: false });
 
 export type RolePersona = {
   brandSub: string; // "Pastor" | "Creator"

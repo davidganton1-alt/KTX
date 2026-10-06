@@ -2,12 +2,15 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { RoleDashboard } from '@/components/design-system/RoleDashboard';
-import { DepositModal } from '@/components/DepositModal';
-import { ProfitWithdrawModal } from '@/components/ProfitWithdrawModal';
-import { PrincipalWithdrawModal } from '@/components/PrincipalWithdrawModal';
-import { ReferralWithdrawModal } from '@/components/ReferralWithdrawModal';
-import { TradingAgreementModal } from '@/components/TradingAgreementModal';
-import { ReviewInvitationModal } from '@/components/ReviewInvitationModal';
+import dynamic from 'next/dynamic';
+
+// Phase O.1: conditional panels (all mount behind state flags); lazy off first paint
+const DepositModal = dynamic(() => import('@/components/DepositModal').then((m) => ({ default: m.DepositModal })), { ssr: false });
+const ProfitWithdrawModal = dynamic(() => import('@/components/ProfitWithdrawModal').then((m) => ({ default: m.ProfitWithdrawModal })), { ssr: false });
+const PrincipalWithdrawModal = dynamic(() => import('@/components/PrincipalWithdrawModal').then((m) => ({ default: m.PrincipalWithdrawModal })), { ssr: false });
+const ReferralWithdrawModal = dynamic(() => import('@/components/ReferralWithdrawModal').then((m) => ({ default: m.ReferralWithdrawModal })), { ssr: false });
+const TradingAgreementModal = dynamic(() => import('@/components/TradingAgreementModal').then((m) => ({ default: m.TradingAgreementModal })), { ssr: false });
+const ReviewInvitationModal = dynamic(() => import('@/components/ReviewInvitationModal').then((m) => ({ default: m.ReviewInvitationModal })), { ssr: false });
 
 const PASTOR = {
   brandSub: 'Pastor',

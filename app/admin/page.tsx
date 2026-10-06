@@ -8,8 +8,19 @@ import { DataCard } from '@/components/design-system/DataCard';
 import { DataTable, StatusPill } from '@/components/design-system/DataTable';
 import { Button } from '@/components/design-system/Button';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { AdminChat } from '@/components/AdminChat';
-import { TradingAgreementModal } from '@/components/TradingAgreementModal';
+import dynamic from 'next/dynamic';
+import { SectionLoader } from '@/components/ui/SectionLoader';
+
+// Phase O.1: both panels mount conditionally (chat tab / agreement gate) and
+// pull framer-motion; lazy-load them off the admin first paint.
+const AdminChat = dynamic(
+  () => import('@/components/AdminChat').then((m) => ({ default: m.AdminChat })),
+  { loading: () => <SectionLoader label="Loading Live Chat" />, ssr: false },
+);
+const TradingAgreementModal = dynamic(
+  () => import('@/components/TradingAgreementModal').then((m) => ({ default: m.TradingAgreementModal })),
+  { loading: () => null, ssr: false },
+);
 
 const money = (n: number) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 

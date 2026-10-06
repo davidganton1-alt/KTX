@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { LegalLayout, type LegalSection } from '@/components/LegalLayout';
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy | KingdomTradeX',
+  title: 'Privacy Policy',
   description: 'What we collect, what we never touch, and who we share with. No dark patterns, no data sales.',
   openGraph: {
     title: 'Privacy Policy | KingdomTradeX',

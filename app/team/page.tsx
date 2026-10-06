@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from "next/image";
 import Link from "next/link";
 import { stars, pastors } from "@/lib/team";
 import { Reveal } from "@/components/Reveal";
@@ -6,7 +7,7 @@ import { SectionIcon } from "@/components/SectionIcon";
 import { Verse } from "@/components/Verse";
 
 export const metadata: Metadata = {
-  title: 'About Us | KingdomTradeX',
+  title: 'About Us',
   description: 'Meet the team building KingdomTradeX. Licensed MSB, registered LLC, committed to transparency and biblical stewardship in every line of code.',
   openGraph: {
     title: 'About Us | KingdomTradeX',
@@ -142,7 +143,7 @@ export default function AboutPage() {
           {stars.map((s) => (
             <div key={s.name} className="card flex items-center gap-3 p-4">
               <div className="orb h-12 w-12 shrink-0">
-                <img src={s.avatar} alt={s.name} className="h-full w-full rounded-full object-cover" loading="lazy" />
+                {s.avatar ? <Image src={s.avatar} alt={s.name} width={48} height={48} className="h-full w-full rounded-full object-cover" /> : <span className="flex h-full w-full items-center justify-center text-lg">{s.glyph}</span>}
               </div>
               <div>
                 <div className="text-sm font-semibold">{s.name}</div>
@@ -157,7 +158,7 @@ export default function AboutPage() {
           {stars.map((s, i) => (
             <Reveal as="div" variant="up" index={i} key={s.name} className="card flex flex-col gap-4 border-l-2 border-[var(--gold)] p-7">
               <div className="flex items-center gap-4">
-                <img src={s.avatar} alt={s.name} className="h-14 w-14 rounded-full object-cover ring-2" style={{ boxShadow: `0 0 0 2px ${s.kind === "pastor" ? "var(--gold)" : "var(--cyan)"}` }} loading="lazy" />
+                {s.avatar ? <Image src={s.avatar} alt={s.name} width={56} height={56} className="h-14 w-14 rounded-full object-cover ring-2" style={{ boxShadow: `0 0 0 2px ${s.kind === "pastor" ? "var(--gold)" : "var(--cyan)"}` }} /> : <span className="flex h-14 w-14 items-center justify-center text-xl text-[var(--muted)]">{s.glyph}</span>}
                 <div>
                   <h3 className="text-lg font-semibold">{s.name}</h3>
                   <p className="text-sm text-[var(--gold)]">{s.role}</p>

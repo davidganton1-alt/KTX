@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
@@ -7,10 +7,8 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { PriceTicker } from "@/components/PriceTicker";
 import Link from "next/link";
 import { SiteBackground } from "@/components/SiteBackground";
-import { ScrollProgress } from "@/components/ScrollProgress";
-import { ParallaxOrbs } from "@/components/ParallaxOrbs";
 import { JsonLd } from "@/components/JsonLd";
-import { ScrollToBottom } from "@/components/ScrollToBottom";
+import { LazyChrome } from "@/components/LazyChrome";
 import Script from "next/script";
 
 const inter = Inter({
@@ -26,13 +24,17 @@ const jetbrainsMono = JetBrains_Mono({
   variable: '--font-mono',
   display: 'swap',
 });
-import { ChatWidgetConditional } from "@/components/ChatWidget";
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://kingdomtradex.com'),
-  title: "KingdomTradeX: Faith-aligned AI Trade Engine",
+  title: {
+    default: "KingdomTradeX: Faith-aligned AI Trade Engine",
+    template: '%s | KingdomTradeX',
+  },
   description:
     "KingdomTradeX puts AI to work on your crypto, US stocks and commodities. Fund a plan, watch profit grow daily, and withdraw your earnings with wisdom.",
+  keywords: ['AI trading', 'crypto trading', 'USDT', 'automated trading', 'profit sharing'],
+  authors: [{ name: 'KingdomTradeX' }],
   icons: {
     icon: [{ url: "/favicon.svg", type: "image/svg+xml" }, { url: "/logo-128.png", sizes: "128x128", type: "image/png" }],
     apple: "/apple-touch-icon.png",
@@ -41,8 +43,25 @@ export const metadata: Metadata = {
     title: "KingdomTradeX: Faith-aligned AI Trade Engine",
     description:
       "AI trading with wisdom, not hype. Fund a plan, watch profit grow daily, and withdraw your earnings with stewardship.",
-    type: "website",
+    type: 'website',
+    locale: 'en_US',
   },
+  twitter: {
+    card: 'summary_large_image',
+    title: "KingdomTradeX: Faith-aligned AI Trade Engine",
+    description:
+      "AI trading with wisdom, not hype. Fund a plan, watch profit grow daily, and withdraw your earnings with stewardship.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  themeColor: '#0a0e27',
 };
 
 export default function RootLayout({
@@ -54,12 +73,9 @@ export default function RootLayout({
     <html lang="en" className={`theme-night ${inter.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
       <body>
         <JsonLd />
-        <ScrollToBottom />
         <ThemeProvider>
-          <ChatWidgetConditional />
           <SiteBackground />
-          <ScrollProgress />
-          <ParallaxOrbs />
+          <LazyChrome />
           <PriceTicker />
           <Navbar />
           {children}

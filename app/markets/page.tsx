@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import MarketsClient from './MarketsClient';
 
 export const metadata: Metadata = {
-  title: 'Live Markets | KingdomTradeX',
+  title: 'Live Markets',
   description: 'Real-time prices and AI analysis across crypto, US stocks, and commodities. Watch the markets through the lens of disciplined stewardship.',
   openGraph: {
     title: 'Live Markets | KingdomTradeX',

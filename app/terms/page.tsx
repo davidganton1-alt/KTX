@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { LegalLayout, type LegalSection } from '@/components/LegalLayout';
 
 export const metadata: Metadata = {
-  title: 'Terms of Service | KingdomTradeX',
+  title: 'Terms of Service',
   description: 'Clear, honest terms for using KingdomTradeX. Understand holding periods, withdrawal rules, and risk disclosures before you trade.',
   openGraph: {
     title: 'Terms of Service | KingdomTradeX',

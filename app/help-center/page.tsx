@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { HelpCenter } from '@/components/HelpCenter';
 
 export const metadata: Metadata = {
-  title: 'Help Center | KingdomTradeX',
+  title: 'Help Center',
   description: 'Answers on deposits, withdrawals, profit, referrals, security, and pastor/creator partnerships — plus direct support with 12–24 hour response times.',
   openGraph: {
     title: 'Help Center | KingdomTradeX',

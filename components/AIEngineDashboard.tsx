@@ -1,10 +1,18 @@
 'use client';
 
 import { useState, useEffect, useMemo, useRef } from 'react';
+import dynamic from 'next/dynamic';
 import { motion, AnimatePresence, animate } from 'framer-motion';
 import { DataCard } from '@/components/design-system/DataCard';
 import { StatCard } from '@/components/design-system/StatCard';
 import { AIEngineOrbit, type OrbitPosition } from './AIEngineOrbit';
+import type { OrderBookData } from './engine/OrderBook';
+
+// Phase O.1: order book renders only after the tab mounts (updates every 1.5s)
+const OrderBook = dynamic(
+  () => import('./engine/OrderBook').then((mod) => ({ default: mod.OrderBook })),
+  { loading: () => <div className="py-10 text-center text-sm text-[var(--muted)]">Loading order book…</div>, ssr: false }
+);
 
 const ASSET_COLORS: Record<string, string> = {
   crypto: '#c084fc',
@@ -24,8 +32,8 @@ type Trade = {
   pnl: number;
 };
 
+// OrderBookRow/OrderBookData types now live in ./engine/OrderBook
 type OrderBookRow = { price: number; qty: number; total: number };
-type OrderBookData = { base: number; asks: OrderBookRow[]; bids: OrderBookRow[] };
 
 const CLASS_SYMBOLS: Record<string, string[]> = {
   crypto: ['BTC', 'ETH', 'SOL', 'BNB'],
@@ -119,32 +127,6 @@ function SmoothNumber({ value, decimals = 4, money = false, signed = false }: { 
   }, [value]);
   const sign = signed ? (display >= 0 ? '+' : '') : '';
   return <>{sign}{money ? '$' : ''}{display.toFixed(decimals)}</>;
-}
-
-function OrderBook({ data }: { data: OrderBookData | null }) {
-  if (!data) return <div className="py-10 text-center text-sm text-[var(--muted)]">Loading order book…</div>;
-  const maxQty = Math.max(...data.asks.map((a) => a.qty), ...data.bids.map((b) => b.qty), 0.0001);
-  const row = (o: OrderBookRow, side: 'ask' | 'bid') => (
-    <div key={`${side}-${o.price}`} className="relative grid grid-cols-3 px-3 py-[3px] font-mono text-[11.5px] tabular-nums">
-      <div className="absolute inset-y-0 right-0" style={{ width: `${(o.qty / maxQty) * 100}%`, background: side === 'ask' ? 'rgba(248,113,113,0.12)' : 'rgba(52,211,153,0.12)' }} />
-      <span className={side === 'ask' ? 'text-[#f87171]' : 'text-[#34d399]'}>{o.price.toFixed(2)}</span>
-      <span className="text-right text-[var(--fg)]">{o.qty.toFixed(4)}</span>
-      <span className="text-right text-[var(--muted)]">{o.total.toFixed(4)}</span>
-    </div>
-  );
-  return (
-    <div>
-      <div className="grid grid-cols-3 px-3 pb-1 text-[10px] uppercase tracking-wide text-[var(--muted)]">
-        <span>Price</span><span className="text-right">Qty</span><span className="text-right">Total</span>
-      </div>
-      <div>{data.asks.slice().reverse().map((a) => row(a, 'ask'))}</div>
-      <div className="my-1 flex items-center justify-center gap-2 border-y border-[var(--border)] py-1.5">
-        <span className="font-mono text-[15px] font-semibold tabular-nums text-[var(--fg)]">{data.base.toFixed(2)}</span>
-        <span className="text-[10px] uppercase text-[var(--muted)]">BTC/USDT</span>
-      </div>
-      <div>{data.bids.map((b) => row(b, 'bid'))}</div>
-    </div>
-  );
 }
 
 export function AIEngineDashboard({ principal, platformCredit, tierRate, tier }: { principal: number; platformCredit: number; tierRate: number; tier: string }) {

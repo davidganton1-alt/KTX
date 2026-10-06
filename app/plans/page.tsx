@@ -6,7 +6,7 @@ import Link from "next/link";
 import { TrustBox } from "@/components/TrustBox";
 
 export const metadata: Metadata = {
-  title: 'Plans & Tiers | KingdomTradeX',
+  title: 'Plans & Tiers',
   description: 'Choose your path of faithful stewardship. Faithful, Steward, and Ambassador tiers with clear daily profit targets and transparent holding periods.',
   openGraph: {
     title: 'Plans & Tiers | KingdomTradeX',

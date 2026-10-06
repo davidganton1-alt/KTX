@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import PastorApplicationStatusClient from './PastorApplicationStatusClient';
 
 export const metadata: Metadata = {
-  title: 'Check Application Status | KingdomTradeX',
+  title: 'Check Application Status',
   description: 'Check the status of your KingdomTradeX Pastor application.',
   openGraph: {
     title: 'Check Application Status | KingdomTradeX',

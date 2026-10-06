@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import BecomePastorClient from './BecomePastorClient';
 
 export const metadata: Metadata = {
-  title: 'Become a Pastor | KingdomTradeX',
+  title: 'Become a Pastor',
   description: 'Partner with KingdomTradeX. Lead your flock to financial stewardship and earn a share of the trading profits your community generates.',
   openGraph: {
     title: 'Become a Pastor | KingdomTradeX',

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from "next/image";
 import { Verse } from "@/components/Verse";
 import { TrustBox } from "@/components/TrustBox";
 import { SectionIcon } from "@/components/SectionIcon";
@@ -14,7 +15,7 @@ import { IllGift, IllShield, IllEye, IllIntegrity, IllEngine } from "@/component
 import { FAQS } from "@/lib/faqs";
 
 export const metadata: Metadata = {
-  title: 'KingdomTradeX: Faith-Driven AI Trading',
+  title: 'Faith-Driven AI Trading',
   description: 'KingdomTradeX pairs disciplined algorithmic trading with biblical stewardship. Trade crypto, US stocks, and commodities with AI precision. Join the faithful.',
   openGraph: {
     title: 'KingdomTradeX: Faith-Driven AI Trading',
@@ -324,7 +325,7 @@ export default function Home() {
         <div className="flock-rail mt-8">
           {shepherds.map((s) => (
             <div key={s.name} className="shepherd-card card p-5 text-center">
-              <img src={s.img} alt={s.name} className="mx-auto h-16 w-16 rounded-full border border-[var(--border)] object-cover" />
+              <Image src={s.img} alt={s.name} width={64} height={64} className="mx-auto h-16 w-16 rounded-full border border-[var(--border)] object-cover" />
               <p className="mt-3 font-semibold">{s.name}</p>
               <p className="text-xs text-[var(--muted)]">{s.city}</p>
               <span className="pill mt-3">Shepherd</span>

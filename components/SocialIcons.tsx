@@ -1,6 +1,7 @@
 'use client';
 
-import { motion } from 'framer-motion';
+// Phase O.1: CSS hover/tap motion replaces framer-motion here so this
+// every-page chrome no longer pulls framer-motion into the base bundle.
 import { SOCIAL_URLS } from '@/lib/social';
 
 const icons = [
@@ -38,18 +39,16 @@ export function SocialIcons() {
   return (
     <div className="flex items-center gap-4">
       {icons.map((icon) => (
-        <motion.a
+        <a
           key={icon.id}
           href={icon.url}
           target="_blank"
           rel="noopener noreferrer"
           aria-label={icon.label}
-          className="group relative flex h-10 w-10 items-center justify-center rounded-full transition-all duration-300"
-          style={{ backgroundColor: 'var(--bg-soft)', borderColor: 'var(--border)', borderWidth: '1px' }}
-          whileHover={{ scale: 1.15, y: -3 }}
-          whileTap={{ scale: 0.95 }}
+          className="group relative flex h-10 w-10 items-center justify-center rounded-full border transition-all duration-300 hover:-translate-y-[3px] hover:scale-[1.15] active:scale-95"
+          style={{ backgroundColor: 'var(--bg-soft)', borderColor: 'var(--border)' }}
         >
-          <motion.div
+          <div
             className="absolute inset-0 rounded-full opacity-0 transition-opacity duration-300 group-hover:opacity-20"
             style={{ backgroundColor: icon.hoverColor }}
           />
@@ -65,7 +64,7 @@ export function SocialIcons() {
             className="absolute inset-0 rounded-full opacity-0 blur-xl transition-opacity duration-300 group-hover:opacity-50"
             style={{ backgroundColor: icon.hoverColor }}
           />
-        </motion.a>
+        </a>
       ))}
     </div>
   );

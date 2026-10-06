@@ -5,7 +5,7 @@ import { Button } from '@/components/design-system/Button';
 import { StatusPill } from '@/components/design-system/DataTable';
 
 export const metadata: Metadata = {
-  title: 'Trading Agreement & Risk Disclosure | KingdomTradeX',
+  title: 'Trading Agreement & Risk Disclosure',
   description: 'The exact financial mechanics of KingdomTradeX: holding periods, the 50% liquidity provision fee, platform credit, profit math, and referral economics. Read this before you deposit.',
   openGraph: {
     title: 'Trading Agreement & Risk Disclosure | KingdomTradeX',

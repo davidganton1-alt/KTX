@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import ResearchClient from './ResearchClient';
 
 export const metadata: Metadata = {
-  title: 'Research & Technology | KingdomTradeX',
+  title: 'Research & Technology',
   description: 'Explore the AI architecture, trading methodology, tech stack, and security frameworks behind KingdomTradeX. Transparent by design.',
   openGraph: {
     title: 'Research & Technology | KingdomTradeX',
