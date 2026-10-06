@@ -15,7 +15,9 @@ import { IllGift, IllShield, IllEye, IllIntegrity, IllEngine } from "@/component
 import { FAQS } from "@/lib/faqs";
 
 export const metadata: Metadata = {
-  title: 'Faith-Driven AI Trading',
+  // NOTE: the root-segment title bypasses the layout template (Next behavior),
+  // so it carries the brand itself.
+  title: 'KingdomTradeX: Faith-Driven AI Trading',
   description: 'KingdomTradeX pairs disciplined algorithmic trading with biblical stewardship. Trade crypto, US stocks, and commodities with AI precision. Join the faithful.',
   openGraph: {
     title: 'KingdomTradeX: Faith-Driven AI Trading',
