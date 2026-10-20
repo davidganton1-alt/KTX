@@ -72,6 +72,17 @@ async function plisioGet(endpoint: string, params: Record<string, string | numbe
 // Currency code -> Plisio ticker (USDT defaults to ERC-20 on Plisio; our
 // platform standard is TRC-20 -> USDT_TRX). Verified live against
 // GET /currencies: USDT_TRX (TRC-20), USDT_BSC (BEP-20), USDT (ERC-20).
+// Phase S.1: normalize any Plisio USDT ticker shape to the canonical
+// invoice/payout code, or null if it is not a supported network. Plisio may
+// echo 'usdt_trx', 'USDTTRX', 'usdt-bsc' etc; exact-match comparisons on the
+// raw echo silently failed the engine forward and the payout path.
+export function normalizeTicker(currency: string): 'USDT_TRX' | 'USDT_BSC' | null {
+  const c = String(currency || '').toUpperCase().replace(/[_\-\s]/g, '');
+  if (c === 'USDTTRX' || c === 'USDTTRON') return 'USDT_TRX';
+  if (c === 'USDTBSC' || c === 'USDTBNB' || c === 'USDTBINANCE') return 'USDT_BSC';
+  return null; // bare USDT (ERC-20) and unknown tickers: unsupported
+}
+
 export function usdtTicker(network: 'trc20' | 'bep20' | 'erc20'): string {
   if (network === 'trc20') return 'USDT_TRX';
   if (network === 'bep20') return 'USDT_BSC';
@@ -166,6 +177,22 @@ export function verifyWebhookSignature(body: any): boolean {
     }
   };
   return eq(v2, provided) || eq(v1, provided);
+}
+
+// Phase S.1: sign a synthetic IPN body the same way Plisio signs real ones
+// (HMAC-SHA1 v2 construction), so server-internal REPLAYS (status poll,
+// admin reconcile sweeper) can safely ride the webhook pipeline and its
+// signature verification. Never exposed to clients.
+export function signAsPlisioWebhook(body: Record<string, any>): Record<string, any> {
+  const key = secretKey();
+  const crypto = require('crypto');
+  const { verify_hash: _drop, ...rest } = body;
+  const sorted = Object.keys(rest)
+    .sort()
+    .reduce((obj: any, k) => { obj[k] = rest[k]; return obj; }, {} as any);
+  if (sorted && sorted.expire_utc) sorted.expire_utc = String(sorted.expire_utc);
+  const hash = crypto.createHmac('sha1', key).update(JSON.stringify(sorted)).digest('hex');
+  return { ...rest, verify_hash: hash };
 }
 
 // USDT address shape check (format gate only; chains differ by network)

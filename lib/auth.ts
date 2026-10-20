@@ -55,8 +55,36 @@ export async function getSession(): Promise<SessionUser | null> {
     if (!sessionCookie?.value) return null;
 
     // Verify the session token with Supabase
-    const { data: { user }, error } = await supabaseAdmin.auth.getUser(sessionCookie.value);
-    
+    let { data: { user }, error } = await supabaseAdmin.auth.getUser(sessionCookie.value);
+
+    // Phase S.1: the GoTrue ACCESS token expires (~1h) long before the 7-day
+    // cookie. On expiry, transparently rotate using the httpOnly refresh
+    // cookie ('ktx_refresh') via a throwaway client, then re-mint the session
+    // cookie. This ends the silent 401-logouts after an hour of idle time.
+    // NOTE: refresh rotates the refresh token server-side too (GoTrue reuses
+    // it); we overwrite the cookie with whatever the response carries.
+    if (error || !user) {
+      const refreshCookie = cookieStore.get('ktx_refresh');
+      if (refreshCookie?.value) {
+        try {
+          const { createUserAuthClient } = await import('@/lib/supabase');
+          const anon = createUserAuthClient();
+          const { data: refreshed, error: refErr } = await anon.auth.refreshSession({
+            refresh_token: refreshCookie.value,
+          });
+          if (!refErr && refreshed.user && refreshed.session) {
+            try { setSessionCookie(refreshed.session.access_token, refreshed.session.refresh_token); } catch {}
+            user = refreshed.user;
+            error = null;
+          } else {
+            return null; // refresh token revoked/expired: hard logout
+          }
+        } catch {
+          return null;
+        }
+      }
+    }
+
     if (error || !user) return null;
 
     // Fetch profile to get role and other fields
@@ -67,6 +95,14 @@ export async function getSession(): Promise<SessionUser | null> {
       .single();
 
     if (profileError || !profile) return null;
+
+    // Phase S.1: suspension fails closed in the CORE resolver (previously only
+    // six legacy endpoints honored it; money routes and dashboards did not).
+    try {
+      const { db } = await import('@/lib/store');
+      const ju = db.findById(legacyIdFor(user.id));
+      if (ju && ju.suspended) return null;
+    } catch {}
 
     return {
       id: profile.id,
@@ -82,7 +118,7 @@ export async function getSession(): Promise<SessionUser | null> {
   }
 }
 
-export function setSessionCookie(token: string) {
+export function setSessionCookie(token: string, refreshToken?: string) {
   cookies().set('sb-session', token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
@@ -90,10 +126,22 @@ export function setSessionCookie(token: string) {
     maxAge: 60 * 60 * 24 * 7, // 7 days
     path: '/',
   });
+  // Phase S.1: refresh token stored server-side-reachable only via this
+  // httpOnly cookie; getSession rotates it. Never exposed to JS.
+  if (refreshToken) {
+    cookies().set('ktx_refresh', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 30, // 30 days
+      path: '/',
+    });
+  }
 }
 
 export function clearSessionCookie() {
   cookies().delete('sb-session');
+  cookies().delete('ktx_refresh'); // Phase S.1: true logout clears BOTH
 }
 
 // ── COMPATIBILITY EXPORTS (for routes not yet migrated to Supabase) ──
@@ -103,8 +151,12 @@ export const AUTH_COOKIE = 'ktx_session';
 
 export function signSession(user: any): string {
   // Legacy JWT signing for routes that still use JSON storage
+  // Phase S.1: no hardcoded fallback secret — forgeable admin tokens with a
+  // key committed to a PUBLIC repo are unacceptable. Throws if unset.
   const jwt = require('jsonwebtoken');
-  const SECRET = process.env.KTX_JWT_SECRET || 'dev-secret-change-me-in-production-ktx';
+  const SECRET = process.env.KTX_JWT_SECRET || (() => {
+    throw new Error('KTX_JWT_SECRET is not set; legacy signSession is disabled.');
+  })();
   return jwt.sign(
     { 
       id: user.id, 
@@ -121,7 +173,10 @@ export function signSession(user: any): string {
 export function verifySession(token: string): SessionUser | null {
   try {
     const jwt = require('jsonwebtoken');
-    const SECRET = process.env.KTX_JWT_SECRET || 'dev-secret-change-me-in-production-ktx';
+    // Phase S.1: same guard as signSession — no committed fallback secret.
+    const SECRET = process.env.KTX_JWT_SECRET || (() => {
+      throw new Error('KTX_JWT_SECRET is not set; legacy verifySession is disabled.');
+    })();
     return jwt.verify(token, SECRET) as SessionUser;
   } catch {
     return null;

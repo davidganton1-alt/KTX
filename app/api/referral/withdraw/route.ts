@@ -3,6 +3,7 @@ import { getSession } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabase';
 import { getWalletBalance } from '@/lib/walletService';
 import { isValidUSDTAddress } from '@/lib/plisio';
+import { withLock } from '@/lib/rateLimit';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,7 +19,7 @@ export async function POST(req: NextRequest) {
 
     const { amount, network, address } = await req.json();
 
-    const amt = Number(amount);
+    const amt = Math.round(Number(amount) * 100) / 100; // 2dp money discipline
     if (!Number.isFinite(amt) || amt <= 0) {
       return NextResponse.json({ error: 'Invalid amount' }, { status: 400 });
     }
@@ -35,6 +36,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: `Invalid ${net.toUpperCase()} USDT address format` }, { status: 400 });
     }
 
+    // Phase S.1: serialize the whole check-then-insert per user so two
+    // concurrent requests can't both read the same committed total and both
+    // insert rows exceeding matured earnings (single-container correctness;
+    // Postgres advisory lock is the multi-instance upgrade).
+    return withLock(`referral-withdraw:${session.id}`, async () => {
     // Available = matured earnings minus amounts already committed to
     // open withdrawal requests (prevents double-reserving the same money).
     const nowIso = new Date().toISOString();
@@ -106,7 +112,9 @@ export async function POST(req: NextRequest) {
       status: 'pending_approval',
       message: 'Withdrawal request submitted. Awaiting admin approval (12-24 hours).',
     });
+    });
   } catch (e: any) {
-    return NextResponse.json({ error: e.message }, { status: 500 });
+    console.error('[referral/withdraw] error:', e);
+    return NextResponse.json({ error: 'Withdrawal request failed. Please try again.' }, { status: 500 });
   }
 }

@@ -1,27 +1,20 @@
-import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/store";
-import { getSession } from "@/lib/auth";
+import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-export async function POST(req: NextRequest) {
-  const admin = await getSession();
-  if (!admin || admin.role !== "admin")
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+// Phase S.1 RETIRED: legacy JSON-era admin withdrawal processor. It mutated
+// JSON mirror money for rows the current Supabase approval queues never see
+// ('approved' never paid; 'rejected' refunded into the wallet/state sync).
+// Admin money approvals live in /api/admin/principal-approvals and
+// /api/admin/referral-approvals. Original implementation preserved at this
+// file's *.backup-phaseS1.
+export async function POST() {
+  return NextResponse.json(
+    { error: "This endpoint has been retired. Use the admin approvals endpoints." },
+    { status: 410 }
+  );
+}
 
-  const wid = req.nextUrl.searchParams.get("wid");
-  const status = req.nextUrl.searchParams.get("status");
-  if (!wid || (status !== "approved" && status !== "rejected"))
-    return NextResponse.json({ error: "Bad request" }, { status: 400 });
-
-  // find the user who owns this withdrawal
-  const users = db.findAll();
-  for (const u of users) {
-    const w = u.withdrawals.find((x) => x.id === wid);
-    if (w) {
-      db.setWithdrawalStatus(u.id, wid, status as "approved" | "rejected");
-      return NextResponse.json({ ok: true });
-    }
-  }
-  return NextResponse.json({ error: "Withdrawal not found" }, { status: 404 });
+export async function GET() {
+  return NextResponse.json({ error: "Retired endpoint" }, { status: 410 });
 }

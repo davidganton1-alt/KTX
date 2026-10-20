@@ -77,6 +77,8 @@ export default function AdminPage() {
   // Phase M.5: Engine auto-forward config + transfer history
   const [engineCfg, setEngineCfg] = useState({ trc20: '', bep20: '' });
   const [engineTransfers, setEngineTransfers] = useState<any[]>([]);
+  const [engineTableMissing, setEngineTableMissing] = useState(false);
+  const [stuckDeposits, setStuckDeposits] = useState<{ funded_stuck: any[]; stale_waiting: any[] }>({ funded_stuck: [], stale_waiting: [] });
 
   const flash = (t: string) => { setFlashMsg(t); setTimeout(() => setFlashMsg(''), 4000); };
 
@@ -98,7 +100,9 @@ export default function AdminPage() {
       if (refRes.ok) setReferralQueue((await refRes.json()).withdrawals || []);
       if (dataRes.ok) setData(await dataRes.json());
       if (caRes.ok) setCreatorApps((await caRes.json()).applications || []);
-      if (etRes.ok) { const et = await etRes.json(); setEngineCfg(et.config || { trc20: '', bep20: '' }); setEngineTransfers(et.transfers || []); }
+      if (etRes.ok) { const et = await etRes.json(); setEngineCfg(et.config || { trc20: '', bep20: '' }); setEngineTransfers(et.transfers || []); setEngineTableMissing(!!et.table_missing); }
+      const rcRes = await fetch('/api/admin/deposits/reconcile', { credentials: 'include' });
+      if (rcRes.ok) { const rc = await rcRes.json(); setStuckDeposits({ funded_stuck: rc.funded_stuck || [], stale_waiting: rc.stale_waiting || [] }); }
       if (meRes.ok) {
         const meData = await meRes.json();
         setMe(meData);
@@ -163,6 +167,20 @@ export default function AdminPage() {
       const d = await res.json().catch(() => ({}));
       if (!res.ok) flash(d.error || 'Save failed.');
       else flash('Engine wallet addresses saved.');
+      loadData();
+    } catch { flash('Network error.'); }
+    setBusy(null);
+  }
+
+  async function runReconcile() {
+    setBusy('reconcile');
+    try {
+      const res = await fetch('/api/admin/deposits/reconcile', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({}),
+      });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) flash(d.error || 'Reconcile failed.');
+      else flash(`Reconcile done: ${d.processed || 0} deposit(s) checked.`);
       loadData();
     } catch { flash('Network error.'); }
     setBusy(null);
@@ -452,6 +470,29 @@ export default function AdminPage() {
                   </div>
                 </DataCard>
               </div>
+              {(stuckDeposits.funded_stuck.length + stuckDeposits.stale_waiting.length > 0 || engineTableMissing) && (
+                <div className="mt-6">
+                  <DataCard title="Deposit Reconciliation" subtitle="Stuck or unprocessed deposits detected — run the sweeper to replay them through the normal webhook pipeline" interactive>
+                    <div className="space-y-3">
+                      {engineTableMissing && (
+                        <p className="rounded-md border border-[var(--gold)]/40 bg-[var(--gold)]/10 p-3 text-[12px] text-[var(--gold)]">
+                          The <code className="font-mono">engine_transfers</code> table and/or Engine wallet address columns are not yet applied in Supabase. Engine auto-forwards are guarded off (no sends, no records) until <code className="font-mono">scripts/phase-m5-engine-transfers.sql</code> is run.
+                        </p>
+                      )}
+                      {stuckDeposits.funded_stuck.length > 0 && (
+                        <p className="text-[12px] text-[var(--red)]">{stuckDeposits.funded_stuck.length} funded deposit(s) were never credited (dead-letter). {stuckDeposits.stale_waiting.length} waiting 72h+.</p>
+                      )}
+                      {stuckDeposits.funded_stuck.length === 0 && stuckDeposits.stale_waiting.length > 0 && (
+                        <p className="text-[12px] text-[var(--muted)]">{stuckDeposits.stale_waiting.length} deposit(s) sitting in 'waiting' past 72h — the sweeper will ask Plisio whether they funded or expired.</p>
+                      )}
+                      <Button variant="secondary" size="sm" disabled={busy === 'reconcile'} onClick={runReconcile}>
+                        {busy === 'reconcile' ? 'Reconciling…' : 'Run reconcile sweep'}
+                      </Button>
+                      <p className="text-[11px] text-[var(--muted)]">Replay uses the gateway&apos;s own invoice status as truth and feeds the signed webhook pipeline — duplicate-safe.</p>
+                    </div>
+                  </DataCard>
+                </div>
+              )}
               {awaitingTransfer.length > 0 && (
                 <div className="mt-6">
                   <DataCard title="Awaiting Engine → Hot funding" padded={false}>

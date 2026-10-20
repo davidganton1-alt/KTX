@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { supabaseAdmin } from '@/lib/supabase';
+import { rateLimit, ipKey } from '@/lib/rateLimit';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,6 +19,12 @@ export async function POST(req: NextRequest) {
     }
     const normalized = String(email).trim().toLowerCase();
 
+    // Phase S.1: per-IP limiter on top of the per-email one (flooding a known
+    // address with 3 emails/hour indefinitely was an annoyance/rep vector).
+    const ip = ipKey(req);
+    const rl = rateLimit('forgot', ip, 8, 60 * 60 * 1000);
+    if (!rl.ok) return NextResponse.json({ success: true });
+
     let exists = false;
     try {
       // Rate limit: max 3 reset tokens per email in the last hour.
@@ -33,10 +40,15 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ success: true });
       }
 
+      // Phase S.1: ilike, not eq — pre-normalization accounts may have stored
+      // a mixed-case email; eq(normalized) could never find them, silently
+      // locking them out of password reset forever. Wildcards escaped so a
+      // crafted email string can't broaden the match.
+      const escaped = normalized.replace(/[%_]/g, (m) => '\\' + m);
       const { data: profile } = await supabaseAdmin
         .from('profiles')
         .select('id, name, email')
-        .eq('email', normalized)
+        .ilike('email', escaped)
         .maybeSingle();
 
       if (profile) {

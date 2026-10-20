@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabase';
 import { retryEngineTransfer } from '@/lib/engineForward';
+import { isValidUSDTAddress } from '@/lib/plisio';
 
 export const dynamic = 'force-dynamic';
 
@@ -30,6 +31,17 @@ export async function GET() {
         .order('created_at', { ascending: false })
         .limit(100),
     ]);
+    // Phase S.1: degrade gracefully instead of 500-ing the whole Treasury
+    // panel while the engine_transfers DDL / platform_wallets columns are
+    // still pending — the UI shows a 'table missing' hint from the flag.
+    if (error && /does not exist|relation|column/i.test(error.message)) {
+      return NextResponse.json({
+        config: { trc20: (cfg as any)?.engine_trc20_address || '', bep20: (cfg as any)?.engine_bsc_address || '' },
+        transfers: [],
+        table_missing: true,
+        detail: error.message,
+      });
+    }
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json({
       config: { trc20: cfg?.engine_trc20_address || '', bep20: cfg?.engine_bsc_address || '' },
@@ -51,15 +63,24 @@ export async function POST(req: NextRequest) {
       const trc20 = String(body.engine_trc20_address || '').trim();
       const bep20 = String(body.engine_bsc_address || '').trim();
       // Hard-validate on save: never persist an address that could lose funds.
-      if (trc20 && !trc20.startsWith('T')) {
-        return NextResponse.json({ error: 'TRC-20 Engine address must start with T' }, { status: 400 });
+      // Phase S.1: full shape validation (prefix alone accepted 'Txx'), and an
+      // EMPTY field means 'leave the stored value unchanged' — previously a
+      // single-field edit with the other box blank nulled the other address.
+      if (trc20 && !isValidUSDTAddress(trc20, 'trc20')) {
+        return NextResponse.json({ error: 'TRC-20 Engine address is not a valid Tron USDT address' }, { status: 400 });
       }
-      if (bep20 && !bep20.startsWith('0x')) {
-        return NextResponse.json({ error: 'BEP-20 Engine address must start with 0x' }, { status: 400 });
+      if (bep20 && !isValidUSDTAddress(bep20, 'bep20')) {
+        return NextResponse.json({ error: 'BEP-20 Engine address is not a valid BSC (0x…) address' }, { status: 400 });
+      }
+      const patchCols: Record<string, string> = {};
+      if (trc20) patchCols.engine_trc20_address = trc20;
+      if (bep20) patchCols.engine_bsc_address = bep20;
+      if (!Object.keys(patchCols).length) {
+        return NextResponse.json({ error: 'Enter at least one Engine address to save' }, { status: 400 });
       }
       const { error } = await supabaseAdmin
         .from('platform_wallets')
-        .update({ engine_trc20_address: trc20 || null, engine_bsc_address: bep20 || null })
+        .update(patchCols)
         .eq('wallet_type', 'engine');
       if (error) return NextResponse.json({ error: error.message }, { status: 500 });
       return NextResponse.json({ ok: true });

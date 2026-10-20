@@ -16,19 +16,26 @@ export const dynamic = 'force-dynamic';
 
 async function refundPrincipal(withdrawal: any, reason: string) {
   try {
-    const { data: w } = await supabaseAdmin
-      .from('wallets')
-      .select('id, principal')
-      .eq('user_id', withdrawal.user_id)
-      .maybeSingle();
-    if (w) {
-      await supabaseAdmin
+    // Phase S.1: compare-and-set refund with one retry. Two concurrent
+    // rejections can no longer both read the same principal and lose one
+    // refund (the old read-modify-write clobber).
+    const refundAmt = Number(withdrawal.amount);
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const { data: w } = await supabaseAdmin
         .from('wallets')
-        .update({
-          principal: +(Number(w.principal) + Number(withdrawal.amount)).toFixed(2),
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', w.id);
+        .select('id, principal')
+        .eq('user_id', withdrawal.user_id)
+        .maybeSingle();
+      if (!w) break;
+      const target = +(Number(w.principal) + refundAmt).toFixed(2);
+      const { data: applied } = await supabaseAdmin
+        .from('wallets')
+        .update({ principal: target, updated_at: new Date().toISOString() })
+        .eq('id', w.id)
+        .eq('principal', Number(w.principal))
+        .select('id');
+      if (applied) break;
+      if (attempt === 1) console.error('[principal-approvals] CRITICAL: refund CAS lost both attempts for withdrawal %s', withdrawal.id);
     }
     const { db } = await import('@/lib/store');
     const lid = legacyIdFor(withdrawal.user_id);
@@ -123,7 +130,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (action === 'reject') {
-      await supabaseAdmin
+      const { data: rejected } = await supabaseAdmin
         .from('withdrawals')
         .update({
           status: 'rejected',
@@ -131,7 +138,13 @@ export async function POST(req: NextRequest) {
           admin_approved_at: new Date().toISOString(),
           admin_notes: admin_notes || 'Rejected by admin',
         })
-        .eq('id', withdrawal_id);
+        .eq('id', withdrawal_id)
+        .eq('status', 'pending_approval')
+        .select('id')
+        .maybeSingle();
+      if (!rejected) {
+        return NextResponse.json({ error: 'Withdrawal already being processed by another admin' }, { status: 409 });
+      }
       await refundPrincipal(withdrawal, 'was rejected');
       try {
         const { emails } = await import('@/lib/email/service');
@@ -153,6 +166,21 @@ export async function POST(req: NextRequest) {
         .eq('id', withdrawal_id);
       await refundPrincipal(withdrawal, 'failed (hot wallet short)');
       return NextResponse.json({ error: 'Hot wallet insufficient - request failed and principal returned. Top up via Engine first.' }, { status: 503 });
+    }
+
+    // Phase S.1: claim the row to 'processing' (conditional on still being
+    // pending_approval — the fetch above already filtered, this re-checks at
+    // write time) BEFORE debiting/sending. A second admin click now 404s at
+    // the pending_approval fetch instead of paying twice.
+    const { data: claimedRow } = await supabaseAdmin
+      .from('withdrawals')
+      .update({ status: 'processing', admin_approved_by: session.id, admin_approved_at: new Date().toISOString() })
+      .eq('id', withdrawal_id)
+      .eq('status', 'pending_approval')
+      .select('id')
+      .maybeSingle();
+    if (!claimedRow) {
+      return NextResponse.json({ error: 'Withdrawal already being processed' }, { status: 409 });
     }
 
     // Phase M.5: automatic payout attempt via Plisio (hot balance lives in
@@ -185,9 +213,10 @@ export async function POST(req: NextRequest) {
           completed_at: new Date().toISOString(),
           admin_approved_by: session.id,
           admin_approved_at: new Date().toISOString(),
-          admin_notes: `Approved + auto-payout sent via Plisio (${withdrawal.network.toUpperCase()}).`,
+          admin_notes: `Approved + auto-payout sent via Plisio (${String(withdrawal.network || 'trc20').toUpperCase()}).`,
         })
-        .eq('id', withdrawal_id);
+        .eq('id', withdrawal_id)
+        .eq('status', 'processing');
       try {
         const { db } = await import('@/lib/store');
         db.notify(legacyIdFor(withdrawal.user_id), `Principal withdrawal of $${netAmt.toFixed(2)} approved and paid out (${String(withdrawal.network || 'trc20').toUpperCase()}).`, 'withdrawal');

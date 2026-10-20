@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession, legacyIdFor, supabaseIdFor } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabase';
-import { createInvoice } from '@/lib/plisio';
+import { createInvoice, normalizeTicker } from '@/lib/plisio';
+import { rateLimit, ipKey } from '@/lib/rateLimit';
 import { db } from '@/lib/store';
 import { pastorsDb } from '@/lib/pastorStore';
 
@@ -21,10 +22,33 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
+    // Phase S.1: suspension gate (a suspended account must not mint invoices)
+    const jsonId0 = legacyIdFor(session.id);
+    const me0 = db.findById(jsonId0);
+    if (me0 && me0.suspended) {
+      return NextResponse.json({ error: 'Account suspended' }, { status: 403 });
+    }
+
+    // Phase S.1: rate limit invoice creation (10/hour/IP) + cap concurrent
+    // open invoices (max 5 'waiting' rows per user) so spam can neither abuse
+    // the Plisio quota nor pile up un-swept rows.
+    const rl = rateLimit('deposits_create', ipKey(req), 10, 60 * 60 * 1000);
+    if (!rl.ok) {
+      return NextResponse.json({ error: 'Too many deposit requests, try again later.' }, { status: 429 });
+    }
+    const { count: openCount } = await supabaseAdmin
+      .from('deposits')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', session.id)
+      .eq('status', 'waiting');
+    if ((openCount ?? 0) >= 5) {
+      return NextResponse.json({ error: 'You already have 5 open deposits. Complete or wait for them to expire first.' }, { status: 429 });
+    }
+
     const { amount } = await req.json();
 
     // Validate amount
-    const amt = Number(amount);
+    const amt = Math.round(Number(amount) * 100) / 100; // 2dp money discipline
     if (!Number.isFinite(amt) || amt <= 0) {
       return NextResponse.json({ error: 'Invalid amount' }, { status: 400 });
     }
@@ -114,7 +138,9 @@ export async function POST(req: NextRequest) {
         nowpayments_payment_id: payment.txn_id, // txn_id reused as gateway id column
         amount: amt,
         pay_amount: payment.amount ? Number(payment.amount) : null,
-        currency: payment.currency || 'USDT',
+        // Phase S.1: store the CANONICAL ticker ('USDT_TRX'/'USDT_BSC'), never
+        // the raw gateway echo — the engine forward network-matches on this.
+        currency: normalizeTicker(payment.currency || '') || 'USDT_TRX',
         status: 'waiting',
         deposit_address: payment.wallet_hash || payment.invoice_url,
         tier_at_deposit: depositTier,
@@ -125,7 +151,11 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (depositError) {
-      console.error('[deposit] Failed to create deposit record:', depositError.message);
+      // Orphan invoice: the gateway address now EXISTS but we have no row —
+      // if the user pays it, the webhook will 404 and funds are unrecoverable.
+      // Log txn_id + wallet for manual reconciliation.
+      console.error('[deposit] CRITICAL orphan invoice txn=%s wallet=%s amount=%s err=%s',
+        payment.txn_id, payment.wallet_hash, amt, depositError.message);
       return NextResponse.json({ error: 'Failed to create deposit record' }, { status: 500 });
     }
 
@@ -137,7 +167,7 @@ export async function POST(req: NextRequest) {
       qr_code: payment.qr_code || null,
       pay_amount: payment.amount ? Number(payment.amount) : null,
       amount: amt,
-      currency: payment.currency || 'USDT',
+      currency: normalizeTicker(payment.currency || '') || 'USDT_TRX',
       tier: depositTier,
       referral_rate: referralRate,
       is_first_deposit: isFirstDeposit,

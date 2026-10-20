@@ -89,9 +89,24 @@ export async function accrueUserProfit(userId: string): Promise<AccrualResult> {
     }
 
     // Fund trail: the payout wallet is the source users withdraw from.
+    // Phase S.1: if the payout wallet could NOT be funded, the day-claim is
+    // rolled back (profit subtracted with a floor guard, accrual stamp
+    // restored). Previously the user's ledger grew while the funding wallet
+    // did not — the platform progressively over-subscribed itself and every
+    // later withdrawal hit the 'payout wallet temporarily low' 503 forever.
     const payoutSuccess = await creditWallet('payout', profitEarned, 'profit_accrual', userId, undefined, `Daily profit ${tier} ${(rate * 100).toFixed(2)}%`);
     if (!payoutSuccess) {
-      console.error(`[profitAccrual] Failed to credit payout wallet for user ${userId}`);
+      console.error(`[profitAccrual] payout wallet credit FAILED for user ${userId}; rolling back day-claim`);
+      const reverted = +(Number(profile.accumulated_profit || 0)).toFixed(4);
+      await supabaseAdmin
+        .from('profiles')
+        .update({
+          accumulated_profit: Math.max(0, reverted),
+          last_profit_accrual_at: profile.last_profit_accrual_at || null,
+        })
+        .eq('id', userId)
+        .gte('accumulated_profit', profitEarned);
+      return { userId, principal, platformCredit, totalBase, tier, rate, profitEarned: 0, success: false, error: 'Payout wallet funding failed; day-claim rolled back' };
     }
 
     // Audit: a completed 'profit' transaction on the user's ledger
@@ -121,25 +136,32 @@ export async function accrueUserProfit(userId: string): Promise<AccrualResult> {
 // Accrue profit for ALL funded users (called by cron or admin trigger).
 export async function accrueAllUsersProfit(): Promise<{ processed: number; succeeded: number; failed: number; errors: string[] }> {
   try {
-    const { data: wallets, error } = await supabaseAdmin
-      .from('wallets')
-      .select('user_id')
-      .gt('principal', 0);
+    // Phase S.1: the accrual base is principal + platform_credit, so the
+    // roster must include credit-only accounts (platform_credit > 0 with
+    // principal 0) — previously they were silently never accrued.
+    const [walletsRes, creditRes] = await Promise.all([
+      supabaseAdmin.from('wallets').select('user_id').gt('principal', 0),
+      supabaseAdmin.from('profiles').select('id').gt('platform_credit', 0),
+    ]);
+    const { data: wallets, error } = walletsRes;
 
     if (error || !wallets) {
       return { processed: 0, succeeded: 0, failed: 0, errors: [error?.message || 'Failed to fetch users'] };
     }
 
+    const roster = new Set<string>(wallets.map((w) => w.user_id));
+    for (const p of creditRes.data || []) roster.add(p.id);
+
     let succeeded = 0;
     let failed = 0;
     const errors: string[] = [];
 
-    for (const wRow of wallets) {
-      const result = await accrueUserProfit(wRow.user_id);
+    for (const uid of roster) {
+      const result = await accrueUserProfit(uid);
       if (result.success) succeeded++;
       else {
         failed++;
-        if (result.error) errors.push(`${wRow.user_id}: ${result.error}`);
+        if (result.error) errors.push(`${uid}: ${result.error}`);
       }
     }
 

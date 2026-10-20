@@ -1,24 +1,21 @@
-import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/store";
-import { getSession, legacyIdFor } from "@/lib/auth";
+import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-export async function POST(req: NextRequest) {
-  const user = await getSession();
-  if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-  const u = db.findById(legacyIdFor(user.id));
-  if (!u) return NextResponse.json({ error: "Not found" }, { status: 404 });
+// Phase S.1 RETIRED: legacy JSON-era principal-withdrawal path. It mutated
+// only users.json and pushed into the old JSON withdrawals queue that the
+// current admin approvals never pay out ('approved' paid nothing — a
+// user-money black hole, and its reservations desynced against the
+// withdraw-principal flow). The single authoritative principal path is
+// /api/wallet/withdraw-principal -> /api/admin/principal-approvals.
+// Original implementation preserved at this file's *.backup-phaseS1.
+export async function POST() {
+  return NextResponse.json(
+    { error: "This endpoint has been retired. Use the principal withdrawal flow." },
+    { status: 410 }
+  );
+}
 
-  const { amount } = await req.json();
-  const res = db.withdrawDeposit(legacyIdFor(user.id), Number(amount));
-  if (!res.ok) return NextResponse.json({ error: res.error }, { status: 400 });
-  const fresh = db.findById(legacyIdFor(user.id))!;
-  return NextResponse.json({
-    ok: true,
-    penaltyPct: Math.round(res.penalty * 100),
-    net: res.net,
-    deposited: fresh.deposited,
-    balance: fresh.balance,
-  });
+export async function GET() {
+  return NextResponse.json({ error: "Retired endpoint" }, { status: 410 });
 }

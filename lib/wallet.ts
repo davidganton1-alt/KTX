@@ -52,8 +52,16 @@ export function walletValuesFromJsonUser(u: User) {
 /** Mirror the JSON store's wallet numbers into Supabase (create-or-update). */
 export async function syncWalletFromJson(supaUserId: string, u: User): Promise<WalletRow | null> {
   const values = walletValuesFromJsonUser(u);
-  const { data } = await supabaseAdmin.from("wallets").select("id").eq("user_id", supaUserId).maybeSingle();
+  const { data } = await supabaseAdmin.from("wallets").select("id, principal").eq("user_id", supaUserId).maybeSingle();
   if (data) {
+    // Phase S.1: the JSON mirror must never CLOBBER a gateway-set principal
+    // downward. If Supabase already holds more principal than the JSON mirror
+    // (e.g. a webhook credited before the mirror write, or a restored
+    // backup), trust Supabase for principal/tier and sync only the rest.
+    if (Number(data.principal || 0) > Number(values.principal || 0)) {
+      delete (values as any).principal;
+      delete (values as any).tier;
+    }
     const { data: upd, error } = await supabaseAdmin.from("wallets").update(values).eq("id", data.id).select().single();
     if (error) {
       console.error("[wallet] sync update failed:", error.message);

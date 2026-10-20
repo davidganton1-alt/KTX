@@ -43,6 +43,7 @@ export function RegisterForm() {
   const [error, setError] = useState("");
   const [pastorOk, setPastorOk] = useState(false);
   const [verifyLink, setVerifyLink] = useState("");
+  const [registerWarnings, setRegisterWarnings] = useState<string[]>([]);
   const [applyWarning, setApplyWarning] = useState("");
 
   const leftRef = useRef<HTMLDivElement>(null);
@@ -60,8 +61,9 @@ export function RegisterForm() {
     e.preventDefault();
     setError("");
     setApplyWarning("");
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters.");
+    // Phase S.1: mirror the server policy (8+ chars, upper, lower, digit)
+    if (password.length < 8 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password)) {
+      setError("Password needs at least 8 characters with an uppercase letter, a lowercase letter and a number.");
       return;
     }
     setLoading(true);
@@ -85,7 +87,8 @@ export function RegisterForm() {
 
       // 2a) Member → straight to console
       if (role === "member") {
-        setVerifyLink(data.verifyLink || "");
+        setVerifyLink("");
+        setRegisterWarnings(Array.isArray(data?.warnings) ? data.warnings : []);
         setPastorOk(true);
         return;
       }
@@ -174,14 +177,16 @@ export function RegisterForm() {
               <div className="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-full bg-profit/20 text-3xl text-profit">✓</div>
               <h2 className="mt-3 text-xl font-semibold text-profit">Account created!</h2>
               <p className="mt-2 text-sm text-[var(--muted)]">
-                We've sent a verification email. Click the link to activate your account.
+                Your account is active. Sign in to claim your dashboard.
               </p>
-              {verifyLink && (
-                <div className="mt-4 rounded-lg border border-[var(--gold)]/30 bg-[var(--gold)]/10 p-4">
-                  <p className="text-xs font-semibold text-[var(--gold)]">Dev Mode Verification Link:</p>
-                  <a href={verifyLink} className="mt-2 block text-xs text-[var(--fg)] underline hover:text-[var(--gold)]">
-                    {verifyLink}
-                  </a>
+              {registerWarnings.length > 0 && (
+                <div className="mt-4 rounded-lg border border-[var(--gold)]/30 bg-[var(--gold)]/10 p-4 text-left">
+                  {registerWarnings.includes("pastor_not_found") && (
+                    <p className="text-xs text-[var(--gold)]">We couldn't find that pastor, so your account isn't linked to a flock. Ask them for their exact name or email and contact support to link it.</p>
+                  )}
+                  {registerWarnings.includes("referral_code_not_found") && (
+                    <p className="text-xs text-[var(--gold)] mt-1">That referral code wasn't recognized, so no referrer was attached to your account.</p>
+                  )}
                 </div>
               )}
               <a href="/login" className="btn-gold mt-5 inline-flex">

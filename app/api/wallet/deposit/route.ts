@@ -1,13 +1,44 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db, TIERS, type Tier } from "@/lib/store";
 import { pastorsDb } from "@/lib/pastorStore";
-import { requireActiveSession } from "@/lib/auth";
+import { requireActiveSession, supabaseIdFor } from "@/lib/auth";
+import { supabaseAdmin } from "@/lib/supabase";
+import { getEngineMode } from "@/lib/engineMode";
 
 export const dynamic = "force-dynamic";
 
+// Phase S.1: this is the DEMO funding path only. It writes users.json money
+// fields which wallet/state mirrors into Supabase — harmless while the
+// platform runs in demo mode, but once LIVE it is a no-gateway self-credit
+// backdoor. Hard rules:
+//   1) engine mode must be 'demo'
+//   2) the account must have ZERO gateway-backed deposits (any Supabase
+//      deposit row that passed the webhook split has real money behind it —
+//      demo funding after that would fork the ledger)
 export async function POST(req: NextRequest) {
   const user = await requireActiveSession();
   if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+
+  if (getEngineMode() !== "demo") {
+    return NextResponse.json(
+      { error: "Demo funding is disabled while the platform runs in live mode. Make a real deposit instead." },
+      { status: 410 }
+    );
+  }
+
+  const sid = supabaseIdFor(user.id) || user.id;
+  const { data: realDeposits, error: depErr } = await supabaseAdmin
+    .from("deposits")
+    .select("id")
+    .eq("user_id", sid)
+    .not("engine_wallet_amount", "is", null)
+    .limit(1);
+  if (!depErr && realDeposits && realDeposits.length > 0) {
+    return NextResponse.json(
+      { error: "This account has gateway-backed deposits; demo funding is disabled for it." },
+      { status: 410 }
+    );
+  }
 
   const { amount, tier } = await req.json();
   const t = tier as Exclude<Tier, "none">;

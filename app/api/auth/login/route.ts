@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin, createUserAuthClient } from '@/lib/supabase';
 import { setSessionCookie } from '@/lib/auth';
+import { rateLimit, ipKey } from '@/lib/rateLimit';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,6 +11,14 @@ export async function POST(req: NextRequest) {
 
     if (!email || !password) {
       return NextResponse.json({ error: 'Email and password required' }, { status: 400 });
+    }
+
+    // Phase S.1: per-IP credential-attempt limiter (15/15min). GoTrue has its
+    // own host-side throttle; this bounds app-side stuffing without locking
+    // entire NAT ranges too aggressively.
+    const rl = rateLimit('login', ipKey(req), 15, 15 * 60 * 1000);
+    if (!rl.ok) {
+      return NextResponse.json({ error: 'Too many attempts. Try again shortly.' }, { status: 429 });
     }
 
     // Authenticate against Supabase on a THROWAWAY anon client (see
@@ -36,8 +45,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
     }
 
-    // Set session cookie
-    setSessionCookie(data.session.access_token);
+    // Phase S.1: suspended accounts get an honest message instead of a
+    // cookie that 401s on every subsequent call.
+    try {
+      const { legacyIdFor } = await import('@/lib/auth');
+      const { db } = await import('@/lib/store');
+      const ju = db.findById(legacyIdFor(data.user.id));
+      if (ju && ju.suspended) {
+        return NextResponse.json({ error: 'This account has been suspended. Contact support.' }, { status: 403 });
+      }
+    } catch {}
+
+    // Set session cookie (Phase S.1: + httpOnly refresh cookie so getSession
+    // can rotate past the ~1h access-token expiry instead of silently 401ing)
+    setSessionCookie(data.session.access_token, data.session.refresh_token);
 
     // Phase G.5: new-login alert when IP or device changed. Comparison is
     // best-effort and must never block a good login.

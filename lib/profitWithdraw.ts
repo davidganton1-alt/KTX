@@ -11,7 +11,7 @@ export async function processProfitWithdrawal(
   network: string,
   address: string
 ): Promise<{ ok: true; data: any } | { ok: false; status: number; error: string }> {
-  const amt = Number(amount);
+  const amt = Math.round(Number(amount) * 100) / 100; // 2dp money discipline
   if (!Number.isFinite(amt) || amt <= 0) {
     return { ok: false, status: 400, error: "Invalid amount" };
   }
@@ -37,14 +37,11 @@ export async function processProfitWithdrawal(
     return { ok: false, status: 404, error: "Profile not found" };
   }
 
-  const availableProfit = +(Number(profile.accumulated_profit || 0) - Number(profile.total_profit_withdrawn || 0)).toFixed(4);
+  const accProfit = Number(profile.accumulated_profit || 0);
+  const withdrawnNow = Number(profile.total_profit_withdrawn || 0);
+  const availableProfit = +(accProfit - withdrawnNow).toFixed(4);
   if (availableProfit < amt) {
     return { ok: false, status: 400, error: `Insufficient profit. Available: $${availableProfit.toFixed(2)}` };
-  }
-
-  const payoutBalance = await getWalletBalance("payout");
-  if (payoutBalance < amt) {
-    return { ok: false, status: 503, error: "Payout wallet temporarily low. Please try again later." };
   }
 
   // Local address validation (Plisio has no validate-address endpoint and
@@ -53,6 +50,48 @@ export async function processProfitWithdrawal(
     return { ok: false, status: 400, error: `Invalid ${net.toUpperCase()} USDT address format` };
   }
   const ticker = plisioTickerFor(net)!;
+
+  const payoutBalance = await getWalletBalance("payout");
+  if (payoutBalance < amt) {
+    return { ok: false, status: 503, error: "Payout wallet temporarily low. Please try again later." };
+  }
+
+  // Phase S.1: RESERVE BEFORE PAYOUT. Atomic compare-and-set on
+  // total_profit_withdrawn (guarded by accumulated_profit >= new total). Two
+  // concurrent/double-clicked requests can no longer both pass a stale check
+  // and both send: only one CAS wins, the loser re-reads a shrunk balance and
+  // is rejected. The reservation is refunded on any later failure below.
+  const newWithdrawn = +(withdrawnNow + amt).toFixed(4);
+  const { data: claim } = await supabaseAdmin
+    .from("profiles")
+    .update({ total_profit_withdrawn: newWithdrawn })
+    .eq("id", sessionId)
+    .eq("total_profit_withdrawn", withdrawnNow)
+    .gte("accumulated_profit", newWithdrawn)
+    .select("id")
+    .maybeSingle();
+  if (!claim) {
+    return { ok: false, status: 400, error: "A withdrawal is already in flight, or your available profit changed. Refresh and try again." };
+  }
+
+  const releaseClaim = async () => {
+    const { data: fresh, error: fe } = await supabaseAdmin
+      .from("profiles")
+      .select("total_profit_withdrawn")
+      .eq("id", sessionId)
+      .maybeSingle();
+    if (fe || !fresh) {
+      console.error("[profitWithdraw] CRITICAL: reservation refund read failed:", fe?.message);
+      return;
+    }
+    const back = +(Math.max(0, Number(fresh.total_profit_withdrawn || 0) - amt)).toFixed(4);
+    const { error: ue } = await supabaseAdmin
+      .from("profiles")
+      .update({ total_profit_withdrawn: back })
+      .eq("id", sessionId)
+      .eq("total_profit_withdrawn", Number(fresh.total_profit_withdrawn || 0));
+    if (ue) console.error("[profitWithdraw] CRITICAL: reservation refund failed:", ue.message);
+  };
 
   const { data: withdrawal, error: withdrawalError } = await supabaseAdmin
     .from("withdrawals")
@@ -72,12 +111,14 @@ export async function processProfitWithdrawal(
     .single();
 
   if (withdrawalError || !withdrawal) {
+    await releaseClaim();
     return { ok: false, status: 500, error: "Failed to create withdrawal record" };
   }
 
   const debitSuccess = await debitWallet("payout", amt, "withdrawal", sessionId, withdrawal.id, "Profit withdrawal");
   if (!debitSuccess) {
     await supabaseAdmin.from("withdrawals").update({ status: "failed" }).eq("id", withdrawal.id);
+    await releaseClaim();
     return { ok: false, status: 503, error: "Payout wallet funds moved, please retry." };
   }
 
@@ -96,10 +137,8 @@ export async function processProfitWithdrawal(
       })
       .eq("id", withdrawal.id);
 
-    await supabaseAdmin
-      .from("profiles")
-      .update({ total_profit_withdrawn: Number(profile.total_profit_withdrawn || 0) + amt })
-      .eq("id", sessionId);
+    // Phase S.1: total_profit_withdrawn was already reserved (CAS) BEFORE the
+    // payout; nothing to increment here anymore.
 
     let firstWithdrawal = false;
     try {
@@ -152,8 +191,17 @@ export async function processProfitWithdrawal(
     // NOTE: 5th arg is related_DEPOSIT_id (FK to deposits) — passing the
     // withdrawal id here violated wallet_transactions_related_deposit_id_fkey
     // and silently dropped the rollback audit row. Carry the withdrawal id in notes instead.
-    await creditWallet("payout", amt, "withdrawal", sessionId, undefined, `ROLLBACK payout failed (withdrawal ${withdrawal.id}): ${payoutError.message}`.slice(0, 200));
+    const rolledBack = await creditWallet("payout", amt, "withdrawal", sessionId, undefined, `ROLLBACK payout failed (withdrawal ${withdrawal.id}): ${payoutError.message}`.slice(0, 200));
+    if (!rolledBack) {
+      // Platform wallet debited, rollback credit FAILED, payout never sent:
+      // keep the reservation (do NOT release) so the user cannot re-request
+      // the same money against a wallet we no longer control. Manual fixup.
+      console.error("[profitWithdraw] CRITICAL: rollback credit failed for withdrawal %s ($%s). Reservation held pending reconciliation.", withdrawal.id, amt);
+      await supabaseAdmin.from("withdrawals").update({ status: "processing" }).eq("id", withdrawal.id);
+      return { ok: false, status: 502, error: "Payout failed and the refund needs manual review." };
+    }
     await supabaseAdmin.from("withdrawals").update({ status: "failed" }).eq("id", withdrawal.id);
+    await releaseClaim();
     return { ok: false, status: 502, error: "Payout creation failed: " + payoutError.message };
   }
 }

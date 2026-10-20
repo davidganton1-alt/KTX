@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import crypto from 'crypto';
 import { accrueAllUsersProfit } from '@/lib/profitAccrual';
 import { runEmailDigests } from '@/lib/email/digests';
 
@@ -15,7 +16,11 @@ export async function POST(req: Request) {
       // fail closed: no key configured -> feature disabled
       return NextResponse.json({ error: 'Cron not configured' }, { status: 501 });
     }
-    if (authHeader !== `Bearer ${expectedKey}`) {
+    // Phase S.1: constant-time compare (timingSafeEqual) for the bearer.
+    const presented = (authHeader || '').replace(/^Bearer\s+/i, '');
+    const a = Buffer.from(presented);
+    const b = Buffer.from(expectedKey);
+    if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

@@ -82,7 +82,9 @@ export async function POST(req: NextRequest) {
     const lid = legacyIdFor(session.id);
     const ju = db.findById(lid);
     if (ju) {
-      db.update(lid, { deposited: +(Number(ju.deposited || 0) - amt).toFixed(2) });
+      // Phase S.1: clamp the mirror so it can never go negative when Supabase
+      // principal and JSON deposited have diverged.
+      db.update(lid, { deposited: +Math.max(0, Number(ju.deposited || 0) - amt).toFixed(2) });
     }
 
     const { data: withdrawal, error: withdrawalError } = await supabaseAdmin
@@ -106,11 +108,23 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (withdrawalError || !withdrawal) {
-      // release the reservation (both stores)
-      await supabaseAdmin
-        .from('wallets')
-        .update({ principal: +(Number(wallet.principal)).toFixed(2) })
-        .eq('id', wallet.id);
+      // Phase S.1: release the reservation by re-adding amt to the CURRENT
+      // principal (CAS + one retry), never by writing back the stale value we
+      // read before reserving — a deposit webhook that credited in between
+      // would otherwise be silently clobbered away.
+      for (let attempt = 0; attempt < 2; attempt++) {
+        const { data: cur } = await supabaseAdmin.from('wallets').select('id, principal').eq('user_id', session.id).maybeSingle();
+        if (!cur) break;
+        const back = +(Number(cur.principal) + amt).toFixed(2);
+        const { data: applied } = await supabaseAdmin
+          .from('wallets')
+          .update({ principal: back, updated_at: new Date().toISOString() })
+          .eq('id', cur.id)
+          .eq('principal', Number(cur.principal))
+          .select('id');
+        if (applied) break;
+        if (attempt === 1) console.error('[withdraw-principal] CRITICAL: reservation release lost both attempts for user %s amt %s', session.id, amt);
+      }
       try {
         const { legacyIdFor: lif } = await import('@/lib/auth');
         const { db: d } = await import('@/lib/store');

@@ -1,4 +1,6 @@
 import { supabaseAdmin } from '@/lib/supabase';
+import { plisioWithdraw } from '@/lib/plisioPayout';
+import { normalizeTicker, isValidUSDTAddress } from '@/lib/plisio';
 
 const PLISIO_API = process.env.PLISIO_BASE_URL || 'https://api.plisio.net/api/v1';
 const TECHNICAL_MIN_USD = 1; // network-fee floor, NOT a batching threshold
@@ -33,13 +35,18 @@ async function loadEngineWallets(): Promise<EngineWalletConfig> {
 }
 
 // Idempotency check: has this deposit already been forwarded?
-async function alreadyForwarded(depositId: string): Promise<boolean> {
-  const { data } = await supabaseAdmin
+// Phase S.1: a query ERROR (e.g. table absent) must not read as "not
+// forwarded" — otherwise a transient failure between a successful send and
+// its audit insert could double-send real funds. On error we report
+// 'unknown' and the caller refuses to send until it can prove no prior row.
+async function forwardGuard(depositId: string): Promise<'clear' | 'exists' | 'error'> {
+  const { data, error } = await supabaseAdmin
     .from('engine_transfers')
-    .select('id')
+    .select('id, status')
     .eq('deposit_id', depositId)
     .maybeSingle();
-  return !!data;
+  if (error) return 'error';
+  return data ? 'exists' : 'clear';
 }
 
 // Phase M.5: Treasury "Retry" — re-sends a failed/skipped transfer row.
@@ -56,38 +63,44 @@ export async function retryEngineTransfer(rowId: string): Promise<{ ok: boolean;
     if (fetchErr || !row) return { ok: false, error: 'Transfer row not found' };
     if (row.status === 'completed') return { ok: true, error: 'already completed' };
 
-    const network = NETWORK_MAP[row.currency];
-    if (!network) return { ok: false, error: `Unsupported currency: ${row.currency}` };
+    const normalized = normalizeTicker(row.currency);
+    const network = normalized ? NETWORK_MAP[normalized] : undefined;
+    if (!network || !normalized) return { ok: false, error: `Unsupported currency: ${row.currency}` };
 
     const wallets = await loadEngineWallets();
     const toAddress = network === 'trc20' ? wallets.trc20 : wallets.bep20;
     if (!toAddress) return { ok: false, error: `No Engine ${network} address configured in Treasury` };
-    if (network === 'trc20' && !toAddress.startsWith('T')) return { ok: false, error: 'TRC-20 Engine address must start with T' };
-    if (network === 'bep20' && !toAddress.startsWith('0x')) return { ok: false, error: 'BEP-20 Engine address must start with 0x' };
+    if (!isValidUSDTAddress(toAddress, network)) return { ok: false, error: `Stored Engine ${network.toUpperCase()} address is not a valid USDT address shape` };
 
-    const url = new URL(`${PLISIO_API}/operations/withdraw`);
-    url.searchParams.set('currency', row.currency);
-    url.searchParams.set('type', 'cash_out');
-    url.searchParams.set('to', toAddress);
-    url.searchParams.set('amount', Number(row.amount).toFixed(6));
-    url.searchParams.set('feePlan', 'normal');
-    url.searchParams.set('api_key', process.env['PLISIO_SE' + 'CRET_KEY'] || '');
+    // Phase S.1: atomic claim failed/skipped -> retrying. Only the request that
+    // wins this conditional update may call Plisio (double-click cannot
+    // double-send). If the send then fails we mark it back to 'failed'.
+    const { data: claimedRow } = await supabaseAdmin
+      .from('engine_transfers')
+      .update({ status: 'retrying' })
+      .eq('id', rowId)
+      .in('status', ['failed', 'skipped_below_min'])
+      .select('id')
+      .maybeSingle();
+    if (!claimedRow) return { ok: false, error: 'Retry already in flight (row was claimed by another request)' };
 
-    const res = await fetch(url.toString(), { method: 'GET' });
-    const json = await res.json();
-    if (json.status === 'success') {
-      await supabaseAdmin
+    const pw = await plisioWithdraw({ currency: normalized, toAddress, amount: Number(row.amount) });
+    if (pw.ok) {
+      const { error: upErr } = await supabaseAdmin
         .from('engine_transfers')
         .update({
-          status: 'completed', to_address: toAddress,
-          plisio_op_id: json.data?.id || null, tx_url: json.data?.tx_url || null,
-          fee: json.data?.fee ? parseFloat(json.data.fee) : null, error: null,
+          status: 'completed', to_address: toAddress, currency: normalized,
+          plisio_op_id: pw.txId || null, tx_url: pw.txUrl || null,
+          fee: pw.fee ? parseFloat(pw.fee) : null, error: null,
         })
         .eq('id', rowId);
-      return { ok: true, txId: json.data?.id };
+      if (upErr) console.error('[engineForward] CRITICAL: retry send SUCCEEDED but completion update failed:', pw.txId, upErr.message);
+      return { ok: true, txId: pw.txId };
     }
-    const errMsg = json.data?.message || 'Plisio withdrawal failed';
-    await supabaseAdmin.from('engine_transfers').update({ status: 'failed', error: errMsg, to_address: toAddress }).eq('id', rowId);
+    const errMsg = pw.error || 'Plisio withdrawal failed';
+    const { error: failUpErr } = await supabaseAdmin
+      .from('engine_transfers').update({ status: 'failed', error: errMsg, to_address: toAddress, currency: normalized }).eq('id', rowId);
+    if (failUpErr) console.error('[engineForward] retry failure update failed:', failUpErr.message);
     return { ok: false, error: errMsg };
   } catch (e: any) {
     return { ok: false, error: 'Engine transfer retry exception: ' + e.message };
@@ -102,24 +115,32 @@ export async function forwardEnginePortion(params: {
   const { depositId, currency, engineAmount } = params;
 
   try {
-    // 1) Idempotency guard
-    if (await alreadyForwarded(depositId)) {
+    // 1) Idempotency guard. On a guard ERROR we must not send (a prior send
+    // may exist but be unverifiable) — fail closed, surface the error so
+    // Treasury can act once the table/state is healthy.
+    const guard = await forwardGuard(depositId);
+    if (guard === 'exists') {
       return { ok: true, skipped: true, error: 'already forwarded' };
     }
+    if (guard === 'error') {
+      return { ok: false, error: `engine_transfers guard unreadable (table missing or erroring); refusing to send to avoid double-forward` };
+    }
 
-    // 2) Detect network
-    const network = NETWORK_MAP[currency];
+    // 2) Detect network (normalized ticker; bare 'USDT'/ERC variants refused)
+    const normalized = normalizeTicker(currency);
+    const network = normalized ? NETWORK_MAP[normalized] : undefined;
     if (!network) {
       return { ok: false, error: `Unsupported currency for engine forward: ${currency}` };
     }
 
     // 3) Technical minimum (network-fee floor). Below this, keep in Plisio.
     if (engineAmount < TECHNICAL_MIN_USD) {
-      await supabaseAdmin.from('engine_transfers').insert({
-        deposit_id: depositId, currency, network,
+      const { error: skipErr } = await supabaseAdmin.from('engine_transfers').insert({
+        deposit_id: depositId, currency: normalized!, network,
         amount: engineAmount, to_address: '', status: 'skipped_below_min',
         error: `Engine amount $${engineAmount} below $${TECHNICAL_MIN_USD} network floor; kept in Plisio`,
       });
+      if (skipErr) console.error('[engineForward] skipped_below_min audit insert failed:', skipErr.message);
       return { ok: true, skipped: true, error: 'below technical minimum, kept in Plisio' };
     }
 
@@ -129,42 +150,40 @@ export async function forwardEnginePortion(params: {
     if (!toAddress) {
       return { ok: false, error: `No Engine ${network} address configured in Treasury` };
     }
-    if (network === 'trc20' && !toAddress.startsWith('T')) {
-      return { ok: false, error: 'TRC-20 Engine address must start with T' };
+    // Phase S.1: full shape validation (prefix-only checks accepted 'Txx'
+    // garbage which then failed at the gateway with real money at stake).
+    if (!isValidUSDTAddress(toAddress, network)) {
+      return { ok: false, error: `Stored Engine ${network.toUpperCase()} address is not a valid USDT address shape` };
     }
-    if (network === 'bep20' && !toAddress.startsWith('0x')) {
-      return { ok: false, error: 'BEP-20 Engine address must start with 0x' };
-    }
 
-    // 5) Call Plisio withdrawal API (GET with query params per Plisio docs)
-    const url = new URL(`${PLISIO_API}/operations/withdraw`);
-    url.searchParams.set('currency', currency);
-    url.searchParams.set('type', 'cash_out');
-    url.searchParams.set('to', toAddress);
-    url.searchParams.set('amount', engineAmount.toFixed(6));
-    url.searchParams.set('feePlan', 'normal');
-    url.searchParams.set('api_key', process.env['PLISIO_SE' + 'CRET_KEY'] || '');
+    // 5) Call Plisio withdrawal through the shared validated payout helper
+    const pw = await plisioWithdraw({ currency: normalized!, toAddress, amount: engineAmount });
 
-    const res = await fetch(url.toString(), { method: 'GET' });
-    const json = await res.json();
-
-    if (json.status === 'success') {
-      await supabaseAdmin.from('engine_transfers').insert({
-        deposit_id: depositId, currency, network,
+    if (pw.ok) {
+      const { error: insErr } = await supabaseAdmin.from('engine_transfers').insert({
+        deposit_id: depositId, currency: normalized!, network,
         amount: engineAmount, to_address: toAddress,
         status: 'completed',
-        plisio_op_id: json.data?.id || null,
-        tx_url: json.data?.tx_url || null,
-        fee: json.data?.fee ? parseFloat(json.data.fee) : null,
+        plisio_op_id: pw.txId || null,
+        tx_url: pw.txUrl || null,
+        fee: pw.fee ? parseFloat(pw.fee) : null,
       });
-      return { ok: true, txId: json.data?.id };
+      if (insErr) {
+        // The money MOVED but the audit row failed: this is the exact case the
+        // guard protects on replay. CRITICAL log with the op id for manual
+        // reconciliation; return ok so no automatic re-send is attempted.
+        console.error('[engineForward] CRITICAL: forward SUCCEEDED but audit insert failed. deposit=%s op=%s amount=%s err=%s',
+          depositId, pw.txId, engineAmount, insErr.message);
+      }
+      return { ok: true, txId: pw.txId };
     } else {
-      const errMsg = json.data?.message || 'Plisio withdrawal failed';
-      await supabaseAdmin.from('engine_transfers').insert({
-        deposit_id: depositId, currency, network,
+      const errMsg = pw.error || 'Plisio withdrawal failed';
+      const { error: insErr2 } = await supabaseAdmin.from('engine_transfers').insert({
+        deposit_id: depositId, currency: normalized!, network,
         amount: engineAmount, to_address: toAddress,
         status: 'failed', error: errMsg,
       });
+      if (insErr2) console.error('[engineForward] failure audit insert failed:', insErr2.message, '| send error was:', errMsg);
       return { ok: false, error: errMsg };
     }
   } catch (e: any) {
