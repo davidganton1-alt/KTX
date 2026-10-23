@@ -35,7 +35,21 @@ export async function POST(req: Request) {
       console.error('[profit-cron] digests failed:', e.message);
     }
 
-    return NextResponse.json({ success: summary.failed === 0, summary, digests });
+    // Phase S.2: deposit reconciliation sweep on the same beat. Any funded
+    // deposit that never got its completion marker (missed/dropped webhook,
+    // crashed pre-credit claim) is replayed through the signed webhook
+    // pipeline using the gateway's own invoice status as truth. Failures
+    // never block accrual.
+    let reconcile = null;
+    try {
+      const { runDepositReconcile } = await import('@/lib/depositReconcile');
+      reconcile = await runDepositReconcile();
+      if (reconcile.processed > 0) console.log('[profit-cron] deposit reconcile:', JSON.stringify(reconcile.results));
+    } catch (e: any) {
+      console.error('[profit-cron] deposit reconcile failed:', e.message);
+    }
+
+    return NextResponse.json({ success: summary.failed === 0, summary, digests, reconcile });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
   }
