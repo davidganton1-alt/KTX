@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
     // Phase S.1: rate limit invoice creation (10/hour/IP) + cap concurrent
     // open invoices (max 5 'waiting' rows per user) so spam can neither abuse
     // the Plisio quota nor pile up un-swept rows.
-    const rl = rateLimit('deposits_create', ipKey(req), 10, 60 * 60 * 1000);
+    const rl = rateLimit('deposits_create', ipKey(req), 30, 60 * 60 * 1000);
     if (!rl.ok) {
       return NextResponse.json({ error: 'Too many deposit requests, try again later.' }, { status: 429 });
     }

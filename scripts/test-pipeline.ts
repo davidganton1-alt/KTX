@@ -371,9 +371,12 @@ await stage('Stage 6: Cleanup + rollback', async () => {
   // FK-safe order: rows referencing deposits must go before the deposits.
   // 1) referral_earnings referencing this run's deposits (source_deposit_id FK)
   for (const id of created.depositIds) await del(`refEarn by deposit ${id}`, () => sb.from('referral_earnings').delete().eq('source_deposit_id', id));
-  // 2) wallet_transactions (references deposits + withdrawals) created by this run
+  // 2) wallet_transactions created by THIS run: scope to this run's deposits
+  //    and users (a created_at catch-all also deleted seed rows created
+  //    moments before the run window opened).
   const since0 = new Date(Date.now() - 40 * 60000).toISOString();
-  await del('wallet_transactions', () => sb.from('wallet_transactions').delete().gte('created_at', since0));
+  for (const id of created.depositIds) await del(`wt by deposit ${id}`, () => sb.from('wallet_transactions').delete().eq('related_deposit_id', id));
+  await del('wt by test users', () => sb.from('wallet_transactions').delete().in('related_user_id', created.supaUserIds).gte('created_at', since0));
   // 3) this run's deposits by id
   for (const id of created.depositIds) await del(`deposit ${id}`, () => sb.from('deposits').delete().eq('id', id));
 
@@ -392,8 +395,11 @@ await stage('Stage 6: Cleanup + rollback', async () => {
   const since = since0;
   await del('demo transactions', () => sb.from('transactions').delete().eq('user_id', DEMO_SUPA).gte('created_at', since));
   await del('demo withdrawals', () => sb.from('withdrawals').delete().eq('user_id', DEMO_SUPA).gte('created_at', since));
-  await del('demo referral_earnings', () => sb.from('referral_earnings').delete().eq('referrer_id', DEMO_SUPA).gte('created_at', since));
-  await del('creator referral_earnings', () => sb.from('referral_earnings').delete().eq('referrer_id', CREATOR_SUPA).gte('created_at', since));
+  // Phase S.2: scope by source_user_id (this run's test users) instead of a
+  // created_at catch-all, which also deleted seed rows created moments before
+  // the run window opened (broke Stage 6's count assertion).
+  await del('demo referral_earnings', () => sb.from('referral_earnings').delete().eq('referrer_id', DEMO_SUPA).in('source_user_id', created.supaUserIds));
+  await del('creator referral_earnings', () => sb.from('referral_earnings').delete().eq('referrer_id', CREATOR_SUPA).in('source_user_id', created.supaUserIds));
 
   if (PRE.demoWallet) {
     await sb.from('wallets').update({
@@ -453,8 +459,14 @@ await stage('Stage 6: Cleanup + rollback', async () => {
   ok(cents(Number(p?.total_profit_withdrawn || 0)) === cents(Number(PRE.demoProfile?.total_profit_withdrawn || 0)), 'demo total_profit_withdrawn back at pre-run value', p?.total_profit_withdrawn);
   const nowE = await sb.from('referral_earnings').select('id').eq('referrer_id', CREATOR_SUPA);
   ok((nowE.data?.length ?? 0) === PRE.creatorEarnings, 'creator referral_earnings back at pre-run count', nowE.data?.length);
-  const leftovers = await sb.from('deposits').select('id').gte('created_at', since);
-  ok((leftovers.data?.length ?? 0) === 0, 'no test deposits left', leftovers.data?.length);
+  // Phase S.2: scope leftovers to THIS run's created rows (by id + gateway
+  // txn) instead of a created_at window, which false-positives on demo/seed
+  // rows inserted shortly before the run (restored fixtures etc).
+  const leftIds = new Set(created.depositIds);
+  const leftTxns = new Set(created.txnIds);
+  const leftovers = await sb.from('deposits').select('id, nowpayments_payment_id').gte('created_at', since);
+  const testLeftovers = (leftovers.data || []).filter((d: any) => leftIds.has(d.id) || leftTxns.has(d.nowpayments_payment_id));
+  ok(testLeftovers.length === 0, 'no test deposits left', testLeftovers.length);
   const stillTest = await sb.auth.admin.listUsers({ page: 1, perPage: 50 });
   const testRows = (stillTest.data?.users || []).filter((u: any) => String(u.email).includes('pt-a-') || String(u.email).includes('pt-b-'));
   ok(testRows.length === 0, 'no test auth users left', testRows.map((u: any) => u.email));
